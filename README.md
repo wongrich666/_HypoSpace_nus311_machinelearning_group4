@@ -79,7 +79,8 @@ Across instruction-tuned and reasoning-focused models, **Validity** often remain
 │   │   ├── llm_interface.py
 │   │   └── models.py
 │   └── ⚙️  config/
-│       └── config_gpt4o.yaml               • Configuration file
+│       ├── config_gpt4o.yaml               • Example OpenRouter configuration
+│       └── config_api.example.yaml         • DashScope configuration; key from DASHSCOPE_API_KEY
 │
 ├── 🔀 boolean/                             ← Boolean Genetic Interactions
 │   ├── 🔧 boolean_dataset.py               • Dataset generator
@@ -88,7 +89,8 @@ Across instruction-tuned and reasoning-focused models, **Validity** often remain
 │   │   ├── llm_interface.py
 │   │   └── models.py
 │   └── ⚙️  config/
-│       └── config_gpt4o.yaml
+│       ├── config_gpt4o.yaml
+│       └── config_api.example.yaml
 │
 └── 🧬 causal/                              ← Causal Graph Discovery
     ├── 🔧 generate_causal_dataset.py       • Dataset generator (small)
@@ -98,7 +100,8 @@ Across instruction-tuned and reasoning-focused models, **Validity** often remain
     │   ├── llm_interface.py
     │   └── models.py
     └── ⚙️  config/
-        └── config_gpt4o.yaml
+        ├── config_gpt4o.yaml
+        └── config_api.example.yaml
 ```
 
 ---
@@ -115,22 +118,28 @@ Edit the YAML config files in each domain's `config/` folder:
 - 📂 Output paths
 - 💾 Checkpoint directories
 
-**Example:** `config/config_gpt4o.yaml`
+**Example:** `config/config_api.example.yaml`
+
+The API key is read from `DASHSCOPE_API_KEY` and is not stored in the file.
 
 ```yaml
 llm:
-  type: openrouter              # Options: openai, anthropic, openrouter
+  type: dashscope
   models:
-    openrouter: "openai/gpt-4o"
+    dashscope: "deepseek-v4.1-flash-1017"
   api_keys:
-    openrouter: "your-api-key"  # ⚠️ Replace with your actual API key
-  temperature: 0.7              # 0.0 = deterministic, 1.0 = creative
+    dashscope: ""
+  base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
+  temperature: 0.7
+  max_tokens: 2048
 
 benchmark:
-  checkpoint: "checkpoints"     # Resume interrupted runs
-  verbose: true                 # Print detailed logs
-  output_pattern: "results/{dataset_name}_{model}.json"
+  checkpoint: "checkpoints"
+  verbose: true
+  output_pattern: "results/{decoding}/{dataset_name}_{model}.json"
 ```
+
+A verified `pricing` block can be added later. Until then, new results keep `cost` as the default-rate ledger and set `cost_estimate.estimated_cost` to null.
 
 ### Step 2️⃣: Generate Datasets
 
@@ -207,7 +216,8 @@ Run the benchmark for your chosen domain:
 cd causal
 python run_causal_benchmark.py \
   --dataset "datasets/node03/n3_all_observations.json" \
-  --config "config/config_gpt4o.yaml" \
+  --config "config/config_api.example.yaml" \
+  --decoding memory \
   --n-samples 30 \
   --query-multiplier 1.0 \
   --seed 33550336
@@ -217,10 +227,11 @@ python run_causal_benchmark.py \
 ```bash
 nohup python -u run_causal_benchmark.py \
   --dataset "datasets/node03/n3_all_observations.json" \
-  --config "config/config_gpt4o.yaml" \
+  --config "config/config_api.example.yaml" \
+  --decoding memory \
   --n-samples 30 \
   --query-multiplier 1.0 \
-  --seed 33550336 > logs/causal_gpt4o.log 2>&1 &
+  --seed 33550336 > logs/causal_benchmark.log 2>&1 &
 ```
 
 </details>
@@ -232,7 +243,8 @@ nohup python -u run_causal_benchmark.py \
 cd 3d
 python run_3d_benchmark.py \
   --dataset "datasets/3d_grid3_h3.json" \
-  --config "config/config_gpt4o.yaml" \
+  --config "config/config_api.example.yaml" \
+  --decoding memory \
   --n-samples 30 \
   --query-multiplier 1.0 \
   --seed 33550336
@@ -247,7 +259,8 @@ python run_3d_benchmark.py \
 cd boolean
 python boolean_benchmark.py \
   --dataset "datasets/boolean_2var.json" \
-  --config "config/config_gpt4o.yaml" \
+  --config "config/config_api.example.yaml" \
+  --decoding memory \
   --n-samples 30 \
   --query-multiplier 1.0 \
   --seed 33550336
@@ -258,13 +271,14 @@ python boolean_benchmark.py \
 **Common Parameters:**
 - `--dataset`: Path to generated dataset
 - `--config`: Configuration YAML file
+- `--decoding`: `memory` (history-prompt baseline) or `stratified` (oracle-informed complexity stratification; uses the ground-truth complexity histogram). A future `adaptive` method will allocate the budget from generated hypotheses and validation feedback only.
 - `--n-samples`: Number of observation sets to evaluate
 - `--query-multiplier`: Multiplier for queries per task
 - `--seed`: Random seed for reproducibility
 
 ### Step 4️⃣: Analyze Results
 
-Results are automatically saved as JSON files in the `results/` directory.
+Results are automatically saved as JSON files under `results/<decoding>/`, for example `results/memory/` and `results/stratified/`.
 
 **What's included:**
 
