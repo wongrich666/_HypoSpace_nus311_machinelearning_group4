@@ -9,6 +9,7 @@ import numpy as np
 from pathlib import Path
 from typing import List, Dict, Set, Tuple, Optional, Any
 from datetime import datetime
+from collections import Counter
 from scipy import stats
 import traceback
 
@@ -16,6 +17,96 @@ import traceback
 sys.path.append(str(Path(__file__).parent))
 
 from modules.llm_interface import LLMInterface, OpenRouterLLM, OpenAILLM, AnthropicLLM
+
+
+def build_cost_estimate(
+    pricing_config: Optional[Dict],
+    prompt_tokens: int,
+    completion_tokens: int,
+) -> Dict:
+    """Estimate only from a verified model price. An unknown price is null, not 0."""
+    pricing = pricing_config or {}
+    input_price = pricing.get("input_per_million")
+    output_price = pricing.get("output_per_million")
+    verified = (
+        bool(pricing.get("verified"))
+        and input_price is not None
+        and output_price is not None
+    )
+    estimated = None
+    if verified:
+        estimated = (
+            prompt_tokens * float(input_price) + completion_tokens * float(output_price)
+        ) / 1_000_000
+    return {
+        "estimated_cost": estimated,
+        "currency": pricing.get("currency") or "CNY",
+        "pricing_source": pricing.get("source") if verified else None,
+        "pricing_verified": verified,
+    }
+
+
+def decoding_metadata(decoding: str) -> Dict:
+    """Label how the query budget was chosen. The CLI value stays memory or stratified."""
+    if decoding == "stratified":
+        return {
+            "decoding": "stratified",
+            "method_label": "Oracle-informed complexity-stratified decoding",
+            "allocation_source": "ground_truth_complexity_histogram",
+            "uses_ground_truth_distribution": True,
+        }
+    if decoding == "memory":
+        return {
+            "decoding": "memory",
+            "method_label": "Memory-based decoding",
+            "allocation_source": "none",
+            "uses_ground_truth_distribution": False,
+        }
+    return {
+        "decoding": decoding,
+        "method_label": None,
+        "allocation_source": None,
+        "uses_ground_truth_distribution": None,
+    }
+
+
+def voxel_complexity(structure: Dict) -> int:
+    """Count occupied cells. This is the 3D hypothesis complexity."""
+    layers = structure.get("layers", [])
+    if not layers:
+        return 0
+    if isinstance(layers[0], str):
+        return sum(layer.count("1") for layer in layers)
+    total = 0
+    for layer in layers:
+        for row in layer:
+            total += sum(int(cell) for cell in row)
+    return total
+
+
+def allocate_complexity_budget(complexities: List[int], n_queries: int) -> List[Optional[int]]:
+    """Split n_queries across complexity levels in proportion to their counts."""
+    if n_queries <= 0:
+        return []
+    counts = Counter(complexities)
+    if not counts:
+        return [None] * n_queries
+    levels = sorted(counts)
+    total = sum(counts.values())
+    raw = {c: n_queries * counts[c] / total for c in levels}
+    floors = {c: int(raw[c]) for c in levels}
+    remainder = n_queries - sum(floors.values())
+    order = sorted(
+        levels,
+        key=lambda c: (raw[c] - floors[c], counts[c], -c),
+        reverse=True,
+    )
+    for i in range(remainder):
+        floors[order[i % len(order)]] += 1
+    schedule: List[Optional[int]] = []
+    for c in levels:
+        schedule.extend([c] * floors[c])
+    return schedule
 
 
 class Structure3D:
@@ -181,7 +272,7 @@ class Benchmark3D:
             # Dictionary format from old observation sets
             return np.array(obs_data.get('observation', []))
     
-    def create_prompt(self, observations, prior_structures=None) -> str:
+    def create_prompt(self, observations, prior_structures=None, target_complexity: Optional[int] = None) -> str:
         """Create prompt for LLM from observations.
         
         Args:
@@ -263,6 +354,12 @@ class Benchmark3D:
             prompt += f"""\n        6. Generate a DIFFERENT valid structure from the {len(prior_structures)} prior attempts shown above
         7. Two structures are considered equivalent if they have the same blocks in the same positions across all layers
         """
+
+        if target_complexity is not None:
+            prompt += (
+                f"\n        Complexity constraint: the structure must contain EXACTLY {target_complexity} "
+                "occupied cells. Count every 1 across all layers.\n"
+            )
         
         prompt += f"""
 
@@ -515,7 +612,8 @@ class Benchmark3D:
         observation_set: Dict,
         n_queries: int = 10,
         verbose: bool = True,
-        max_retries: int = 3
+        max_retries: int = 3,
+        decoding: str = "memory",
     ) -> Dict:
         """Evaluate LLM on a single observation set with enhanced tracking."""
         
@@ -564,9 +662,19 @@ class Benchmark3D:
         errors = []
         error_counts = {}
         
-        for i in range(n_queries):
+        if decoding == "stratified":
+            complexities = [voxel_complexity(gt) for gt in ground_truth_structures]
+            schedule = allocate_complexity_budget(complexities, n_queries)
+        else:
+            schedule = [None] * n_queries
+
+        for i, target_complexity in enumerate(schedule):
             # Pass prior unique structures as history to avoid repetition
-            prompt = self.create_prompt(observations, prior_structures=unique_structures)
+            prompt = self.create_prompt(
+                observations,
+                prior_structures=unique_structures,
+                target_complexity=target_complexity,
+            )
             
             # Try to get a valid response with retries
             structure = None
@@ -667,6 +775,8 @@ class Benchmark3D:
             'parse_success_rate': parse_success_rate,
             'valid_rate': valid_rate,
             'novelty_rate': novelty_rate,
+            'decoding': decoding,
+            'complexity_schedule': [c for c in schedule if c is not None] if decoding == "stratified" else None,
             'recovery_rate': recovery_rate,
             'token_usage': {
                 'prompt_tokens': total_prompt_tokens,
@@ -694,7 +804,9 @@ class Benchmark3D:
         verbose: bool = True,
         checkpoint_dir: str = "checkpoints",
         run_id: Optional[str] = None,
-        max_retries: int = 3
+        max_retries: int = 3,
+        decoding: str = "memory",
+        pricing_config: Optional[Dict] = None,
     ) -> Dict:
         """Run enhanced benchmark with comprehensive tracking.
         
@@ -726,6 +838,7 @@ class Benchmark3D:
         
         print(f"\nRunning Enhanced 3D Structure Benchmark")
         print(f"LLM: {llm.get_name()}")
+        print(f"Decoding: {decoding}")
         print(f"Sampling {n_samples} observation sets")
         if n_queries_per_sample is not None:
             print(f"Queries per sample: {n_queries_per_sample} (fixed)")
@@ -815,7 +928,8 @@ class Benchmark3D:
                 
                 # Evaluate
                 result = self.evaluate_single_observation_set(
-                    llm, obs_set, n_queries, verbose=False, max_retries=max_retries
+                    llm, obs_set, n_queries, verbose=False, max_retries=max_retries,
+                    decoding=decoding,
                 )
                 
                 all_results.append(result)
@@ -857,6 +971,7 @@ class Benchmark3D:
                     'n_queries_per_sample': n_queries_per_sample,
                     'query_multiplier': query_multiplier if n_queries_per_sample is None else None,
                     'seed': seed,
+                    'decoding': decoding,
                     'timestamp': datetime.now().isoformat(),
                     'results': all_results,
                     'total_token_usage': {
@@ -905,6 +1020,7 @@ class Benchmark3D:
             'query_multiplier': query_multiplier if n_queries_per_sample is None else None,
             'query_mode': 'fixed' if n_queries_per_sample is not None else f'adaptive_{query_multiplier}x',
             'seed': seed,
+            **decoding_metadata(decoding),
             'timestamp': datetime.now().isoformat(),
             'metadata': self.metadata,
             'statistics': {
@@ -937,6 +1053,9 @@ class Benchmark3D:
                 'avg_cost_per_sample': total_cost / len(all_results) if all_results else 0,
                 'avg_cost_per_query': total_cost / (len(all_results) * (n_queries_per_sample or 1)) if all_results else 0
             },
+            'cost_estimate': build_cost_estimate(
+                pricing_config, total_prompt_tokens, total_completion_tokens
+            ),
             'error_summary': {
                 'total_errors': len(all_errors),
                 'error_types': total_error_counts,
@@ -950,6 +1069,8 @@ class Benchmark3D:
         print("ENHANCED 3D BENCHMARK RESULTS SUMMARY")
         print("=" * 60)
         print(f"Samples evaluated: {len(all_results)}/{n_samples}")
+        print(f"Method: {final_results['method_label']}")
+        print(f"Uses ground-truth distribution: {final_results['uses_ground_truth_distribution']}")
         
         for metric_name, metric_key in [('Parse Success Rate', 'parse_success_rate'),
                                         ('Valid Rate', 'valid_rate'), 
@@ -970,10 +1091,18 @@ class Benchmark3D:
         print(f"  Avg tokens/sample: {final_results['token_usage']['avg_tokens_per_sample']:.1f}")
         print(f"  Avg tokens/query: {final_results['token_usage']['avg_tokens_per_query']:.1f}")
         
-        print(f"\nCost:")
+        print(f"\nLedger cost (default USD rate in the client, not a vendor bill):")
         print(f"  Total cost: ${total_cost:.4f}")
         print(f"  Avg cost/sample: ${final_results['cost']['avg_cost_per_sample']:.4f}")
         print(f"  Avg cost/query: ${final_results['cost']['avg_cost_per_query']:.6f}")
+        estimate = final_results['cost_estimate']
+        if estimate['estimated_cost'] is None:
+            print("  Estimated cost: unknown")
+        else:
+            print(
+                f"  Estimated cost: {estimate['estimated_cost']:.4f} {estimate['currency']}"
+                f" ({estimate['pricing_source']})"
+            )
         
         if all_errors:
             print(f"\nErrors:")
@@ -1023,6 +1152,19 @@ def setup_llm(llm_type: str, **kwargs) -> LLMInterface:
             api_key=api_key,
             temperature=kwargs.get('temperature', 0.7)
         )
+
+    elif llm_type == "dashscope":
+        api_key = kwargs.get('api_key') or os.environ.get('DASHSCOPE_API_KEY')
+        if not api_key:
+            raise ValueError("DashScope API key required (set DASHSCOPE_API_KEY)")
+
+        return OpenRouterLLM(
+            model=kwargs.get('model', 'qwen-plus'),
+            api_key=api_key,
+            temperature=kwargs.get('temperature', 0.7),
+            max_tokens=kwargs.get('max_tokens', 2048),
+            base_url=kwargs.get('base_url', 'https://dashscope.aliyuncs.com/compatible-mode/v1'),
+        )
     
     else:
         raise ValueError(f"Unknown LLM type: {llm_type}")
@@ -1051,6 +1193,8 @@ def main():
     parser.add_argument("--query-multiplier", type=float, default=1.0, help="Multiplier for adaptive queries (n_queries = n_gt * multiplier)")
     parser.add_argument("--max-retries", type=int, default=3, help="Maximum retries per query")
     parser.add_argument("--seed", type=int, default=None, help="Random seed for sampling")
+    parser.add_argument("--decoding", choices=["memory", "stratified"], default="memory",
+                        help="memory: prior-hypothesis prompting; stratified: complexity-stratified decoding")
     parser.add_argument("--observation-type", type=str, default="top", choices=["top"], help="Type of observation sets to use (only top view supported)")
     parser.add_argument("--checkpoint-dir", default="checkpoints", help="Directory for checkpoints")
     parser.add_argument("--output", type=str, default=None, help="Output file path")
@@ -1072,7 +1216,8 @@ def main():
         default_models = {
             'openrouter': 'openai/gpt-3.5-turbo',
             'openai': 'gpt-4',
-            'anthropic': 'claude-3-opus-20240229'
+            'anthropic': 'claude-3-opus-20240229',
+            'dashscope': 'qwen-plus',
         }
         model = default_models.get(llm_type)
     
@@ -1081,12 +1226,15 @@ def main():
         env_vars = {
             'openai': 'OPENAI_API_KEY',
             'anthropic': 'ANTHROPIC_API_KEY',
-            'openrouter': 'OPENROUTER_API_KEY'
+            'openrouter': 'OPENROUTER_API_KEY',
+            'dashscope': 'DASHSCOPE_API_KEY',
         }
         if llm_type in env_vars:
             api_key = os.environ.get(env_vars[llm_type])
     
     temperature = config.get('llm', {}).get('temperature', 0.7)
+    base_url = config.get('llm', {}).get('base_url')
+    max_tokens = config.get('llm', {}).get('max_tokens', 2048)
     checkpoint_dir = args.checkpoint_dir or config.get('benchmark', {}).get('checkpoint_dir', 'checkpoints')
     verbose = args.verbose and config.get('benchmark', {}).get('verbose', True)
     run_id = config.get('benchmark', {}).get('run_id', None)
@@ -1096,7 +1244,7 @@ def main():
         dataset_name = Path(args.dataset).stem
         model_name = Path(model).stem if model else llm_type
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        args.output = f"results/{dataset_name}_{model_name}_{timestamp}.json"
+        args.output = f"results/{args.decoding}/{dataset_name}_{model_name}_{timestamp}.json"
     
     # Initialize benchmark
     benchmark = Benchmark3D(args.dataset)
@@ -1119,6 +1267,7 @@ def main():
     print(f"Max retries: {args.max_retries}")
     print(f"Observation type: {args.observation_type}")
     print(f"Seed: {args.seed}")
+    print(f"Decoding: {args.decoding}")
     print(f"Checkpoint dir: {checkpoint_dir}")
     print(f"Output: {args.output}")
     print("=" * 60)
@@ -1128,7 +1277,9 @@ def main():
         llm_type,
         model=model,
         api_key=api_key,
-        temperature=temperature
+        temperature=temperature,
+        base_url=base_url,
+        max_tokens=max_tokens,
     )
     
     # Run benchmark
@@ -1142,7 +1293,9 @@ def main():
         verbose=verbose,
         checkpoint_dir=checkpoint_dir,
         run_id=run_id,
-        max_retries=args.max_retries
+        max_retries=args.max_retries,
+        decoding=args.decoding,
+        pricing_config=config.get("pricing"),
     )
     
     # Save results

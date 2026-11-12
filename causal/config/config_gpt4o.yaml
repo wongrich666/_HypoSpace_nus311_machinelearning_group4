@@ -13,5 +13,5 @@ llm:
 benchmark:
   checkpoint: "checkpoints"
   verbose: true
-  output_pattern: "results/{dataset_name}_{model}.json"
+  output_pattern: "results/{decoding}/{dataset_name}_{model}.json"
 

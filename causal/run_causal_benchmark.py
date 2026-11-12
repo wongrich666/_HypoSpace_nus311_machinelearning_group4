@@ -19,6 +19,82 @@ from modules.models import CausalGraph
 from modules.llm_interface import LLMInterface, OpenRouterLLM, OpenAILLM, AnthropicLLM
 from generate_causal_dataset import PerturbationObservation, CausalDatasetGenerator
 
+
+def build_cost_estimate(
+    pricing_config: Optional[Dict],
+    prompt_tokens: int,
+    completion_tokens: int,
+) -> Dict:
+    """Estimate only from a verified model price. An unknown price is null, not 0."""
+    pricing = pricing_config or {}
+    input_price = pricing.get("input_per_million")
+    output_price = pricing.get("output_per_million")
+    verified = (
+        bool(pricing.get("verified"))
+        and input_price is not None
+        and output_price is not None
+    )
+    estimated = None
+    if verified:
+        estimated = (
+            prompt_tokens * float(input_price) + completion_tokens * float(output_price)
+        ) / 1_000_000
+    return {
+        "estimated_cost": estimated,
+        "currency": pricing.get("currency") or "CNY",
+        "pricing_source": pricing.get("source") if verified else None,
+        "pricing_verified": verified,
+    }
+
+
+def decoding_metadata(decoding: str) -> Dict:
+    """Label how the query budget was chosen. The CLI value stays memory or stratified."""
+    if decoding == "stratified":
+        return {
+            "decoding": "stratified",
+            "method_label": "Oracle-informed complexity-stratified decoding",
+            "allocation_source": "ground_truth_complexity_histogram",
+            "uses_ground_truth_distribution": True,
+        }
+    if decoding == "memory":
+        return {
+            "decoding": "memory",
+            "method_label": "Memory-based decoding",
+            "allocation_source": "none",
+            "uses_ground_truth_distribution": False,
+        }
+    return {
+        "decoding": decoding,
+        "method_label": None,
+        "allocation_source": None,
+        "uses_ground_truth_distribution": None,
+    }
+
+
+def allocate_complexity_budget(complexities: List[int], n_queries: int) -> List[Optional[int]]:
+    """Split n_queries across complexity levels in proportion to their counts."""
+    if n_queries <= 0:
+        return []
+    counts = Counter(complexities)
+    if not counts:
+        return [None] * n_queries
+    levels = sorted(counts)
+    total = sum(counts.values())
+    raw = {c: n_queries * counts[c] / total for c in levels}
+    floors = {c: int(raw[c]) for c in levels}
+    remainder = n_queries - sum(floors.values())
+    order = sorted(
+        levels,
+        key=lambda c: (raw[c] - floors[c], counts[c], -c),
+        reverse=True,
+    )
+    for i in range(remainder):
+        floors[order[i % len(order)]] += 1
+    schedule: List[Optional[int]] = []
+    for c in levels:
+        schedule.extend([c] * floors[c])
+    return schedule
+
 class CausalBenchmarkEnhanced:
     """Enhanced benchmark for evaluating LLM creativity in causal graph discovery with comprehensive tracking."""
     
@@ -182,7 +258,8 @@ class CausalBenchmarkEnhanced:
         
         return sampled
     
-    def create_prompt(self, observations: List[Dict], prior_hypotheses: List[CausalGraph]) -> str:
+    def create_prompt(self, observations: List[Dict], prior_hypotheses: List[CausalGraph],
+                      target_complexity: Optional[int] = None) -> str:
         """Create prompt for LLM."""
         nodes_str = ", ".join(self.nodes)
         obs_block = "\n".join(obs["string"] for obs in observations)
@@ -233,6 +310,11 @@ class CausalBenchmarkEnhanced:
         - If there are edges: Graph: A->B, B->C
         - If there are no edges: Graph: No edges
         """
+        if target_complexity is not None:
+            prompt += (
+                f"\n        Complexity constraint: the graph must contain EXACTLY {target_complexity} "
+                "directed edges. An empty graph has complexity 0.\n"
+            )
         return dedent(prompt).strip()
     
     def parse_llm_response(self, response: str) -> Optional[CausalGraph]:
@@ -349,7 +431,8 @@ class CausalBenchmarkEnhanced:
         observation_set: Dict,
         n_queries: int = 10,
         verbose: bool = True,
-        max_retries: int = 5
+        max_retries: int = 5,
+        decoding: str = "memory",
     ) -> Dict:
         """
         Evaluate LLM on a single observation set with enhanced tracking.
@@ -384,9 +467,17 @@ class CausalBenchmarkEnhanced:
         # Error tracking
         errors = []
         error_counts = {}
+
+        if decoding == "stratified":
+            complexities = [len(graph.edges) for graph in ground_truth_graphs]
+            schedule = allocate_complexity_budget(complexities, n_queries)
+        else:
+            schedule = [None] * n_queries
         
-        for i in range(n_queries):
-            prompt = self.create_prompt(observations, all_hypotheses)
+        for i, target_complexity in enumerate(schedule):
+            prompt = self.create_prompt(
+                observations, all_hypotheses, target_complexity=target_complexity
+            )
             
             # Try to get a valid response
             hypothesis = None
@@ -488,6 +579,8 @@ class CausalBenchmarkEnhanced:
             'valid_rate': valid_rate,
             'novelty_rate': novelty_rate,
             'recovery_rate': recovery_rate,
+            'decoding': decoding,
+            'complexity_schedule': [c for c in schedule if c is not None] if decoding == "stratified" else None,
             'token_usage': {
                 'prompt_tokens': total_prompt_tokens,
                 'completion_tokens': total_completion_tokens,
@@ -513,7 +606,9 @@ class CausalBenchmarkEnhanced:
         seed: Optional[int] = None,
         verbose: bool = True,
         checkpoint_dir: str = "checkpoints",
-        max_retries: int = 3
+        max_retries: int = 3,
+        decoding: str = "memory",
+        pricing_config: Optional[Dict] = None,
     ) -> Dict:
         """
         Run the enhanced benchmark with comprehensive tracking.
@@ -542,6 +637,7 @@ class CausalBenchmarkEnhanced:
         
         print(f"\nRunning Enhanced Causal Benchmark")
         print(f"LLM: {llm.get_name()}")
+        print(f"Decoding: {decoding}")
         print(f"Sampling {n_samples} observation sets")
         if n_queries_per_sample is not None:
             print(f"Queries per sample: {n_queries_per_sample} (fixed)")
@@ -624,7 +720,8 @@ class CausalBenchmarkEnhanced:
                 
                 # Evaluate
                 result = self.evaluate_single_observation_set(
-                    llm, obs_set, n_queries, verbose=False, max_retries=max_retries
+                    llm, obs_set, n_queries, verbose=False, max_retries=max_retries,
+                    decoding=decoding,
                 )
                 
                 all_results.append(result)
@@ -665,6 +762,7 @@ class CausalBenchmarkEnhanced:
                     'n_queries_per_sample': n_queries_per_sample,
                     'query_multiplier': query_multiplier if n_queries_per_sample is None else None,
                     'seed': seed,
+                    'decoding': decoding,
                     'timestamp': datetime.now().isoformat(),
                     'results': all_results,
                     'total_prompt_tokens': total_prompt_tokens,
@@ -711,6 +809,7 @@ class CausalBenchmarkEnhanced:
             'query_multiplier': query_multiplier if n_queries_per_sample is None else None,
             'query_mode': 'fixed' if n_queries_per_sample is not None else f'adaptive_{query_multiplier}x',
             'seed': seed,
+            **decoding_metadata(decoding),
             'timestamp': datetime.now().isoformat(),
             'max_edges_constraint': self.max_edges,
             'statistics': {
@@ -743,6 +842,9 @@ class CausalBenchmarkEnhanced:
                 'avg_cost_per_sample': total_cost / len(all_results) if all_results else 0,
                 'avg_cost_per_query': total_cost / (len(all_results) * (n_queries_per_sample or 1)) if all_results else 0
             },
+            'cost_estimate': build_cost_estimate(
+                pricing_config, total_prompt_tokens, total_completion_tokens
+            ),
             'error_summary': {
                 'total_errors': len(all_errors),
                 'error_types': total_error_counts,
@@ -756,6 +858,8 @@ class CausalBenchmarkEnhanced:
         print("ENHANCED BENCHMARK RESULTS SUMMARY")
         print("=" * 60)
         print(f"Samples evaluated: {len(all_results)}/{n_samples}")
+        print(f"Method: {final_results['method_label']}")
+        print(f"Uses ground-truth distribution: {final_results['uses_ground_truth_distribution']}")
         print(f"Max edges constraint: {self.max_edges if self.max_edges is not None else 'unlimited'}")
         
         for metric_name, metric_key in [('Parse Success Rate', 'parse_success_rate'),
@@ -777,10 +881,18 @@ class CausalBenchmarkEnhanced:
         print(f"  Avg tokens/sample: {final_results['token_usage']['avg_tokens_per_sample']:.1f}")
         print(f"  Avg tokens/query: {final_results['token_usage']['avg_tokens_per_query']:.1f}")
         
-        print(f"\nCost:")
+        print(f"\nLedger cost (default USD rate in the client, not a vendor bill):")
         print(f"  Total cost: ${total_cost:.4f}")
         print(f"  Avg cost/sample: ${final_results['cost']['avg_cost_per_sample']:.4f}")
         print(f"  Avg cost/query: ${final_results['cost']['avg_cost_per_query']:.6f}")
+        estimate = final_results['cost_estimate']
+        if estimate['estimated_cost'] is None:
+            print("  Estimated cost: unknown")
+        else:
+            print(
+                f"  Estimated cost: {estimate['estimated_cost']:.4f} {estimate['currency']}"
+                f" ({estimate['pricing_source']})"
+            )
         
         if all_errors:
             print(f"\nErrors:")
@@ -838,6 +950,19 @@ def setup_llm(llm_type: str, **kwargs) -> LLMInterface:
             model=kwargs.get('model', 'anthropic/claude-3.5-sonnet'),
             api_key=api_key,
             temperature=kwargs.get('temperature', 0.7)
+        )
+
+    elif llm_type == "dashscope":
+        api_key = kwargs.get('api_key') or os.environ.get('DASHSCOPE_API_KEY')
+        if not api_key:
+            raise ValueError("DashScope API key required (set DASHSCOPE_API_KEY)")
+
+        return OpenRouterLLM(
+            model=kwargs.get('model', 'qwen-plus'),
+            api_key=api_key,
+            temperature=kwargs.get('temperature', 0.7),
+            max_tokens=kwargs.get('max_tokens', 2048),
+            base_url=kwargs.get('base_url', 'https://dashscope.aliyuncs.com/compatible-mode/v1'),
         )
     
     else:
@@ -938,6 +1063,8 @@ def main():
     parser.add_argument("--query-multiplier", type=float, default=2.0, help="Multiplier for adaptive queries")
     parser.add_argument("--max-retries", type=int, default=3, help="Maximum retries per query")
     parser.add_argument("--seed", type=int, default=None, help="Random seed for sampling")
+    parser.add_argument("--decoding", choices=["memory", "stratified"], default="memory",
+                        help="memory: prior-hypothesis prompting; stratified: complexity-stratified decoding")
     parser.add_argument("--checkpoint-dir", default="checkpoints", help="Directory for checkpoints")
     parser.add_argument("--output", default=None, help="Output file path")
     parser.add_argument("--verbose", action="store_true", default=True, help="Verbose output")
@@ -958,7 +1085,8 @@ def main():
         default_models = {
             'openrouter': 'openai/gpt-3.5-turbo',
             'openai': 'gpt-4o',
-            'anthropic': 'claude-3-opus-20240229'
+            'anthropic': 'claude-3-opus-20240229',
+            'dashscope': 'qwen-plus',
         }
         model = default_models.get(llm_type)
     
@@ -967,12 +1095,15 @@ def main():
         env_vars = {
             'openai': 'OPENAI_API_KEY',
             'anthropic': 'ANTHROPIC_API_KEY',
-            'openrouter': 'OPENROUTER_API_KEY'
+            'openrouter': 'OPENROUTER_API_KEY',
+            'dashscope': 'DASHSCOPE_API_KEY',
         }
         if llm_type in env_vars:
             api_key = os.environ.get(env_vars[llm_type])
     
     temperature = config.get('llm', {}).get('temperature', 0.7)
+    base_url = config.get('llm', {}).get('base_url')
+    max_tokens = config.get('llm', {}).get('max_tokens', 2048)
     checkpoint_dir = args.checkpoint_dir or config.get('benchmark', {}).get('checkpoint_dir', 'checkpoints')
     verbose = args.verbose and config.get('benchmark', {}).get('verbose', True)
     
@@ -984,8 +1115,14 @@ def main():
     if args.output is None:
         dataset_name = Path(args.dataset).stem
         model_name = Path(model).stem if model else llm_type
-        output_pattern = config.get('benchmark', {}).get("output_pattern", "results/{dataset_name}_{model}.json")
-        output = output_pattern.format(dataset_name=dataset_name,model=model_name)
+        output_pattern = config.get('benchmark', {}).get(
+            "output_pattern", "results/{decoding}/{dataset_name}_{model}.json"
+        )
+        if "{decoding}" not in output_pattern:
+            output_pattern = output_pattern.replace("results/", "results/{decoding}/", 1)
+        output = output_pattern.format(
+            dataset_name=dataset_name, model=model_name, decoding=args.decoding
+        )
     else:
         output = args.output
     
@@ -1026,6 +1163,7 @@ def main():
     
     print(f"Max retries: {args.max_retries}")
     print(f"Seed: {args.seed}")
+    print(f"Decoding: {args.decoding}")
     print(f"Checkpoint dir: {checkpoint_dir}")
     print(f"Output: {output}")
     print("=" * 60)
@@ -1035,7 +1173,9 @@ def main():
         llm_type,
         model=model,
         api_key=api_key,
-        temperature=temperature
+        temperature=temperature,
+        base_url=base_url,
+        max_tokens=max_tokens,
     )
     
     # Run benchmark
@@ -1047,7 +1187,9 @@ def main():
         seed=args.seed,
         verbose=verbose,
         checkpoint_dir=checkpoint_dir,
-        max_retries=args.max_retries
+        max_retries=args.max_retries,
+        decoding=args.decoding,
+        pricing_config=config.get("pricing"),
     )
     
     # Save final results
