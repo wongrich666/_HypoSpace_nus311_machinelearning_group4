@@ -16,6 +16,7 @@ class GenerationResult:
     prompt: str = ""
     response: Optional[str] = None
     candidate: Any = None
+    actual_edge_count: Optional[int] = None
     obeyed_edge_count: Optional[bool] = None
     usage: Dict[str, int] = field(default_factory=lambda: {
         "prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0
@@ -64,12 +65,17 @@ def generate_one(
         response = None
         error = None
         usage = {}
+        payload = {}
         try:
             payload = llm.query_with_usage(result.prompt)
             response = payload.get("response")
             usage = payload.get("usage") or {}
-            if not isinstance(response, str) or response.startswith("Error querying"):
-                error = response or "empty API response"
+            if isinstance(response, str) and response.startswith("Error querying"):
+                error = response
+            elif response is None or isinstance(response, str):
+                response = response or ""
+            else:
+                error = "invalid API response text"
         except Exception as exc:
             error = f"{type(exc).__name__}: {exc}"
         for key in result.usage:
@@ -79,6 +85,8 @@ def generate_one(
             "duration_seconds": round(monotonic() - started, 3),
             "status": "error" if error else "ok",
             "error": error,
+            "request_id": payload.get("request_id"),
+            "finish_reason": payload.get("finish_reason"),
             "usage": {key: int(usage.get(key) or 0) for key in result.usage},
         }
         result.attempts.append(record)
@@ -86,15 +94,20 @@ def generate_one(
             on_attempt(record)
         if error:
             result.status = "api_error"
-            if attempt_number < max_attempts and _transient_error(error):
-                sleep(retry_delay_seconds * (2 ** (attempt_number - 1)))
+            retryable = payload.get("retryable", _transient_error(error))
+            if attempt_number < max_attempts and retryable:
+                if not should_stop():
+                    sleep(retry_delay_seconds * (2 ** (attempt_number - 1)))
                 continue
             return result
         result.response = response
-        result.candidate = parser(response)
+        if payload.get("finish_reason") != "length":
+            result.candidate = parser(response)
         result.status = "ok" if result.candidate is not None else "parse_error"
-        if result.candidate is not None and target_edge_count is not None:
-            result.obeyed_edge_count = len(result.candidate.edges) == target_edge_count
+        if result.candidate is not None:
+            result.actual_edge_count = len(result.candidate.edges)
+            if target_edge_count is not None:
+                result.obeyed_edge_count = result.actual_edge_count == target_edge_count
         return result
     return result
 

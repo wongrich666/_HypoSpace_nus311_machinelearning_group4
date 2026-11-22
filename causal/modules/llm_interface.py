@@ -176,18 +176,26 @@ class OpenRouterLLM(LLMInterface):
             return {
                 'response': result['choices'][0]['message']['content'],
                 'usage': usage_data,
-                'cost': cost
+                'cost': cost,
+                'finish_reason': result['choices'][0].get('finish_reason'),
+                'request_id': response.headers.get('x-request-id') or result.get('id'),
             }
             
         except requests.exceptions.RequestException as e:
+            status = e.response.status_code if e.response is not None else None
+            detail = f"HTTP {status}" if status is not None else type(e).__name__
             return {
-                'response': f"Error querying OpenRouter: {str(e)}",
+                'response': f"Error querying OpenRouter: {detail}",
+                'retryable': (status == 429 or (status is not None and 500 <= status < 600)
+                              or isinstance(e, (requests.exceptions.Timeout,
+                                                requests.exceptions.ConnectionError))),
                 'usage': {'prompt_tokens': 0, 'completion_tokens': 0, 'total_tokens': 0},
                 'cost': 0.0
             }
-        except (KeyError, IndexError) as e:
+        except (KeyError, IndexError, TypeError) as e:
             return {
-                'response': f"Error parsing OpenRouter response: {str(e)}",
+                'response': f"Error querying OpenRouter: invalid response ({type(e).__name__})",
+                'retryable': False,
                 'usage': {'prompt_tokens': 0, 'completion_tokens': 0, 'total_tokens': 0},
                 'cost': 0.0
             }
