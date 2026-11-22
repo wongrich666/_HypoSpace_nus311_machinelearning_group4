@@ -18,6 +18,7 @@ class GenerationResult:
     candidate: Any = None
     actual_edge_count: Optional[int] = None
     obeyed_edge_count: Optional[bool] = None
+    cost: float = 0.0
     usage: Dict[str, int] = field(default_factory=lambda: {
         "prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0
     })
@@ -80,6 +81,7 @@ def generate_one(
             error = f"{type(exc).__name__}: {exc}"
         for key in result.usage:
             result.usage[key] += int(usage.get(key) or 0)
+        result.cost += float(payload.get("cost") or 0)
         record = {
             "attempt": attempt_number,
             "duration_seconds": round(monotonic() - started, 3),
@@ -88,6 +90,7 @@ def generate_one(
             "request_id": payload.get("request_id"),
             "finish_reason": payload.get("finish_reason"),
             "usage": {key: int(usage.get(key) or 0) for key in result.usage},
+            "cost": float(payload.get("cost") or 0),
         }
         result.attempts.append(record)
         if on_attempt is not None:

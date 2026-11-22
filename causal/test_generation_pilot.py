@@ -8,6 +8,7 @@ from unittest.mock import patch
 import requests
 
 from run_generation_pilot import main
+from run_causal_benchmark import CausalBenchmarkEnhanced
 
 
 def provider_response(status_code, text="", finish_reason="stop"):
@@ -22,6 +23,37 @@ def provider_response(status_code, text="", finish_reason="stop"):
 
 
 class GenerationPilotTest(unittest.TestCase):
+    def test_normal_benchmark_uses_candidate_slots(self):
+        benchmark = CausalBenchmarkEnhanced()
+        benchmark.nodes = ["A", "B"]
+        benchmark.max_edges = 1
+        question = {
+            "observation_set_id": "q1",
+            "ground_truth_graphs": [{"nodes": ["A", "B"], "edges": [["A", "B"]]}],
+            "observations": [{"string": "Perturb A: B=1", "perturbed_node": "A",
+                              "effects": {"A": 0, "B": 1}}],
+        }
+        class MockLLM:
+            calls = 0
+
+            def query_with_usage(self, prompt):
+                self.calls += 1
+                if self.calls == 1:
+                    raise TimeoutError("timed out")
+                return {"response": "Graph: A->B", "usage": {
+                    "prompt_tokens": 10, "completion_tokens": 5, "total_tokens": 15
+                }}
+
+        with patch("modules.generation_executor.sleep"):
+            result = benchmark.evaluate_single_observation_set(
+                MockLLM(), question, n_queries=1, max_retries=2, verbose=False
+            )
+        self.assertEqual(result["n_queries"], 1)
+        self.assertEqual(result["n_valid"], 1)
+        self.assertEqual(result["parse_success_count"], 1)
+        self.assertEqual(len(result["request_log"][0]["attempts"]), 2)
+        self.assertEqual(result["token_usage"]["total_tokens"], 15)
+
     def test_paired_cli_run(self):
         with tempfile.TemporaryDirectory() as directory:
             directory = Path(directory)
