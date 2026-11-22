@@ -215,7 +215,8 @@ class OpenRouterLLM(LLMInterface):
             'google/gemini-2.5-pro': {'input': 1.25, 'output': 10.0},
             'deepseek/deepseek-r1': {'input': 0.4, 'output': 2},
         }
-        return pricing_map.get(self.model, {'input': 1.0, 'output': 1.0})
+        # An unlisted model has no verified price in this client.
+        return pricing_map.get(self.model, {'input': 0.0, 'output': 0.0})
 
 
 class OpenAILLM(LLMInterface):
