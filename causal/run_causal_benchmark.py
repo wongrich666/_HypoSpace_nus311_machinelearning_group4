@@ -492,6 +492,8 @@ class CausalBenchmarkEnhanced:
                 'actual_edge_count': generation.actual_edge_count,
                 'obeyed_edge_count': generation.obeyed_edge_count,
                 'status': generation.status,
+                'prompt': generation.prompt,
+                'response': generation.response,
                 'attempts': generation.attempts,
             })
             for attempt in generation.attempts:

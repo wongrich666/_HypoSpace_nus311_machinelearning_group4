@@ -9,6 +9,7 @@ import requests
 
 from run_generation_pilot import main
 from run_causal_benchmark import CausalBenchmarkEnhanced
+from modules.generation_executor import generate_one
 
 
 def provider_response(status_code, text="", finish_reason="stop"):
@@ -23,6 +24,33 @@ def provider_response(status_code, text="", finish_reason="stop"):
 
 
 class GenerationPilotTest(unittest.TestCase):
+    def test_malformed_provider_and_parser_failures_are_recorded(self):
+        class BrokenProvider:
+            def query_with_usage(self, prompt):
+                return None
+
+        provider_result = generate_one(
+            BrokenProvider(), lambda count: "prompt", lambda text: None,
+            max_attempts=1,
+        )
+        self.assertEqual(provider_result.status, "api_error")
+        self.assertEqual(len(provider_result.attempts), 1)
+
+        class GoodProvider:
+            def query_with_usage(self, prompt):
+                return {"response": "Graph: A->B", "usage": {"total_tokens": 4}}
+
+        def broken_parser(response):
+            raise ValueError("malformed graph")
+
+        parse_result = generate_one(
+            GoodProvider(), lambda count: "prompt", broken_parser
+        )
+        self.assertEqual(parse_result.status, "parse_error")
+        self.assertEqual(len(parse_result.attempts), 1)
+        self.assertEqual(parse_result.usage["total_tokens"], 4)
+        self.assertIn("malformed graph", parse_result.attempts[0]["parse_error"])
+
     def test_normal_benchmark_uses_candidate_slots(self):
         benchmark = CausalBenchmarkEnhanced()
         benchmark.nodes = ["A", "B"]

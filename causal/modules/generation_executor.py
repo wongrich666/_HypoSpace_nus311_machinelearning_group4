@@ -69,6 +69,8 @@ def generate_one(
         payload = {}
         try:
             payload = llm.query_with_usage(result.prompt)
+            if not isinstance(payload, dict):
+                raise TypeError("query_with_usage must return a dictionary")
             response = payload.get("response")
             usage = payload.get("usage") or {}
             if isinstance(response, str) and response.startswith("Error querying"):
@@ -79,6 +81,7 @@ def generate_one(
                 error = "invalid API response text"
         except Exception as exc:
             error = f"{type(exc).__name__}: {exc}"
+            payload = {}
         for key in result.usage:
             result.usage[key] += int(usage.get(key) or 0)
         result.cost += float(payload.get("cost") or 0)
@@ -105,7 +108,12 @@ def generate_one(
             return result
         result.response = response
         if payload.get("finish_reason") != "length":
-            result.candidate = parser(response)
+            try:
+                result.candidate = parser(response)
+            except Exception as exc:
+                result.status = "parse_error"
+                result.attempts[-1]["parse_error"] = f"{type(exc).__name__}: {exc}"
+                return result
         result.status = "ok" if result.candidate is not None else "parse_error"
         if result.candidate is not None:
             result.actual_edge_count = len(result.candidate.edges)
