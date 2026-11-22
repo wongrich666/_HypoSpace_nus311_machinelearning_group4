@@ -34,3 +34,16 @@ validation result, raw response, token usage and all API attempts. The default
 `--max-attempts 1` makes at most two provider requests for this one-question
 example. A target count can be infeasible for a particular observation set, so
 interpret this as a prompt diagnostic rather than a formal method comparison.
+
+After generation, inspect feasibility without exposing the answer set to the
+generator:
+
+```bash
+python3 causal/analyze_generation_pilot.py \
+  --result causal/results/generation-pilot.json \
+  --dataset causal/datasets/node04/n4_all_observations.json
+```
+
+The analyzer checks whether each target edge count occurs among the official
+answers. It reports validity and target matching separately for feasible and
+infeasible targets. This lookup runs after all model calls have finished.
