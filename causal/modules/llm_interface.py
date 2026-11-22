@@ -102,7 +102,8 @@ class OpenRouterLLM(LLMInterface):
         api_key: Optional[str] = None,
         temperature: float = 0.7,
         max_tokens: int = 40960,
-        base_url: str = "https://openrouter.ai/api/v1"
+        base_url: str = "https://openrouter.ai/api/v1",
+        request_timeout: float = 60.0,
     ):
         """
         Initialize OpenRouter LLM interface.
@@ -122,6 +123,9 @@ class OpenRouterLLM(LLMInterface):
         self.temperature = temperature
         self.max_tokens = max_tokens
         self.base_url = base_url
+        if request_timeout <= 0:
+            raise ValueError("request_timeout must be positive")
+        self.request_timeout = request_timeout
         self.headers = {
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json"
@@ -148,7 +152,9 @@ class OpenRouterLLM(LLMInterface):
                 "max_tokens": self.max_tokens
             }
             
-            response = requests.post(url, headers=self.headers, json=payload)
+            response = requests.post(
+                url, headers=self.headers, json=payload, timeout=self.request_timeout
+            )
             response.raise_for_status()
             # print('result0',response)
             result = response.json()
