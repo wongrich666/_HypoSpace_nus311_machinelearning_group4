@@ -17,6 +17,7 @@ import traceback
 
 from modules.models import CausalGraph
 from modules.llm_interface import LLMInterface, OpenRouterLLM, OpenAILLM, AnthropicLLM
+from modules.generation_executor import generate_causal_one
 from generate_causal_dataset import PerturbationObservation, CausalDatasetGenerator
 
 
@@ -474,62 +475,41 @@ class CausalBenchmarkEnhanced:
         else:
             schedule = [None] * n_queries
         
+        request_log = []
         for i, target_complexity in enumerate(schedule):
-            prompt = self.create_prompt(
-                observations, all_hypotheses, target_complexity=target_complexity
+            generation = generate_causal_one(
+                self, llm, observations, all_hypotheses, target_complexity,
+                max_attempts=max_retries,
             )
-            
-            # Try to get a valid response
-            hypothesis = None
-            query_error = None
-            
-            for attempt in range(max_retries):
-                try:
-                    # Use query_with_usage if available
-                    if hasattr(llm, 'query_with_usage'):
-                        result = llm.query_with_usage(prompt)
-                        response = result['response']
-                        
-                        # Track usage
-                        usage = result.get('usage', {})
-                        total_prompt_tokens += usage.get('prompt_tokens', 0)
-                        total_completion_tokens += usage.get('completion_tokens', 0)
-                        total_tokens += usage.get('total_tokens', 0)
-                        total_cost += result.get('cost', 0.0)
-                    else:
-                        response = llm.query(prompt)
-                    
-                    # Check if response is an error
-                    if response and response.startswith("Error querying"):
-                        query_error = {
-                            'query_index': i,
-                            'attempt': attempt + 1,
-                            'error_message': response,
-                            'error_type': self._classify_error(response)
-                        }
-                        error_type = query_error['error_type']
-                        error_counts[error_type] = error_counts.get(error_type, 0) + 1
-                        continue
-                    
-                    # Parse response
-                    hypothesis = self.parse_llm_response(response)
-                    if hypothesis:
-                        parse_success_count += 1
-                        break
-                        
-                except Exception as e:
-                    query_error = {
-                        'query_index': i,
-                        'attempt': attempt + 1,
-                        'error_message': str(e),
-                        'error_type': self._classify_error(str(e))
-                    }
-                    if verbose:
-                        print(f"  ⚠ Exception on query {i + 1}: {str(e)[:100]}")
-            
-            # Record error if all attempts failed
-            if not hypothesis and query_error:
-                errors.append(query_error)
+            hypothesis = generation.candidate
+            total_prompt_tokens += generation.usage['prompt_tokens']
+            total_completion_tokens += generation.usage['completion_tokens']
+            total_tokens += generation.usage['total_tokens']
+            total_cost += generation.cost
+            request_log.append({
+                'query_index': i,
+                'target_edge_count': target_complexity,
+                'actual_edge_count': generation.actual_edge_count,
+                'obeyed_edge_count': generation.obeyed_edge_count,
+                'status': generation.status,
+                'prompt': generation.prompt,
+                'response': generation.response,
+                'attempts': generation.attempts,
+            })
+            for attempt in generation.attempts:
+                if attempt['error']:
+                    error_type = self._classify_error(attempt['error'])
+                    error_counts[error_type] = error_counts.get(error_type, 0) + 1
+            if generation.status == 'api_error':
+                last_attempt = generation.attempts[-1]
+                errors.append({
+                    'query_index': i,
+                    'attempt': last_attempt['attempt'],
+                    'error_message': last_attempt['error'],
+                    'error_type': self._classify_error(last_attempt['error']),
+                })
+            if hypothesis is not None:
+                parse_success_count += 1
             
             if hypothesis:
                 all_hypotheses.append(hypothesis)
@@ -587,6 +567,7 @@ class CausalBenchmarkEnhanced:
                 'total_tokens': total_tokens
             },
             'cost': total_cost,
+            'request_log': request_log,
             'errors': errors,
             'error_summary': {
                 'total_errors': len(errors),
@@ -963,6 +944,7 @@ def setup_llm(llm_type: str, **kwargs) -> LLMInterface:
             temperature=kwargs.get('temperature', 0.7),
             max_tokens=kwargs.get('max_tokens', 2048),
             base_url=kwargs.get('base_url', 'https://dashscope.aliyuncs.com/compatible-mode/v1'),
+            request_timeout=kwargs.get('request_timeout', 60.0),
         )
     
     else:
@@ -1104,6 +1086,7 @@ def main():
     temperature = config.get('llm', {}).get('temperature', 0.7)
     base_url = config.get('llm', {}).get('base_url')
     max_tokens = config.get('llm', {}).get('max_tokens', 2048)
+    request_timeout = config.get('llm', {}).get('request_timeout', 60.0)
     checkpoint_dir = args.checkpoint_dir or config.get('benchmark', {}).get('checkpoint_dir', 'checkpoints')
     verbose = args.verbose and config.get('benchmark', {}).get('verbose', True)
     
@@ -1176,6 +1159,7 @@ def main():
         temperature=temperature,
         base_url=base_url,
         max_tokens=max_tokens,
+        request_timeout=request_timeout,
     )
     
     # Run benchmark

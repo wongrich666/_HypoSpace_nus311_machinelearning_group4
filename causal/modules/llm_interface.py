@@ -102,7 +102,8 @@ class OpenRouterLLM(LLMInterface):
         api_key: Optional[str] = None,
         temperature: float = 0.7,
         max_tokens: int = 40960,
-        base_url: str = "https://openrouter.ai/api/v1"
+        base_url: str = "https://openrouter.ai/api/v1",
+        request_timeout: float = 60.0,
     ):
         """
         Initialize OpenRouter LLM interface.
@@ -122,6 +123,9 @@ class OpenRouterLLM(LLMInterface):
         self.temperature = temperature
         self.max_tokens = max_tokens
         self.base_url = base_url
+        if request_timeout <= 0:
+            raise ValueError("request_timeout must be positive")
+        self.request_timeout = request_timeout
         self.headers = {
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json"
@@ -148,7 +152,9 @@ class OpenRouterLLM(LLMInterface):
                 "max_tokens": self.max_tokens
             }
             
-            response = requests.post(url, headers=self.headers, json=payload)
+            response = requests.post(
+                url, headers=self.headers, json=payload, timeout=self.request_timeout
+            )
             response.raise_for_status()
             # print('result0',response)
             result = response.json()
@@ -170,18 +176,26 @@ class OpenRouterLLM(LLMInterface):
             return {
                 'response': result['choices'][0]['message']['content'],
                 'usage': usage_data,
-                'cost': cost
+                'cost': cost,
+                'finish_reason': result['choices'][0].get('finish_reason'),
+                'request_id': response.headers.get('x-request-id') or result.get('id'),
             }
             
         except requests.exceptions.RequestException as e:
+            status = e.response.status_code if e.response is not None else None
+            detail = f"HTTP {status}" if status is not None else type(e).__name__
             return {
-                'response': f"Error querying OpenRouter: {str(e)}",
+                'response': f"Error querying OpenRouter: {detail}",
+                'retryable': (status == 429 or (status is not None and 500 <= status < 600)
+                              or isinstance(e, (requests.exceptions.Timeout,
+                                                requests.exceptions.ConnectionError))),
                 'usage': {'prompt_tokens': 0, 'completion_tokens': 0, 'total_tokens': 0},
                 'cost': 0.0
             }
-        except (KeyError, IndexError) as e:
+        except (KeyError, IndexError, TypeError) as e:
             return {
-                'response': f"Error parsing OpenRouter response: {str(e)}",
+                'response': f"Error querying OpenRouter: invalid response ({type(e).__name__})",
+                'retryable': False,
                 'usage': {'prompt_tokens': 0, 'completion_tokens': 0, 'total_tokens': 0},
                 'cost': 0.0
             }
@@ -201,7 +215,8 @@ class OpenRouterLLM(LLMInterface):
             'google/gemini-2.5-pro': {'input': 1.25, 'output': 10.0},
             'deepseek/deepseek-r1': {'input': 0.4, 'output': 2},
         }
-        return pricing_map.get(self.model, {'input': 1.0, 'output': 1.0})
+        # An unlisted model has no verified price in this client.
+        return pricing_map.get(self.model, {'input': 0.0, 'output': 0.0})
 
 
 class OpenAILLM(LLMInterface):
