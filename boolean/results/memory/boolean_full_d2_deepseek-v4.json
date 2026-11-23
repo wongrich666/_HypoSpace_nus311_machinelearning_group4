@@ -1,0 +1,703 @@
+{
+  "run_id": "boolean_full_d2_memory",
+  "llm_name": "OpenRouter(deepseek-v4.1-flash-1017)",
+  "n_samples": 10,
+  "n_queries_per_sample": null,
+  "query_multiplier": 1.0,
+  "query_mode": "adaptive_1.0x",
+  "seed": 33550336,
+  "decoding": "memory",
+  "method_label": "Memory-based decoding",
+  "allocation_source": "none",
+  "uses_ground_truth_distribution": false,
+  "timestamp": "2026-11-12T15:21:39.271601",
+  "statistics": {
+    "valid_rate": {
+      "mean": 0.44566391941391936,
+      "std": 0.13947135081866888,
+      "var": 0.01945225769918421,
+      "min": 0.125,
+      "max": 0.6,
+      "p_value": 5.081196875725537e-06
+    },
+    "novelty_rate": {
+      "mean": 0.3867078754578755,
+      "std": 0.12393212098676616,
+      "var": 0.015359170612278445,
+      "min": 0.125,
+      "max": 0.5833333333333334,
+      "p_value": 6.182525563493701e-06
+    },
+    "recovery_rate": {
+      "mean": 0.3867078754578755,
+      "std": 0.12393212098676616,
+      "var": 0.015359170612278445,
+      "min": 0.125,
+      "max": 0.5833333333333334,
+      "p_value": 6.182525563493701e-06
+    }
+  },
+  "token_usage": {
+    "prompt_tokens": 225206,
+    "completion_tokens": 642833,
+    "total_tokens": 868039,
+    "avg_tokens_per_sample": 86803.9,
+    "avg_tokens_per_query": 86803.9
+  },
+  "cost": {
+    "total_cost": 0.8680390000000002,
+    "avg_cost_per_sample": 0.08680390000000002,
+    "avg_cost_per_query": 0.08680390000000002
+  },
+  "cost_estimate": {
+    "estimated_cost": null,
+    "currency": "CNY",
+    "pricing_source": null,
+    "pricing_verified": false
+  },
+  "error_summary": {
+    "total_errors": 2,
+    "error_types": {
+      "connection_error": 2
+    },
+    "error_rate": 0.2
+  },
+  "per_sample_results": [
+    {
+      "observation_set_id": "n3_inputs_00_10_11_outputs_111",
+      "n_observations": 3,
+      "n_ground_truths": 8,
+      "n_queries": 8,
+      "n_valid": 1,
+      "n_unique_valid": 1,
+      "n_unique_all": 1,
+      "n_recovered_gts": 1,
+      "parse_success_rate": 0.5,
+      "in_space_rate": 0.125,
+      "valid_rate": 0.125,
+      "novelty_rate": 0.125,
+      "recovery_rate": 0.125,
+      "decoding": "memory",
+      "complexity_schedule": null,
+      "all_hypotheses": [
+        "x OR NOT y",
+        "x OR NOT (x AND y)",
+        "x OR NOR(x, y)",
+        "NOT (NOT x AND y)"
+      ],
+      "valid_hypotheses": [
+        "x OR NOT y"
+      ],
+      "unique_valid_expressions": [
+        "x OR NOT y"
+      ],
+      "unique_all_expressions": [
+        "x OR NOT y"
+      ],
+      "token_usage": {
+        "prompt_tokens": 16905,
+        "completion_tokens": 53823,
+        "total_tokens": 70728
+      },
+      "cost": 0.07072799999999999,
+      "errors": [],
+      "error_summary": {
+        "total_errors": 0,
+        "error_types": {}
+      }
+    },
+    {
+      "observation_set_id": "n4_inputs_00_01_10_11_outputs_0010",
+      "n_observations": 4,
+      "n_ground_truths": 5,
+      "n_queries": 5,
+      "n_valid": 3,
+      "n_unique_valid": 2,
+      "n_unique_all": 2,
+      "n_recovered_gts": 2,
+      "parse_success_rate": 1.0,
+      "in_space_rate": 0.6,
+      "valid_rate": 0.6,
+      "novelty_rate": 0.4,
+      "recovery_rate": 0.4,
+      "decoding": "memory",
+      "complexity_schedule": null,
+      "all_hypotheses": [
+        "x AND NOT y",
+        "x AND NOR(y, y)",
+        "NOT (NOT x OR y)",
+        "NOR(NOT x, y)",
+        "(x OR y) AND NOT y"
+      ],
+      "valid_hypotheses": [
+        "x AND NOT y",
+        "x AND NOR(y, y)",
+        "(x OR y) AND NOT y"
+      ],
+      "unique_valid_expressions": [
+        "x AND NOT y",
+        "(x OR y) AND NOT y"
+      ],
+      "unique_all_expressions": [
+        "x AND NOT y",
+        "(x OR y) AND NOT y"
+      ],
+      "token_usage": {
+        "prompt_tokens": 3538,
+        "completion_tokens": 5873,
+        "total_tokens": 9411
+      },
+      "cost": 0.009411000000000001,
+      "errors": [],
+      "error_summary": {
+        "total_errors": 0,
+        "error_types": {
+          "connection_error": 1
+        }
+      }
+    },
+    {
+      "observation_set_id": "n2_inputs_10_11_outputs_00",
+      "n_observations": 2,
+      "n_ground_truths": 26,
+      "n_queries": 26,
+      "n_valid": 10,
+      "n_unique_valid": 6,
+      "n_unique_all": 6,
+      "n_recovered_gts": 6,
+      "parse_success_rate": 0.5769230769230769,
+      "in_space_rate": 0.38461538461538464,
+      "valid_rate": 0.38461538461538464,
+      "novelty_rate": 0.23076923076923078,
+      "recovery_rate": 0.23076923076923078,
+      "decoding": "memory",
+      "complexity_schedule": null,
+      "all_hypotheses": [
+        "NOT x",
+        "NOR(x, y)",
+        "(NOT x) AND y",
+        "(NOT x) AND (NOT y)",
+        "NOR(x, x AND y)",
+        "(NOT x) AND (x OR y)",
+        "NOR(x, NOT y)",
+        "NOR(x, y) AND NOT x",
+        "NOR(x, x OR y)",
+        "(NOT x) AND (x OR NOT y)",
+        "NOT (x OR y)",
+        "NOR(x, x)",
+        "x AND (NOT x)",
+        "NOR(x, NOT x)",
+        "y AND NOR(x,x)",
+        "[ERROR after 5 attempts] Type: connection_error | Error querying OpenRouter: HTTPSConnectionPool(host='dashscope.aliyuncs.com', port=443): Max retries exceeded with url: /compatible-mode/v1/chat/completions (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))"
+      ],
+      "valid_hypotheses": [
+        "NOT x",
+        "NOR(x, y)",
+        "(NOT x) AND y",
+        "(NOT x) AND (NOT y)",
+        "(NOT x) AND (x OR y)",
+        "NOR(x, x OR y)",
+        "NOT (x OR y)",
+        "NOR(x, x)",
+        "x AND (NOT x)",
+        "y AND NOR(x,x)"
+      ],
+      "unique_valid_expressions": [
+        "NOT x",
+        "NOR(x, y)",
+        "(NOT x) AND y",
+        "(NOT x) AND (NOT y)",
+        "(NOT x) AND (x OR y)",
+        "x AND (NOT x)"
+      ],
+      "unique_all_expressions": [
+        "NOT x",
+        "NOR(x, y)",
+        "(NOT x) AND y",
+        "(NOT x) AND (NOT y)",
+        "(NOT x) AND (x OR y)",
+        "x AND (NOT x)"
+      ],
+      "token_usage": {
+        "prompt_tokens": 60224,
+        "completion_tokens": 184500,
+        "total_tokens": 244724
+      },
+      "cost": 0.2447240000000001,
+      "errors": [
+        {
+          "query_index": 25,
+          "attempt": 2,
+          "error_message": "Error querying OpenRouter: HTTPSConnectionPool(host='dashscope.aliyuncs.com', port=443): Max retries exceeded with url: /compatible-mode/v1/chat/completions (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))",
+          "error_type": "connection_error"
+        }
+      ],
+      "error_summary": {
+        "total_errors": 1,
+        "error_types": {
+          "connection_error": 1
+        }
+      }
+    },
+    {
+      "observation_set_id": "n2_inputs_10_11_outputs_01",
+      "n_observations": 2,
+      "n_ground_truths": 12,
+      "n_queries": 12,
+      "n_valid": 7,
+      "n_unique_valid": 7,
+      "n_unique_all": 7,
+      "n_recovered_gts": 7,
+      "parse_success_rate": 0.8333333333333334,
+      "in_space_rate": 0.5833333333333334,
+      "valid_rate": 0.5833333333333334,
+      "novelty_rate": 0.5833333333333334,
+      "recovery_rate": 0.5833333333333334,
+      "decoding": "memory",
+      "complexity_schedule": null,
+      "all_hypotheses": [
+        "y",
+        "x AND y",
+        "y OR NOT x",
+        "y AND (x OR y)",
+        "y OR (x AND y)",
+        "(NOT x) OR (x AND y)",
+        "y OR NOR(x, y)",
+        "NOT (NOT y)",
+        "NOR(NOT x, NOT y)",
+        "(x AND y) OR NOR(x, y)"
+      ],
+      "valid_hypotheses": [
+        "y",
+        "x AND y",
+        "y OR NOT x",
+        "y AND (x OR y)",
+        "y OR (x AND y)",
+        "(NOT x) OR (x AND y)",
+        "NOT (NOT y)"
+      ],
+      "unique_valid_expressions": [
+        "y",
+        "x AND y",
+        "y OR NOT x",
+        "y AND (x OR y)",
+        "y OR (x AND y)",
+        "(NOT x) OR (x AND y)",
+        "NOT (NOT y)"
+      ],
+      "unique_all_expressions": [
+        "y",
+        "x AND y",
+        "y OR NOT x",
+        "y AND (x OR y)",
+        "y OR (x AND y)",
+        "(NOT x) OR (x AND y)",
+        "NOT (NOT y)"
+      ],
+      "token_usage": {
+        "prompt_tokens": 17625,
+        "completion_tokens": 53150,
+        "total_tokens": 70775
+      },
+      "cost": 0.07077499999999999,
+      "errors": [],
+      "error_summary": {
+        "total_errors": 0,
+        "error_types": {}
+      }
+    },
+    {
+      "observation_set_id": "n2_inputs_00_01_outputs_01",
+      "n_observations": 2,
+      "n_ground_truths": 14,
+      "n_queries": 14,
+      "n_valid": 6,
+      "n_unique_valid": 6,
+      "n_unique_all": 6,
+      "n_recovered_gts": 6,
+      "parse_success_rate": 0.7857142857142857,
+      "in_space_rate": 0.42857142857142855,
+      "valid_rate": 0.42857142857142855,
+      "novelty_rate": 0.42857142857142855,
+      "recovery_rate": 0.42857142857142855,
+      "decoding": "memory",
+      "complexity_schedule": null,
+      "all_hypotheses": [
+        "y OR (x AND y)",
+        "y",
+        "x OR y",
+        "(NOT x) AND y",
+        "y AND (x OR y)",
+        "NOR(x, NOT y)",
+        "y OR (x AND NOT y)",
+        "y AND (NOT x OR y)",
+        "(x OR y) AND NOT x",
+        "NOR(NOT y, x AND y)",
+        "x OR (y AND NOT x)"
+      ],
+      "valid_hypotheses": [
+        "y OR (x AND y)",
+        "y",
+        "x OR y",
+        "(NOT x) AND y",
+        "y AND (x OR y)",
+        "(x OR y) AND NOT x"
+      ],
+      "unique_valid_expressions": [
+        "y OR (x AND y)",
+        "y",
+        "x OR y",
+        "(NOT x) AND y",
+        "y AND (x OR y)",
+        "(x OR y) AND NOT x"
+      ],
+      "unique_all_expressions": [
+        "y OR (x AND y)",
+        "y",
+        "x OR y",
+        "(NOT x) AND y",
+        "y AND (x OR y)",
+        "(x OR y) AND NOT x"
+      ],
+      "token_usage": {
+        "prompt_tokens": 20089,
+        "completion_tokens": 58164,
+        "total_tokens": 78253
+      },
+      "cost": 0.07825300000000002,
+      "errors": [],
+      "error_summary": {
+        "total_errors": 0,
+        "error_types": {}
+      }
+    },
+    {
+      "observation_set_id": "n4_inputs_00_01_10_11_outputs_0100",
+      "n_observations": 4,
+      "n_ground_truths": 5,
+      "n_queries": 5,
+      "n_valid": 3,
+      "n_unique_valid": 2,
+      "n_unique_all": 2,
+      "n_recovered_gts": 2,
+      "parse_success_rate": 0.8,
+      "in_space_rate": 0.6,
+      "valid_rate": 0.6,
+      "novelty_rate": 0.4,
+      "recovery_rate": 0.4,
+      "decoding": "memory",
+      "complexity_schedule": null,
+      "all_hypotheses": [
+        "(NOT x) AND y",
+        "NOR(x, NOT y)",
+        "(NOT x) AND (y OR x)",
+        "y AND NOR(x, x)"
+      ],
+      "valid_hypotheses": [
+        "(NOT x) AND y",
+        "(NOT x) AND (y OR x)",
+        "y AND NOR(x, x)"
+      ],
+      "unique_valid_expressions": [
+        "(NOT x) AND y",
+        "(NOT x) AND (y OR x)"
+      ],
+      "unique_all_expressions": [
+        "(NOT x) AND y",
+        "(NOT x) AND (y OR x)"
+      ],
+      "token_usage": {
+        "prompt_tokens": 7812,
+        "completion_tokens": 21989,
+        "total_tokens": 29801
+      },
+      "cost": 0.029801000000000008,
+      "errors": [],
+      "error_summary": {
+        "total_errors": 0,
+        "error_types": {}
+      }
+    },
+    {
+      "observation_set_id": "n3_inputs_00_01_10_outputs_111",
+      "n_observations": 3,
+      "n_ground_truths": 7,
+      "n_queries": 7,
+      "n_valid": 3,
+      "n_unique_valid": 3,
+      "n_unique_all": 3,
+      "n_recovered_gts": 3,
+      "parse_success_rate": 0.8571428571428571,
+      "in_space_rate": 0.42857142857142855,
+      "valid_rate": 0.42857142857142855,
+      "novelty_rate": 0.42857142857142855,
+      "recovery_rate": 0.42857142857142855,
+      "decoding": "memory",
+      "complexity_schedule": null,
+      "all_hypotheses": [
+        "NOT (x AND y)",
+        "(NOT x) OR (NOT y)",
+        "NOR(x, y) OR x OR y",
+        "x OR y OR NOT x",
+        "x OR NOT (x AND y)",
+        "y OR NOT (x AND y)"
+      ],
+      "valid_hypotheses": [
+        "NOT (x AND y)",
+        "(NOT x) OR (NOT y)",
+        "x OR y OR NOT x"
+      ],
+      "unique_valid_expressions": [
+        "NOT (x AND y)",
+        "(NOT x) OR (NOT y)",
+        "x OR y OR NOT x"
+      ],
+      "unique_all_expressions": [
+        "NOT (x AND y)",
+        "(NOT x) OR (NOT y)",
+        "x OR y OR NOT x"
+      ],
+      "token_usage": {
+        "prompt_tokens": 12584,
+        "completion_tokens": 38688,
+        "total_tokens": 51272
+      },
+      "cost": 0.051272000000000005,
+      "errors": [],
+      "error_summary": {
+        "total_errors": 0,
+        "error_types": {
+          "connection_error": 1
+        }
+      }
+    },
+    {
+      "observation_set_id": "n2_inputs_01_10_outputs_01",
+      "n_observations": 2,
+      "n_ground_truths": 16,
+      "n_queries": 16,
+      "n_valid": 7,
+      "n_unique_valid": 7,
+      "n_unique_all": 7,
+      "n_recovered_gts": 7,
+      "parse_success_rate": 0.6875,
+      "in_space_rate": 0.4375,
+      "valid_rate": 0.4375,
+      "novelty_rate": 0.4375,
+      "recovery_rate": 0.4375,
+      "decoding": "memory",
+      "complexity_schedule": null,
+      "all_hypotheses": [
+        "x",
+        "NOT y",
+        "x OR (x AND y)",
+        "x AND NOT y",
+        "x AND (x OR y)",
+        "x OR NOR(x, y)",
+        "x OR NOT y",
+        "NOR(NOT x, y)",
+        "(x OR y) AND NOT y",
+        "x AND (x OR NOT y)",
+        "x OR (x AND NOT y)"
+      ],
+      "valid_hypotheses": [
+        "x",
+        "NOT y",
+        "x OR (x AND y)",
+        "x AND NOT y",
+        "x AND (x OR y)",
+        "x OR NOT y",
+        "(x OR y) AND NOT y"
+      ],
+      "unique_valid_expressions": [
+        "x",
+        "NOT y",
+        "x OR (x AND y)",
+        "x AND NOT y",
+        "x AND (x OR y)",
+        "x OR NOT y",
+        "(x OR y) AND NOT y"
+      ],
+      "unique_all_expressions": [
+        "x",
+        "NOT y",
+        "x OR (x AND y)",
+        "x AND NOT y",
+        "x AND (x OR y)",
+        "x OR NOT y",
+        "(x OR y) AND NOT y"
+      ],
+      "token_usage": {
+        "prompt_tokens": 25202,
+        "completion_tokens": 75556,
+        "total_tokens": 100758
+      },
+      "cost": 0.10075799999999997,
+      "errors": [],
+      "error_summary": {
+        "total_errors": 0,
+        "error_types": {
+          "connection_error": 1
+        }
+      }
+    },
+    {
+      "observation_set_id": "n1_inputs_11_outputs_1",
+      "n_observations": 1,
+      "n_ground_truths": 28,
+      "n_queries": 28,
+      "n_valid": 15,
+      "n_unique_valid": 14,
+      "n_unique_all": 14,
+      "n_recovered_gts": 14,
+      "parse_success_rate": 0.7857142857142857,
+      "in_space_rate": 0.5357142857142857,
+      "valid_rate": 0.5357142857142857,
+      "novelty_rate": 0.5,
+      "recovery_rate": 0.5,
+      "decoding": "memory",
+      "complexity_schedule": null,
+      "all_hypotheses": [
+        "x AND y",
+        "x OR y",
+        "(x OR y) AND x",
+        "x OR (NOT y)",
+        "x OR (x AND y)",
+        "NOT (NOR(x, y))",
+        "x",
+        "y",
+        "NOT x OR y",
+        "y OR (x AND y)",
+        "x AND (x OR y)",
+        "(x OR y) AND y",
+        "NOR(NOT x, NOT y)",
+        "NOT (x AND NOT y)",
+        "(x AND y) OR NOT y",
+        "[ERROR after 5 attempts] Type: connection_error | Error querying OpenRouter: HTTPSConnectionPool(host='dashscope.aliyuncs.com', port=443): Max retries exceeded with url: /compatible-mode/v1/chat/completions (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))",
+        "(NOT x AND y) OR x",
+        "NOT (NOT x AND NOT y)",
+        "x OR NOT x",
+        "(x AND y) OR NOT x",
+        "NOT (NOT x AND y)",
+        "NOT (NOT x OR NOT y)",
+        "(x OR y) OR (x AND y)"
+      ],
+      "valid_hypotheses": [
+        "x AND y",
+        "x OR y",
+        "(x OR y) AND x",
+        "x OR (NOT y)",
+        "x OR (x AND y)",
+        "x",
+        "y",
+        "NOT x OR y",
+        "y OR (x AND y)",
+        "x AND (x OR y)",
+        "(x OR y) AND y",
+        "(x AND y) OR NOT y",
+        "x OR NOT x",
+        "(x AND y) OR NOT x",
+        "(x OR y) OR (x AND y)"
+      ],
+      "unique_valid_expressions": [
+        "x AND y",
+        "x OR y",
+        "(x OR y) AND x",
+        "x OR (NOT y)",
+        "x OR (x AND y)",
+        "x",
+        "y",
+        "NOT x OR y",
+        "y OR (x AND y)",
+        "(x OR y) AND y",
+        "(x AND y) OR NOT y",
+        "x OR NOT x",
+        "(x AND y) OR NOT x",
+        "(x OR y) OR (x AND y)"
+      ],
+      "unique_all_expressions": [
+        "x AND y",
+        "x OR y",
+        "(x OR y) AND x",
+        "x OR (NOT y)",
+        "x OR (x AND y)",
+        "x",
+        "y",
+        "NOT x OR y",
+        "y OR (x AND y)",
+        "(x OR y) AND y",
+        "(x AND y) OR NOT y",
+        "x OR NOT x",
+        "(x AND y) OR NOT x",
+        "(x OR y) OR (x AND y)"
+      ],
+      "token_usage": {
+        "prompt_tokens": 52316,
+        "completion_tokens": 125426,
+        "total_tokens": 177742
+      },
+      "cost": 0.1777420000000001,
+      "errors": [
+        {
+          "query_index": 15,
+          "attempt": 2,
+          "error_message": "Error querying OpenRouter: HTTPSConnectionPool(host='dashscope.aliyuncs.com', port=443): Max retries exceeded with url: /compatible-mode/v1/chat/completions (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))",
+          "error_type": "connection_error"
+        }
+      ],
+      "error_summary": {
+        "total_errors": 1,
+        "error_types": {
+          "connection_error": 1
+        }
+      }
+    },
+    {
+      "observation_set_id": "n3_inputs_00_10_11_outputs_010",
+      "n_observations": 3,
+      "n_ground_truths": 6,
+      "n_queries": 6,
+      "n_valid": 2,
+      "n_unique_valid": 2,
+      "n_unique_all": 2,
+      "n_recovered_gts": 2,
+      "parse_success_rate": 0.8333333333333334,
+      "in_space_rate": 0.3333333333333333,
+      "valid_rate": 0.3333333333333333,
+      "novelty_rate": 0.3333333333333333,
+      "recovery_rate": 0.3333333333333333,
+      "decoding": "memory",
+      "complexity_schedule": null,
+      "all_hypotheses": [
+        "x AND NOT y",
+        "(x OR y) AND NOT y",
+        "NOR(NOT x, y)",
+        "x AND (NOT x OR NOT y)",
+        "(x OR y) AND (NOT x OR NOT y)"
+      ],
+      "valid_hypotheses": [
+        "x AND NOT y",
+        "(x OR y) AND NOT y"
+      ],
+      "unique_valid_expressions": [
+        "x AND NOT y",
+        "(x OR y) AND NOT y"
+      ],
+      "unique_all_expressions": [
+        "x AND NOT y",
+        "(x OR y) AND NOT y"
+      ],
+      "token_usage": {
+        "prompt_tokens": 8911,
+        "completion_tokens": 25664,
+        "total_tokens": 34575
+      },
+      "cost": 0.034575,
+      "errors": [],
+      "error_summary": {
+        "total_errors": 0,
+        "error_types": {}
+      }
+    }
+  ]
+}
