@@ -1,4 +1,5 @@
 import sys
+from copy import deepcopy
 import json
 import argparse
 import os
@@ -18,6 +19,7 @@ import traceback
 from modules.models import CausalGraph
 from modules.llm_interface import LLMInterface, OpenRouterLLM, OpenAILLM, AnthropicLLM
 from modules.generation_executor import generate_causal_one
+from modules.candidate_feedback import evaluate_candidate
 from generate_causal_dataset import PerturbationObservation, CausalDatasetGenerator
 
 
@@ -434,6 +436,9 @@ class CausalBenchmarkEnhanced:
         verbose: bool = True,
         max_retries: int = 5,
         decoding: str = "memory",
+        *,
+        controller=None,
+        on_candidate_complete=None,
     ) -> Dict:
         """
         Evaluate LLM on a single observation set with enhanced tracking.
@@ -441,6 +446,10 @@ class CausalBenchmarkEnhanced:
         Returns:
             Dictionary with evaluation results including token usage and costs
         """
+        if not isinstance(n_queries, int) or isinstance(n_queries, bool) or n_queries < 0:
+            raise ValueError("n_queries must be a nonnegative integer")
+        if controller is not None and decoding != "memory":
+            raise ValueError("controller cannot be combined with oracle stratified decoding")
         # Extract observations and ground truths
         observations = observation_set['observations']
         ground_truth_graphs = [
@@ -476,7 +485,23 @@ class CausalBenchmarkEnhanced:
             schedule = [None] * n_queries
         
         request_log = []
+        feedback_seen = set()
         for i, target_complexity in enumerate(schedule):
+            if controller is not None:
+                state = {
+                    'query_index': i, 'n_queries': n_queries,
+                    'observations': deepcopy(observations), 'nodes': list(self.nodes),
+                    'max_edges': self.max_edges,
+                    'n_unique_valid': len(feedback_seen),
+                }
+                target_complexity = controller.select_action(state)
+                if target_complexity is not None and (
+                    isinstance(target_complexity, bool)
+                    or not isinstance(target_complexity, int) or target_complexity < 0
+                    or (self.max_edges is not None and target_complexity > self.max_edges)
+                ):
+                    raise ValueError("controller action must be None or an allowed integer edge count")
+                schedule[i] = target_complexity
             generation = generate_causal_one(
                 self, llm, observations, all_hypotheses, target_complexity,
                 max_attempts=max_retries,
@@ -486,7 +511,10 @@ class CausalBenchmarkEnhanced:
             total_completion_tokens += generation.usage['completion_tokens']
             total_tokens += generation.usage['total_tokens']
             total_cost += generation.cost
-            request_log.append({
+            feedback = evaluate_candidate(
+                generation, observations, feedback_seen, self.validate_hypothesis,
+            )
+            completion = {
                 'query_index': i,
                 'target_edge_count': target_complexity,
                 'actual_edge_count': generation.actual_edge_count,
@@ -494,8 +522,19 @@ class CausalBenchmarkEnhanced:
                 'status': generation.status,
                 'prompt': generation.prompt,
                 'response': generation.response,
-                'attempts': generation.attempts,
-            })
+                'attempts': deepcopy(generation.attempts),
+                'usage': dict(generation.usage),
+                'api_attempt_count': len(generation.attempts),
+                'candidate': hypothesis.to_dict() if hypothesis is not None else None,
+                'feedback': feedback,
+                'event': 'candidate_complete',
+                'observation_set_id': observation_set.get('observation_set_id', 'unknown'),
+            }
+            if controller is not None:
+                controller.update(target_complexity, deepcopy(feedback))
+            request_log.append(deepcopy(completion))
+            if on_candidate_complete is not None:
+                on_candidate_complete(deepcopy(completion))
             for attempt in generation.attempts:
                 if attempt['error']:
                     error_type = self._classify_error(attempt['error'])
@@ -521,7 +560,7 @@ class CausalBenchmarkEnhanced:
                     unique_all_graphs.append(hypothesis)
                 
                 # Validate hypothesis
-                is_valid = self.validate_hypothesis(hypothesis, observations)
+                is_valid = feedback['is_valid']
                 
                 if is_valid:
                     valid_hypotheses.append(hypothesis)
@@ -559,7 +598,10 @@ class CausalBenchmarkEnhanced:
             'valid_rate': valid_rate,
             'novelty_rate': novelty_rate,
             'recovery_rate': recovery_rate,
-            'decoding': decoding,
+            'decoding': 'controller' if controller is not None else decoding,
+            'uses_ground_truth_distribution': decoding == 'stratified',
+            'api_attempt_count': sum(len(row['attempts']) for row in request_log),
+            'action_schedule': schedule,
             'complexity_schedule': [c for c in schedule if c is not None] if decoding == "stratified" else None,
             'token_usage': {
                 'prompt_tokens': total_prompt_tokens,
