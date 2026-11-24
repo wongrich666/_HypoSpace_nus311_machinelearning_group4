@@ -21,6 +21,7 @@ sys.path.append(str(Path(__file__).parent))
 
 from modules.llm_interface import LLMInterface, OpenRouterLLM, OpenAILLM, AnthropicLLM
 from boolean_dataset import BooleanExpression, BooleanObservation
+from modules.generation_executor import generate_boolean_one
 
 _BOOL_OPS = ("NOR", "XOR", "AND", "OR", "NOT")
 
@@ -538,6 +539,8 @@ class BooleanBenchmarkRefined:
         Returns:
             Dictionary with evaluation results for this observation set
         """
+        if isinstance(n_queries, bool) or not isinstance(n_queries, int) or n_queries <= 0:
+            raise ValueError("A positive fixed candidate budget is required")
         # Extract observations and ground truths
         observations = [
             BooleanObservation(obs['inputs'], obs['output']) 
@@ -588,52 +591,32 @@ class BooleanBenchmarkRefined:
         else:
             schedule = [None] * n_queries
         
+        request_log = []
         for i, target_complexity in enumerate(schedule):
-            prompt = self.create_prompt(
-                observations, all_hypotheses, target_complexity=target_complexity
+            generation = generate_boolean_one(
+                self, llm, observations, all_hypotheses, target_complexity,
+                max_attempts=max_retries,
             )
-            
-            # Try to get a valid response
-            hypothesis_str = None
-            query_error = None
-            for attempt in range(max_retries):
-                # Use query_with_usage if available
-                if hasattr(llm, 'query_with_usage'):
-                    result = llm.query_with_usage(prompt)
-                    response = result['response']
-                    # Track usage
-                    total_prompt_tokens += result['usage']['prompt_tokens']
-                    total_completion_tokens += result['usage']['completion_tokens']
-                    total_tokens += result['usage']['total_tokens']
-                    total_cost += result.get('cost', 0.0)
-                else:
-                    response = llm.query(prompt)
-                
-                # Check if response is an error
-                if response.startswith("Error querying"):
-                    query_error = {
-                        'query_index': i,
-                        'attempt': attempt + 1,
-                        'error_message': response,
-                        'error_type': self._classify_error(response)
-                    }
-                    # Track error type count
-                    error_type = query_error['error_type']
+            hypothesis_str = generation.candidate
+            total_prompt_tokens += generation.usage['prompt_tokens']
+            total_completion_tokens += generation.usage['completion_tokens']
+            total_tokens += generation.usage['total_tokens']
+            total_cost += generation.cost
+            request_log.append({
+                'query_index': i, 'status': generation.status,
+                'candidate': hypothesis_str, 'response': generation.response,
+                'target_operator_count': generation.target_operator_count,
+                'actual_operator_count': generation.actual_operator_count,
+                'obeyed_operator_count': generation.obeyed_operator_count,
+                'usage': generation.usage, 'attempts': generation.attempts,
+            })
+            for attempt in generation.attempts:
+                if attempt['error']:
+                    error_type = self._classify_error(attempt['error'])
                     error_counts[error_type] = error_counts.get(error_type, 0) + 1
-                    continue  # Try again
-                
-                hypothesis_str = self.parse_llm_response(response)
-                if hypothesis_str:
-                    break
-            
-            # If all attempts failed, record the error
-            if not hypothesis_str and query_error:
-                errors.append(query_error)
-                # Store detailed error info in all_hypotheses
-                error_detail = f"[ERROR after {max_retries} attempts] Type: {query_error['error_type']} | {query_error['error_message']}"
-                all_hypotheses.append(error_detail)
-            
-            elif hypothesis_str:  # Only if we got a valid hypothesis
+                    errors.append({'query_index': i, 'attempt': attempt['attempt'],
+                                   'error_message': attempt['error'], 'error_type': error_type})
+            if hypothesis_str:
                 parse_success_count += 1
                 all_hypotheses.append(hypothesis_str)
                 
@@ -694,6 +677,8 @@ class BooleanBenchmarkRefined:
             'n_unique_valid': len(unique_valid_expressions),  # Unique among valid hypotheses
             'n_unique_all': len(unique_all_expressions),  # Unique among in-space hypotheses
             'n_recovered_gts': len(recovered_gts),
+            'request_log': request_log,
+            'api_attempt_count': sum(len(r['attempts']) for r in request_log),
             'parse_success_rate': parse_success_rate,  # Diagnostic: how many parsed
             'in_space_rate': in_space_rate,  # Diagnostic: how many met space constraints
             'valid_rate': valid_rate,
@@ -748,6 +733,8 @@ class BooleanBenchmarkRefined:
         Returns:
             Dictionary with complete benchmark results
         """
+        if isinstance(n_queries_per_sample, bool) or not isinstance(n_queries_per_sample, int) or n_queries_per_sample <= 0:
+            raise ValueError("Explicit positive n_queries_per_sample required; answer-count budgets disabled")
         # Create checkpoint directory
         checkpoint_path = Path(checkpoint_dir)
         checkpoint_path.mkdir(parents=True, exist_ok=True)
@@ -825,17 +812,8 @@ class BooleanBenchmarkRefined:
             
             try:
                 # Determine number of queries for this observation set
-                if n_queries_per_sample is not None:
-                    # Use fixed number
-                    n_queries = n_queries_per_sample
-                else:
-                    # Adaptive: use multiplier of ground truths
-                    n_gt = obs_set['n_compatible_expressions']
-                    n_queries = max(1, int(n_gt * query_multiplier))
-                    if verbose:
-                        print(f"  Using {n_queries} queries ({query_multiplier}x {n_gt} ground truths)")
-                
-                # Evaluate on this observation set
+                n_queries = n_queries_per_sample
+
                 result = self.evaluate_single_observation_set(
                     llm, obs_set, n_queries, verbose=False, decoding=decoding
                 )
@@ -1084,13 +1062,15 @@ def main():
     parser.add_argument("--dataset", required=True, help="Path to complete Boolean dataset JSON file")
     parser.add_argument("--config", required=True, help="Path to configuration file")
     parser.add_argument("--n-samples", type=int, default=10, help="Number of observation sets to sample")
-    parser.add_argument("--n-queries", type=int, default=None, help="Fixed number of queries per observation set (if not set, uses adaptive)")
+    parser.add_argument("--n-queries", type=int, required=True, help="Fixed candidate slots per question; development protocol uses 16")
     parser.add_argument("--query-multiplier", type=float, default=1.0, help="Multiplier for adaptive queries (n_queries = n_gt * multiplier)")
     parser.add_argument("--seed", type=int, default=None, help="Random seed for sampling")
     parser.add_argument("--decoding", choices=["memory", "stratified"], default="memory",
                         help="memory: prior-hypothesis prompting; stratified: complexity-stratified decoding")
     
     args = parser.parse_args()
+    if args.n_queries <= 0:
+        parser.error("--n-queries must be positive")
     
     # Load configuration
     config = load_config(args.config)
