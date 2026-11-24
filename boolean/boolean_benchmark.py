@@ -1064,6 +1064,7 @@ def setup_llm(llm_type: str, **kwargs) -> LLMInterface:
             temperature=kwargs.get('temperature', 0.7),
             max_tokens=kwargs.get('max_tokens', 2048),
             base_url=kwargs.get('base_url', 'https://dashscope.aliyuncs.com/compatible-mode/v1'),
+            request_timeout=kwargs.get('request_timeout', 60.0),
         )
     
     else:
@@ -1119,6 +1120,7 @@ def main():
     temperature = config.get('llm', {}).get('temperature', 0.7)
     base_url = config.get('llm', {}).get('base_url')
     max_tokens = config.get('llm', {}).get('max_tokens', 2048)
+    request_timeout = config.get('llm', {}).get('request_timeout', 60.0)
     checkpoint_dir = config.get('benchmark', {}).get('checkpoint', 'checkpoints')
     run_id = config.get('benchmark', {}).get('run_id', None)
     verbose = config.get('benchmark', {}).get('verbose', True)
@@ -1166,6 +1168,7 @@ def main():
         temperature=temperature,
         base_url=base_url,
         max_tokens=max_tokens,
+        request_timeout=request_timeout,
     )
     
     # Run benchmark
