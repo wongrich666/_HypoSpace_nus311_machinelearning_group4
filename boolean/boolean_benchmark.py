@@ -717,6 +717,7 @@ class BooleanBenchmarkRefined:
         run_id: Optional[str] = None,
         decoding: str = "memory",
         pricing_config: Optional[Dict] = None,
+        max_attempts_per_slot: int = 3,
     ) -> Dict:
         """
         Run the benchmark with sampling.
@@ -735,6 +736,8 @@ class BooleanBenchmarkRefined:
         """
         if isinstance(n_queries_per_sample, bool) or not isinstance(n_queries_per_sample, int) or n_queries_per_sample <= 0:
             raise ValueError("Explicit positive n_queries_per_sample required; answer-count budgets disabled")
+        if isinstance(max_attempts_per_slot, bool) or not isinstance(max_attempts_per_slot, int) or max_attempts_per_slot <= 0:
+            raise ValueError("max_attempts_per_slot must be a positive integer")
         # Create checkpoint directory
         checkpoint_path = Path(checkpoint_dir)
         checkpoint_path.mkdir(parents=True, exist_ok=True)
@@ -749,6 +752,7 @@ class BooleanBenchmarkRefined:
         print(f"\nRunning refined Boolean benchmark")
         print(f"LLM: {llm.get_name()}")
         print(f"Decoding: {decoding}")
+        print(f"Maximum API attempts per candidate: {max_attempts_per_slot}")
         print(f"Sampling {n_samples} observation sets")
         if n_queries_per_sample is not None:
             print(f"Queries per sample: {n_queries_per_sample} (fixed)")
@@ -815,7 +819,8 @@ class BooleanBenchmarkRefined:
                 n_queries = n_queries_per_sample
 
                 result = self.evaluate_single_observation_set(
-                    llm, obs_set, n_queries, verbose=False, decoding=decoding
+                    llm, obs_set, n_queries, verbose=False, decoding=decoding,
+                    max_retries=max_attempts_per_slot,
                 )
                 
                 all_results.append(result)
@@ -891,6 +896,10 @@ class BooleanBenchmarkRefined:
                 return None
             t_stat, p_val = stats.ttest_1samp(rates, 0)
             return p_val
+
+        total_api_attempts = sum(
+            result.get('api_attempt_count', 0) for result in all_results
+        )
         
         # Compile final results
         final_results = {
@@ -901,6 +910,7 @@ class BooleanBenchmarkRefined:
             'query_multiplier': query_multiplier if n_queries_per_sample is None else None,
             'query_mode': 'fixed' if n_queries_per_sample is not None else f'adaptive_{query_multiplier}x',
             'seed': seed,
+            'max_attempts_per_slot': max_attempts_per_slot,
             **decoding_metadata(decoding),
             'timestamp': datetime.now().isoformat(),
             'statistics': {
@@ -934,8 +944,9 @@ class BooleanBenchmarkRefined:
             ),
             'error_summary': {
                 'total_errors': len(all_errors),
+                'api_attempt_count': total_api_attempts,
                 'error_types': total_error_counts,
-                'error_rate': len(all_errors) / (len(all_results) * (n_queries_per_sample or 1)) if all_results else 0
+                'error_rate': len(all_errors) / total_api_attempts if total_api_attempts else 0
             },
             'per_sample_results': all_results
         }
@@ -1063,14 +1074,15 @@ def main():
     parser.add_argument("--config", required=True, help="Path to configuration file")
     parser.add_argument("--n-samples", type=int, default=10, help="Number of observation sets to sample")
     parser.add_argument("--n-queries", type=int, required=True, help="Fixed candidate slots per question; development protocol uses 16")
+    parser.add_argument("--max-attempts", type=int, default=3, help="Maximum provider attempts inside each candidate slot")
     parser.add_argument("--query-multiplier", type=float, default=1.0, help="Multiplier for adaptive queries (n_queries = n_gt * multiplier)")
     parser.add_argument("--seed", type=int, default=None, help="Random seed for sampling")
     parser.add_argument("--decoding", choices=["memory", "stratified"], default="memory",
                         help="memory: prior-hypothesis prompting; stratified: complexity-stratified decoding")
     
     args = parser.parse_args()
-    if args.n_queries <= 0:
-        parser.error("--n-queries must be positive")
+    if args.n_queries <= 0 or args.max_attempts <= 0:
+        parser.error("--n-queries and --max-attempts must be positive")
     
     # Load configuration
     config = load_config(args.config)
@@ -1135,6 +1147,7 @@ def main():
     print(f"Temperature: {temperature}")
     print(f"Samples: {args.n_samples}")
     print(f"Queries per sample: {args.n_queries}")
+    print(f"Maximum API attempts per candidate: {args.max_attempts}")
     print(f"Seed: {args.seed}")
     print(f"Decoding: {args.decoding}")
     print(f"Output: {output}")
@@ -1163,6 +1176,7 @@ def main():
         run_id=run_id,
         decoding=args.decoding,
         pricing_config=config.get("pricing"),
+        max_attempts_per_slot=args.max_attempts,
     )
     
     # Save final results
