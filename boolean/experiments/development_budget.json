@@ -1,0 +1,12 @@
+{
+  "purpose": "development_validation",
+  "dataset": "datasets/boolean_extended_d2.json",
+  "n_samples": 5,
+  "n_queries": 16,
+  "seed": 42,
+  "planned_methods": ["memory", "uniform", "round_robin", "adaptive"],
+  "candidate_slots_total": 320,
+  "max_attempts_per_slot": 3,
+  "failed_candidates_consume_slots": true,
+  "note": "Budget protocol only. Boolean controller integration and frozen question-ID manifest are pending. Run CLI with explicit --n-queries 16; this file is not automatically loaded."
+}
