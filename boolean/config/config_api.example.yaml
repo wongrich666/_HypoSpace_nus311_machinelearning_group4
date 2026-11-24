@@ -7,6 +7,7 @@ llm:
   base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
   temperature: 0.7
   max_tokens: 2048
+  request_timeout: 60
 
 benchmark:
   checkpoint: "checkpoints"
@@ -20,3 +21,4 @@ benchmark:
 #   source: "vendor price page for deepseek-v4.1-flash-1017"
 #   input_per_million: <CNY per 1,000,000 input tokens>
 #   output_per_million: <CNY per 1,000,000 output tokens>
+
