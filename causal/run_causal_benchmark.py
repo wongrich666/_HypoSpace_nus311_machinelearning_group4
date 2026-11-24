@@ -1,4 +1,6 @@
 import sys
+import hashlib
+import uuid
 from copy import deepcopy
 import json
 import argparse
@@ -19,7 +21,8 @@ import traceback
 from modules.models import CausalGraph
 from modules.llm_interface import LLMInterface, OpenRouterLLM, OpenAILLM, AnthropicLLM
 from modules.generation_executor import generate_causal_one
-from modules.candidate_feedback import evaluate_candidate
+from modules.candidate_feedback import evaluate_candidate, CandidateJSONLLogger
+from modules.exploration_controller import ExplorationController, STRATEGIES
 from generate_causal_dataset import PerturbationObservation, CausalDatasetGenerator
 
 
@@ -68,9 +71,9 @@ def decoding_metadata(decoding: str) -> Dict:
         }
     return {
         "decoding": decoding,
-        "method_label": None,
+        "method_label": f"Edge-count controller: {decoding}",
         "allocation_source": None,
-        "uses_ground_truth_distribution": None,
+        "uses_ground_truth_distribution": False,
     }
 
 
@@ -487,6 +490,7 @@ class CausalBenchmarkEnhanced:
         request_log = []
         feedback_seen = set()
         for i, target_complexity in enumerate(schedule):
+            decision_start = len(getattr(controller, "decision_log", []))
             if controller is not None:
                 state = {
                     'query_index': i, 'n_queries': n_queries,
@@ -532,6 +536,7 @@ class CausalBenchmarkEnhanced:
             }
             if controller is not None:
                 controller.update(target_complexity, deepcopy(feedback))
+            completion["decision_log"] = deepcopy(getattr(controller, "decision_log", [])[decision_start:])
             request_log.append(deepcopy(completion))
             if on_candidate_complete is not None:
                 on_candidate_complete(deepcopy(completion))
@@ -632,6 +637,8 @@ class CausalBenchmarkEnhanced:
         max_retries: int = 3,
         decoding: str = "memory",
         pricing_config: Optional[Dict] = None,
+        selected_questions=None,
+        on_candidate_complete=None,
     ) -> Dict:
         """
         Run the enhanced benchmark with comprehensive tracking.
@@ -649,12 +656,18 @@ class CausalBenchmarkEnhanced:
         Returns:
             Dictionary with complete benchmark results including statistics, token usage, and costs
         """
+        if isinstance(n_queries_per_sample, bool) or not isinstance(n_queries_per_sample, int) or n_queries_per_sample <= 0:
+            raise ValueError("Explicit positive n_queries_per_sample is required; oracle-derived budgets are disabled")
+        if decoding not in ("memory", "stratified", *STRATEGIES):
+            raise ValueError("Unknown decoding method")
+        if decoding in STRATEGIES and seed is None:
+            raise ValueError("Controller runs require a fixed seed")
         # Create checkpoint directory
         checkpoint_path = Path(checkpoint_dir)
         checkpoint_path.mkdir(parents=True, exist_ok=True)
         
         # Generate run ID and checkpoint file
-        run_id = datetime.now().strftime("%Y%m%d_%H%M%S")
+        run_id = datetime.now().strftime("%Y%m%d_%H%M%S") + "_" + uuid.uuid4().hex[:8]
         safe_llm_name = llm.get_name().replace('/', '_').replace('(', '_').replace(')', '_').replace(' ', '_')
         checkpoint_file = checkpoint_path / f"checkpoint_causal_enhanced_{safe_llm_name}_{run_id}.json"
         
@@ -671,7 +684,8 @@ class CausalBenchmarkEnhanced:
         print("-" * 50)
         
         # Sample observation sets
-        sampled_sets = self.sample_observation_sets(n_samples, seed)
+        sampled_sets = list(selected_questions) if selected_questions is not None else self.sample_observation_sets(n_samples, seed)
+        n_samples = len(sampled_sets)
         
         # Initialize results tracking
         all_results = []
@@ -732,21 +746,26 @@ class CausalBenchmarkEnhanced:
                 print(f"  Number of ground truths: {obs_set['n_compatible_graphs']}")
             
             try:
-                # Determine number of queries
-                if n_queries_per_sample is not None:
-                    n_queries = n_queries_per_sample
-                else:
-                    n_gt = obs_set['n_compatible_graphs']
-                    n_queries = max(1, int(n_gt * query_multiplier))
-                    if verbose:
-                        print(f"  Using {n_queries} queries ({query_multiplier}x {n_gt} ground truths)")
-                
-                # Evaluate
+                n_queries = n_queries_per_sample
+                controller = None
+                controller_seed = None
+                if decoding in STRATEGIES:
+                    question_id = obs_set['observation_set_id']
+                    controller_seed = int(hashlib.sha256(
+                        json.dumps([seed, question_id]).encode()).hexdigest()[:16], 16)
+                    edge_limit = self.max_edges
+                    if edge_limit is None:
+                        edge_limit = len(self.nodes) * (len(self.nodes) - 1) // 2
+                    controller = ExplorationController(edge_limit, strategy=decoding, seed=controller_seed)
                 result = self.evaluate_single_observation_set(
                     llm, obs_set, n_queries, verbose=False, max_retries=max_retries,
-                    decoding=decoding,
+                    decoding="memory" if controller is not None else decoding,
+                    controller=controller, on_candidate_complete=on_candidate_complete,
                 )
-                
+                result['decoding'] = decoding
+                result['controller_seed'] = controller_seed
+                result['decision_log'] = deepcopy(getattr(controller, 'decision_log', []))
+
                 all_results.append(result)
                 valid_rates.append(result['valid_rate'])
                 novelty_rates.append(result['novelty_rate'])
@@ -802,7 +821,7 @@ class CausalBenchmarkEnhanced:
             except Exception as e:
                 print(f"  Error processing sample {idx + 1}: {str(e)}")
                 traceback.print_exc()
-                continue
+                raise
         
         # Calculate statistics
         def calculate_stats(rates):
@@ -1067,7 +1086,7 @@ def load_config(config_path: str = "config.yaml") -> Dict:
     return {}
 
 
-def main():
+def main(argv=None):
     parser = argparse.ArgumentParser(
         description="Run enhanced causal discovery benchmark with comprehensive tracking\n\n"
                     "Features:\n"
@@ -1075,7 +1094,7 @@ def main():
                     "- Checkpoint mechanism for resuming\n"
                     "- Enhanced error handling\n"
                     "- Statistical analysis of results\n"
-                    "- Adaptive query count based on ground truths",
+                    "- Fixed candidate budgets and frozen question manifest",
         formatter_class=argparse.RawDescriptionHelpFormatter)
     
     parser.add_argument("--dataset", required=True, help="Path to complete causal dataset JSON file")
@@ -1083,18 +1102,24 @@ def main():
     parser.add_argument("--n-samples", type=int, default=30, help="Number of observation sets to sample")
     parser.add_argument("--n-observations-filter", type=str, default=None, help="Filter datasets by n_observations (e.g., '2,3,5' or '2-5')")
     parser.add_argument("--gt-filter", type=str, default=None, help="Filter datasets by number of ground truth graphs (e.g., '10-16' or '1,2,4')")
-    parser.add_argument("--n-queries", type=int, default=None, help="Fixed number of queries per observation set")
-    parser.add_argument("--query-multiplier", type=float, default=2.0, help="Multiplier for adaptive queries")
+    parser.add_argument("--n-queries", type=int, required=True, help="Fixed number of queries per observation set")
+    parser.add_argument("--query-multiplier", type=float, default=2.0, help="Deprecated; fixed --n-queries is mandatory")
     parser.add_argument("--max-retries", type=int, default=3, help="Maximum retries per query")
-    parser.add_argument("--seed", type=int, default=None, help="Random seed for sampling")
-    parser.add_argument("--decoding", choices=["memory", "stratified"], default="memory",
-                        help="memory: prior-hypothesis prompting; stratified: complexity-stratified decoding")
+    parser.add_argument("--seed", type=int, required=True, help="Random seed for sampling")
+    parser.add_argument("--decoding", choices=["memory", "stratified", *STRATEGIES], default="memory",
+                        help="memory baseline, stratified oracle-informed, or B uniform/round_robin/adaptive")
     parser.add_argument("--checkpoint-dir", default="checkpoints", help="Directory for checkpoints")
     parser.add_argument("--output", default=None, help="Output file path")
     parser.add_argument("--verbose", action="store_true", default=True, help="Verbose output")
     parser.add_argument("--quiet", action="store_true", help="Disable verbose output")
     
-    args = parser.parse_args()
+    parser.add_argument("--experiment-manifest", required=True, help="Shared frozen experiment JSON; created on first run")
+    args = parser.parse_args(argv)
+    if args.n_queries <= 0 or args.n_samples <= 0 or args.max_retries <= 0:
+        parser.error("n-queries, n-samples and max-retries must be positive")
+    if args.gt_filter:
+        parser.error("Formal question selection cannot use --gt-filter")
+
     
     # Handle verbose/quiet flags
     if args.quiet:
@@ -1171,6 +1196,19 @@ def main():
                                        n_observations_filter=n_observations_filter,
                                        gt_filter=gt_filter)
     
+    from modules.experiment_manifest import freeze_questions
+    settings = {
+        'dataset_sha256': hashlib.sha256(Path(args.dataset).read_bytes()).hexdigest(),
+        'n_queries': args.n_queries, 'n_samples': args.n_samples, 'seed': args.seed,
+        'llm_type': llm_type, 'model': model, 'temperature': temperature,
+        'max_tokens': max_tokens, 'max_retries': args.max_retries,
+        'request_timeout': request_timeout, 'base_url': base_url,
+        'n_observations_filter': n_observations_filter,
+    }
+    selected, manifest = freeze_questions(benchmark, args.experiment_manifest, settings)
+    log_path = Path(output).with_suffix('.candidates.' + uuid.uuid4().hex[:8] + '.jsonl')
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+
     # Print configuration
     print("\n" + "=" * 60)
     print("ENHANCED CAUSAL BENCHMARK CONFIGURATION")
@@ -1216,8 +1254,12 @@ def main():
         max_retries=args.max_retries,
         decoding=args.decoding,
         pricing_config=config.get("pricing"),
+        selected_questions=selected,
+        on_candidate_complete=CandidateJSONLLogger(log_path),
     )
     
+    results["experiment_manifest"] = manifest
+    results["candidate_log_path"] = str(log_path)
     # Save final results
     output_path = Path(output)
     output_path.parent.mkdir(parents=True, exist_ok=True)

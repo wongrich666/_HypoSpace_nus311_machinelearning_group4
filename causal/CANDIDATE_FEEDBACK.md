@@ -2,8 +2,8 @@
 
 The integration is in `CausalBenchmarkEnhanced.evaluate_single_observation_set`.
 It uses C's generator and the official parser, observation validator and graph
-hash. The existing baseline metrics are preserved. B's real policy is not included
-yet; tests exercise the interface with a fake controller and fake model.
+hash. The existing baseline metrics are preserved. B's real policy is now integrated into the CLI; tests exercise all five methods
+with a fake model and two questions.
 
 ## B's interface
 
@@ -63,9 +63,8 @@ result = benchmark.evaluate_single_observation_set(
 ```
 
 Omit `controller` for the baseline; the completion callback works there too.
-This is a Python integration point; the CLI does not yet instantiate B's policy
-or enable this JSONL sink. Existing CLI results still include the enriched
-`request_log` saved with the result/checkpoint.
+The CLI now instantiates B's policy per question and automatically writes a
+unique JSONL candidate log beside the output. See UNIFIED_EXPERIMENTS.md.
 
 Order: select action → C generates → validate/hash/deduplicate → B updates →
 write completed-candidate log. Each log includes question ID, query index,
