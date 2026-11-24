@@ -1,0 +1,639 @@
+{
+  "run_id": "20261124_183150_c2d7ed97",
+  "llm_name": "OpenRouter(deepseek-v4.1-flash-1017)",
+  "n_samples": 1,
+  "n_queries_per_sample": 3,
+  "query_multiplier": null,
+  "query_mode": "fixed",
+  "seed": 17,
+  "decoding": "adaptive",
+  "method_label": "Edge-count controller: adaptive",
+  "allocation_source": null,
+  "uses_ground_truth_distribution": false,
+  "timestamp": "2026-11-24T18:32:02.677456",
+  "max_edges_constraint": 3,
+  "statistics": {
+    "parse_success_rate": {
+      "mean": 1.0,
+      "std": 0.0,
+      "var": 0.0,
+      "min": 1.0,
+      "max": 1.0,
+      "p_value": null
+    },
+    "valid_rate": {
+      "mean": 0.3333333333333333,
+      "std": 0.0,
+      "var": 0.0,
+      "min": 0.3333333333333333,
+      "max": 0.3333333333333333,
+      "p_value": null
+    },
+    "novelty_rate": {
+      "mean": 0.6666666666666666,
+      "std": 0.0,
+      "var": 0.0,
+      "min": 0.6666666666666666,
+      "max": 0.6666666666666666,
+      "p_value": null
+    },
+    "recovery_rate": {
+      "mean": 0.25,
+      "std": 0.0,
+      "var": 0.0,
+      "min": 0.25,
+      "max": 0.25,
+      "p_value": null
+    }
+  },
+  "token_usage": {
+    "prompt_tokens": 988,
+    "completion_tokens": 1245,
+    "total_tokens": 2233,
+    "avg_tokens_per_sample": 2233.0,
+    "avg_tokens_per_query": 744.3333333333334
+  },
+  "cost": {
+    "total_cost": 0.0,
+    "avg_cost_per_sample": 0.0,
+    "avg_cost_per_query": 0.0
+  },
+  "cost_estimate": {
+    "estimated_cost": null,
+    "currency": "CNY",
+    "pricing_source": null,
+    "pricing_verified": false
+  },
+  "error_summary": {
+    "total_errors": 0,
+    "error_types": {},
+    "error_rate": 0.0
+  },
+  "per_sample_results": [
+    {
+      "observation_set_id": "n2_022",
+      "n_observations": 2,
+      "n_ground_truths": 4,
+      "n_queries": 3,
+      "n_valid": 1,
+      "n_unique_valid": 1,
+      "n_unique_all": 2,
+      "n_recovered_gts": 1,
+      "parse_success_count": 3,
+      "parse_success_rate": 1.0,
+      "valid_rate": 0.3333333333333333,
+      "novelty_rate": 0.6666666666666666,
+      "recovery_rate": 0.25,
+      "decoding": "adaptive",
+      "uses_ground_truth_distribution": false,
+      "api_attempt_count": 3,
+      "action_schedule": [
+        1,
+        0,
+        0
+      ],
+      "complexity_schedule": null,
+      "token_usage": {
+        "prompt_tokens": 988,
+        "completion_tokens": 1245,
+        "total_tokens": 2233
+      },
+      "cost": 0.0,
+      "request_log": [
+        {
+          "query_index": 0,
+          "target_edge_count": 1,
+          "actual_edge_count": 1,
+          "obeyed_edge_count": true,
+          "status": "ok",
+          "prompt": "You are given observations from perturbation experiments on a causal system.\n\n        Semantics:\n        - When a node is perturbed, the perturbed node is 0.\n        - A node is 1 if it is a downstream descendant of the perturbed node in the causal graph.\n        - All other nodes are 0.\n\n        Nodes: A, B, C\nConstraint: The graph should have at most 3 edges.\n\n        Observations:\n        Perturb(B) -> A:0 B:0 C:0\nPerturb(C) -> A:0 B:1 C:0\n\n        Prior predictions (do not repeat if avoidable):\n        None\n\n        Task:\n        Output a single directed acyclic graph (DAG) over the nodes above that explains all observations.\n\n        Diversity rule:\n        - A \"diverse\" graph is any valid graph whose edge set is NOT identical to any prior prediction.\n        - Generate diverse graphs when possible to explore the solution space.\n\n        Formatting rules:\n        1) Use only the listed nodes. No self-loops. No cycles.\n        2) Respond with exactly one line:\n        - If there are edges: Graph: A->B, B->C\n        - If there are no edges: Graph: No edges\n\n        Complexity constraint: the graph must contain EXACTLY 1 directed edges. An empty graph has complexity 0.",
+          "response": "Graph: C->B",
+          "attempts": [
+            {
+              "attempt": 1,
+              "duration_seconds": 3.273,
+              "status": "ok",
+              "error": null,
+              "request_id": null,
+              "finish_reason": "stop",
+              "usage": {
+                "prompt_tokens": 325,
+                "completion_tokens": 352,
+                "total_tokens": 677
+              },
+              "cost": 0.0
+            }
+          ],
+          "usage": {
+            "prompt_tokens": 325,
+            "completion_tokens": 352,
+            "total_tokens": 677
+          },
+          "api_attempt_count": 1,
+          "candidate": {
+            "nodes": [
+              "A",
+              "B",
+              "C"
+            ],
+            "edges": [
+              [
+                "C",
+                "B"
+              ]
+            ]
+          },
+          "feedback": {
+            "status": "ok",
+            "is_valid": true,
+            "failure_reason": null,
+            "failure_detail": null,
+            "canonical_hash": "1b4c04175f9c612a9d2976dfb662807f",
+            "is_new_valid": true,
+            "is_duplicate_valid": false,
+            "reward": 1,
+            "target_edge_count": 1,
+            "actual_edge_count": 1,
+            "obeyed_edge_count": true,
+            "usage": {
+              "prompt_tokens": 325,
+              "completion_tokens": 352,
+              "total_tokens": 677
+            },
+            "api_attempt_count": 1
+          },
+          "event": "candidate_complete",
+          "observation_set_id": "n2_022",
+          "decision_log": [
+            {
+              "event": "select_action",
+              "strategy": "adaptive",
+              "target_edge_count": 1,
+              "rationale": "adaptive softmax over forgotten novelty scores; top=[(0, 0.0, 0), (1, 0.0, 0), (2, 0.0, 0)]; chose 1",
+              "query_index": 0,
+              "n_unique_valid": 0,
+              "scores": {
+                "0": 0.0,
+                "1": 0.0,
+                "2": 0.0,
+                "3": 0.0
+              },
+              "counts": {
+                "0": 0,
+                "1": 0,
+                "2": 0,
+                "3": 0
+              }
+            },
+            {
+              "event": "update",
+              "strategy": "adaptive",
+              "action": 1,
+              "rationale": "adaptive forget=0.9: action=1 is_valid=True new=True score[1]=1.0000",
+              "is_valid": true,
+              "is_new_valid_answer": true,
+              "failure_reason": null,
+              "reward": 1.0,
+              "scores": {
+                "0": 0.0,
+                "1": 1.0,
+                "2": 0.0,
+                "3": 0.0
+              },
+              "counts": {
+                "0": 0,
+                "1": 1,
+                "2": 0,
+                "3": 0
+              }
+            }
+          ]
+        },
+        {
+          "query_index": 1,
+          "target_edge_count": 0,
+          "actual_edge_count": 0,
+          "obeyed_edge_count": true,
+          "status": "ok",
+          "prompt": "You are given observations from perturbation experiments on a causal system.\n\n        Semantics:\n        - When a node is perturbed, the perturbed node is 0.\n        - A node is 1 if it is a downstream descendant of the perturbed node in the causal graph.\n        - All other nodes are 0.\n\n        Nodes: A, B, C\nConstraint: The graph should have at most 3 edges.\n\n        Observations:\n        Perturb(B) -> A:0 B:0 C:0\nPerturb(C) -> A:0 B:1 C:0\n\n        Prior predictions (do not repeat if avoidable):\n        Graph: C->B\n\n        Task:\n        Output a single directed acyclic graph (DAG) over the nodes above that explains all observations.\n\n        Diversity rule:\n        - A \"diverse\" graph is any valid graph whose edge set is NOT identical to any prior prediction.\n        - Generate diverse graphs when possible to explore the solution space.\n\n        Formatting rules:\n        1) Use only the listed nodes. No self-loops. No cycles.\n        2) Respond with exactly one line:\n        - If there are edges: Graph: A->B, B->C\n        - If there are no edges: Graph: No edges\n\n        Complexity constraint: the graph must contain EXACTLY 0 directed edges. An empty graph has complexity 0.",
+          "response": "Graph: No edges",
+          "attempts": [
+            {
+              "attempt": 1,
+              "duration_seconds": 4.694,
+              "status": "ok",
+              "error": null,
+              "request_id": null,
+              "finish_reason": "stop",
+              "usage": {
+                "prompt_tokens": 329,
+                "completion_tokens": 417,
+                "total_tokens": 746
+              },
+              "cost": 0.0
+            }
+          ],
+          "usage": {
+            "prompt_tokens": 329,
+            "completion_tokens": 417,
+            "total_tokens": 746
+          },
+          "api_attempt_count": 1,
+          "candidate": {
+            "nodes": [
+              "A",
+              "B",
+              "C"
+            ],
+            "edges": []
+          },
+          "feedback": {
+            "status": "ok",
+            "is_valid": false,
+            "failure_reason": "observation_mismatch",
+            "failure_detail": null,
+            "canonical_hash": "ea7082dc19e7bb6be368b3a8cc9eda5c",
+            "is_new_valid": false,
+            "is_duplicate_valid": false,
+            "reward": 0,
+            "target_edge_count": 0,
+            "actual_edge_count": 0,
+            "obeyed_edge_count": true,
+            "usage": {
+              "prompt_tokens": 329,
+              "completion_tokens": 417,
+              "total_tokens": 746
+            },
+            "api_attempt_count": 1
+          },
+          "event": "candidate_complete",
+          "observation_set_id": "n2_022",
+          "decision_log": [
+            {
+              "event": "select_action",
+              "strategy": "adaptive",
+              "target_edge_count": 0,
+              "rationale": "adaptive softmax over forgotten novelty scores; top=[(1, 1.0, 1), (0, 0.0, 0), (2, 0.0, 0)]; chose 0",
+              "query_index": 1,
+              "n_unique_valid": 1,
+              "scores": {
+                "0": 0.0,
+                "1": 1.0,
+                "2": 0.0,
+                "3": 0.0
+              },
+              "counts": {
+                "0": 0,
+                "1": 1,
+                "2": 0,
+                "3": 0
+              }
+            },
+            {
+              "event": "update",
+              "strategy": "adaptive",
+              "action": 0,
+              "rationale": "adaptive forget=0.9: action=0 is_valid=False new=False score[0]=0.0000 failure_reason=observation_mismatch",
+              "is_valid": false,
+              "is_new_valid_answer": false,
+              "failure_reason": "observation_mismatch",
+              "reward": 0.0,
+              "scores": {
+                "0": 0.0,
+                "1": 0.9,
+                "2": 0.0,
+                "3": 0.0
+              },
+              "counts": {
+                "0": 1,
+                "1": 1,
+                "2": 0,
+                "3": 0
+              }
+            }
+          ]
+        },
+        {
+          "query_index": 2,
+          "target_edge_count": 0,
+          "actual_edge_count": 0,
+          "obeyed_edge_count": true,
+          "status": "ok",
+          "prompt": "You are given observations from perturbation experiments on a causal system.\n\n        Semantics:\n        - When a node is perturbed, the perturbed node is 0.\n        - A node is 1 if it is a downstream descendant of the perturbed node in the causal graph.\n        - All other nodes are 0.\n\n        Nodes: A, B, C\nConstraint: The graph should have at most 3 edges.\n\n        Observations:\n        Perturb(B) -> A:0 B:0 C:0\nPerturb(C) -> A:0 B:1 C:0\n\n        Prior predictions (do not repeat if avoidable):\n        Graph: C->B\nGraph: No edges\n\n        Task:\n        Output a single directed acyclic graph (DAG) over the nodes above that explains all observations.\n\n        Diversity rule:\n        - A \"diverse\" graph is any valid graph whose edge set is NOT identical to any prior prediction.\n        - Generate diverse graphs when possible to explore the solution space.\n\n        Formatting rules:\n        1) Use only the listed nodes. No self-loops. No cycles.\n        2) Respond with exactly one line:\n        - If there are edges: Graph: A->B, B->C\n        - If there are no edges: Graph: No edges\n\n        Complexity constraint: the graph must contain EXACTLY 0 directed edges. An empty graph has complexity 0.",
+          "response": "Graph: No edges",
+          "attempts": [
+            {
+              "attempt": 1,
+              "duration_seconds": 3.973,
+              "status": "ok",
+              "error": null,
+              "request_id": null,
+              "finish_reason": "stop",
+              "usage": {
+                "prompt_tokens": 334,
+                "completion_tokens": 476,
+                "total_tokens": 810
+              },
+              "cost": 0.0
+            }
+          ],
+          "usage": {
+            "prompt_tokens": 334,
+            "completion_tokens": 476,
+            "total_tokens": 810
+          },
+          "api_attempt_count": 1,
+          "candidate": {
+            "nodes": [
+              "A",
+              "B",
+              "C"
+            ],
+            "edges": []
+          },
+          "feedback": {
+            "status": "ok",
+            "is_valid": false,
+            "failure_reason": "observation_mismatch",
+            "failure_detail": null,
+            "canonical_hash": "ea7082dc19e7bb6be368b3a8cc9eda5c",
+            "is_new_valid": false,
+            "is_duplicate_valid": false,
+            "reward": 0,
+            "target_edge_count": 0,
+            "actual_edge_count": 0,
+            "obeyed_edge_count": true,
+            "usage": {
+              "prompt_tokens": 334,
+              "completion_tokens": 476,
+              "total_tokens": 810
+            },
+            "api_attempt_count": 1
+          },
+          "event": "candidate_complete",
+          "observation_set_id": "n2_022",
+          "decision_log": [
+            {
+              "event": "select_action",
+              "strategy": "adaptive",
+              "target_edge_count": 0,
+              "rationale": "adaptive softmax over forgotten novelty scores; top=[(1, 0.9, 1), (0, 0.0, 1), (2, 0.0, 0)]; chose 0",
+              "query_index": 2,
+              "n_unique_valid": 1,
+              "scores": {
+                "0": 0.0,
+                "1": 0.9,
+                "2": 0.0,
+                "3": 0.0
+              },
+              "counts": {
+                "0": 1,
+                "1": 1,
+                "2": 0,
+                "3": 0
+              }
+            },
+            {
+              "event": "update",
+              "strategy": "adaptive",
+              "action": 0,
+              "rationale": "adaptive forget=0.9: action=0 is_valid=False new=False score[0]=0.0000 failure_reason=observation_mismatch",
+              "is_valid": false,
+              "is_new_valid_answer": false,
+              "failure_reason": "observation_mismatch",
+              "reward": 0.0,
+              "scores": {
+                "0": 0.0,
+                "1": 0.81,
+                "2": 0.0,
+                "3": 0.0
+              },
+              "counts": {
+                "0": 2,
+                "1": 1,
+                "2": 0,
+                "3": 0
+              }
+            }
+          ]
+        }
+      ],
+      "errors": [],
+      "error_summary": {
+        "total_errors": 0,
+        "error_types": {}
+      },
+      "all_hypotheses": [
+        {
+          "nodes": [
+            "A",
+            "B",
+            "C"
+          ],
+          "edges": [
+            [
+              "C",
+              "B"
+            ]
+          ]
+        },
+        {
+          "nodes": [
+            "A",
+            "B",
+            "C"
+          ],
+          "edges": []
+        },
+        {
+          "nodes": [
+            "A",
+            "B",
+            "C"
+          ],
+          "edges": []
+        }
+      ],
+      "valid_hypotheses": [
+        {
+          "nodes": [
+            "A",
+            "B",
+            "C"
+          ],
+          "edges": [
+            [
+              "C",
+              "B"
+            ]
+          ]
+        }
+      ],
+      "unique_graphs": [
+        {
+          "nodes": [
+            "A",
+            "B",
+            "C"
+          ],
+          "edges": [
+            [
+              "C",
+              "B"
+            ]
+          ]
+        }
+      ],
+      "controller_seed": 10787892732636736240,
+      "decision_log": [
+        {
+          "event": "select_action",
+          "strategy": "adaptive",
+          "target_edge_count": 1,
+          "rationale": "adaptive softmax over forgotten novelty scores; top=[(0, 0.0, 0), (1, 0.0, 0), (2, 0.0, 0)]; chose 1",
+          "query_index": 0,
+          "n_unique_valid": 0,
+          "scores": {
+            "0": 0.0,
+            "1": 0.0,
+            "2": 0.0,
+            "3": 0.0
+          },
+          "counts": {
+            "0": 0,
+            "1": 0,
+            "2": 0,
+            "3": 0
+          }
+        },
+        {
+          "event": "update",
+          "strategy": "adaptive",
+          "action": 1,
+          "rationale": "adaptive forget=0.9: action=1 is_valid=True new=True score[1]=1.0000",
+          "is_valid": true,
+          "is_new_valid_answer": true,
+          "failure_reason": null,
+          "reward": 1.0,
+          "scores": {
+            "0": 0.0,
+            "1": 1.0,
+            "2": 0.0,
+            "3": 0.0
+          },
+          "counts": {
+            "0": 0,
+            "1": 1,
+            "2": 0,
+            "3": 0
+          }
+        },
+        {
+          "event": "select_action",
+          "strategy": "adaptive",
+          "target_edge_count": 0,
+          "rationale": "adaptive softmax over forgotten novelty scores; top=[(1, 1.0, 1), (0, 0.0, 0), (2, 0.0, 0)]; chose 0",
+          "query_index": 1,
+          "n_unique_valid": 1,
+          "scores": {
+            "0": 0.0,
+            "1": 1.0,
+            "2": 0.0,
+            "3": 0.0
+          },
+          "counts": {
+            "0": 0,
+            "1": 1,
+            "2": 0,
+            "3": 0
+          }
+        },
+        {
+          "event": "update",
+          "strategy": "adaptive",
+          "action": 0,
+          "rationale": "adaptive forget=0.9: action=0 is_valid=False new=False score[0]=0.0000 failure_reason=observation_mismatch",
+          "is_valid": false,
+          "is_new_valid_answer": false,
+          "failure_reason": "observation_mismatch",
+          "reward": 0.0,
+          "scores": {
+            "0": 0.0,
+            "1": 0.9,
+            "2": 0.0,
+            "3": 0.0
+          },
+          "counts": {
+            "0": 1,
+            "1": 1,
+            "2": 0,
+            "3": 0
+          }
+        },
+        {
+          "event": "select_action",
+          "strategy": "adaptive",
+          "target_edge_count": 0,
+          "rationale": "adaptive softmax over forgotten novelty scores; top=[(1, 0.9, 1), (0, 0.0, 1), (2, 0.0, 0)]; chose 0",
+          "query_index": 2,
+          "n_unique_valid": 1,
+          "scores": {
+            "0": 0.0,
+            "1": 0.9,
+            "2": 0.0,
+            "3": 0.0
+          },
+          "counts": {
+            "0": 1,
+            "1": 1,
+            "2": 0,
+            "3": 0
+          }
+        },
+        {
+          "event": "update",
+          "strategy": "adaptive",
+          "action": 0,
+          "rationale": "adaptive forget=0.9: action=0 is_valid=False new=False score[0]=0.0000 failure_reason=observation_mismatch",
+          "is_valid": false,
+          "is_new_valid_answer": false,
+          "failure_reason": "observation_mismatch",
+          "reward": 0.0,
+          "scores": {
+            "0": 0.0,
+            "1": 0.81,
+            "2": 0.0,
+            "3": 0.0
+          },
+          "counts": {
+            "0": 2,
+            "1": 1,
+            "2": 0,
+            "3": 0
+          }
+        }
+      ]
+    }
+  ],
+  "experiment_manifest": {
+    "schema_version": 1,
+    "settings": {
+      "dataset_sha256": "c6b366718cb56b86e539df2905b42b4995c359f66032831828f87499c52978ad",
+      "n_queries": 3,
+      "n_samples": 1,
+      "seed": 17,
+      "llm_type": "dashscope",
+      "model": "deepseek-v4.1-flash-1017",
+      "temperature": 0.7,
+      "max_tokens": 2048,
+      "max_retries": 1,
+      "request_timeout": 60.0,
+      "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+      "n_observations_filter": null
+    },
+    "question_ids": [
+      "n2_022"
+    ]
+  },
+  "candidate_log_path": "smoke-adaptive-17.candidates.a99d8301.jsonl"
+}

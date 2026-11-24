@@ -1,0 +1,527 @@
+{
+  "model": "deepseek-v4.1-flash-1017",
+  "seed": 33550336,
+  "dataset": "causal/datasets/node03/n3_all_observations.json",
+  "target_edge_count": 2,
+  "max_attempts": 1,
+  "arms": {
+    "unconstrained": {
+      "candidate_slots": 5,
+      "api_attempts": 5,
+      "api_errors": 0,
+      "parsed": 5,
+      "matching_edge_count": 3,
+      "valid": 5,
+      "usage": {
+        "prompt_tokens": 1548,
+        "completion_tokens": 2521,
+        "total_tokens": 4069
+      },
+      "cost_estimate": {
+        "estimated_cost": null,
+        "currency": "CNY",
+        "pricing_source": null,
+        "pricing_verified": false
+      },
+      "results": [
+        {
+          "question_id": "n3_006",
+          "call_order": 1,
+          "status": "ok",
+          "target_edge_count": null,
+          "actual_edge_count": 1,
+          "obeyed_edge_count": null,
+          "matches_requested_count": false,
+          "valid": true,
+          "candidate": {
+            "nodes": [
+              "A",
+              "B",
+              "C"
+            ],
+            "edges": [
+              [
+                "B",
+                "A"
+              ]
+            ]
+          },
+          "candidate_hash": "652a53d0783a8ac6205ad9630b5608e8",
+          "response": "Graph: B->A",
+          "usage": {
+            "prompt_tokens": 316,
+            "completion_tokens": 620,
+            "total_tokens": 936
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "duration_seconds": 10.31,
+              "status": "ok",
+              "error": null,
+              "request_id": null,
+              "finish_reason": "stop",
+              "usage": {
+                "prompt_tokens": 316,
+                "completion_tokens": 620,
+                "total_tokens": 936
+              },
+              "cost": 0.0
+            }
+          ]
+        },
+        {
+          "question_id": "n3_017",
+          "call_order": 2,
+          "status": "ok",
+          "target_edge_count": null,
+          "actual_edge_count": 2,
+          "obeyed_edge_count": null,
+          "matches_requested_count": true,
+          "valid": true,
+          "candidate": {
+            "nodes": [
+              "A",
+              "B",
+              "C"
+            ],
+            "edges": [
+              [
+                "A",
+                "B"
+              ],
+              [
+                "A",
+                "C"
+              ]
+            ]
+          },
+          "candidate_hash": "107d8f39871d53b1316b0b46729b8b84",
+          "response": "Graph: A->B, A->C",
+          "usage": {
+            "prompt_tokens": 316,
+            "completion_tokens": 363,
+            "total_tokens": 679
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "duration_seconds": 3.8,
+              "status": "ok",
+              "error": null,
+              "request_id": null,
+              "finish_reason": "stop",
+              "usage": {
+                "prompt_tokens": 316,
+                "completion_tokens": 363,
+                "total_tokens": 679
+              },
+              "cost": 0.0
+            }
+          ]
+        },
+        {
+          "question_id": "n2_016",
+          "call_order": 1,
+          "status": "ok",
+          "target_edge_count": null,
+          "actual_edge_count": 2,
+          "obeyed_edge_count": null,
+          "matches_requested_count": true,
+          "valid": true,
+          "candidate": {
+            "nodes": [
+              "A",
+              "B",
+              "C"
+            ],
+            "edges": [
+              [
+                "C",
+                "A"
+              ],
+              [
+                "A",
+                "B"
+              ]
+            ]
+          },
+          "candidate_hash": "ef2e0d4100033a4a0dd53e04394d4ee6",
+          "response": "Graph: C->A, A->B",
+          "usage": {
+            "prompt_tokens": 300,
+            "completion_tokens": 341,
+            "total_tokens": 641
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "duration_seconds": 3.712,
+              "status": "ok",
+              "error": null,
+              "request_id": null,
+              "finish_reason": "stop",
+              "usage": {
+                "prompt_tokens": 300,
+                "completion_tokens": 341,
+                "total_tokens": 641
+              },
+              "cost": 0.0
+            }
+          ]
+        },
+        {
+          "question_id": "n3_004",
+          "call_order": 2,
+          "status": "ok",
+          "target_edge_count": null,
+          "actual_edge_count": 2,
+          "obeyed_edge_count": null,
+          "matches_requested_count": true,
+          "valid": true,
+          "candidate": {
+            "nodes": [
+              "A",
+              "B",
+              "C"
+            ],
+            "edges": [
+              [
+                "C",
+                "A"
+              ],
+              [
+                "C",
+                "B"
+              ]
+            ]
+          },
+          "candidate_hash": "ed012d01fe298f0b07846521f44c7bce",
+          "response": "Graph: C->A, C->B",
+          "usage": {
+            "prompt_tokens": 316,
+            "completion_tokens": 552,
+            "total_tokens": 868
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "duration_seconds": 4.492,
+              "status": "ok",
+              "error": null,
+              "request_id": null,
+              "finish_reason": "stop",
+              "usage": {
+                "prompt_tokens": 316,
+                "completion_tokens": 552,
+                "total_tokens": 868
+              },
+              "cost": 0.0
+            }
+          ]
+        },
+        {
+          "question_id": "n2_022",
+          "call_order": 1,
+          "status": "ok",
+          "target_edge_count": null,
+          "actual_edge_count": 1,
+          "obeyed_edge_count": null,
+          "matches_requested_count": false,
+          "valid": true,
+          "candidate": {
+            "nodes": [
+              "A",
+              "B",
+              "C"
+            ],
+            "edges": [
+              [
+                "C",
+                "B"
+              ]
+            ]
+          },
+          "candidate_hash": "1b4c04175f9c612a9d2976dfb662807f",
+          "response": "Graph: C->B",
+          "usage": {
+            "prompt_tokens": 300,
+            "completion_tokens": 645,
+            "total_tokens": 945
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "duration_seconds": 4.838,
+              "status": "ok",
+              "error": null,
+              "request_id": null,
+              "finish_reason": "stop",
+              "usage": {
+                "prompt_tokens": 300,
+                "completion_tokens": 645,
+                "total_tokens": 945
+              },
+              "cost": 0.0
+            }
+          ]
+        }
+      ]
+    },
+    "constrained": {
+      "candidate_slots": 5,
+      "api_attempts": 5,
+      "api_errors": 0,
+      "parsed": 4,
+      "matching_edge_count": 4,
+      "valid": 4,
+      "usage": {
+        "prompt_tokens": 1673,
+        "completion_tokens": 5128,
+        "total_tokens": 6801
+      },
+      "cost_estimate": {
+        "estimated_cost": null,
+        "currency": "CNY",
+        "pricing_source": null,
+        "pricing_verified": false
+      },
+      "results": [
+        {
+          "question_id": "n3_006",
+          "call_order": 2,
+          "status": "parse_error",
+          "target_edge_count": 2,
+          "actual_edge_count": null,
+          "obeyed_edge_count": null,
+          "matches_requested_count": false,
+          "valid": null,
+          "candidate": null,
+          "candidate_hash": null,
+          "response": "",
+          "usage": {
+            "prompt_tokens": 341,
+            "completion_tokens": 2048,
+            "total_tokens": 2389
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "duration_seconds": 17.606,
+              "status": "ok",
+              "error": null,
+              "request_id": null,
+              "finish_reason": "length",
+              "usage": {
+                "prompt_tokens": 341,
+                "completion_tokens": 2048,
+                "total_tokens": 2389
+              },
+              "cost": 0.0
+            }
+          ]
+        },
+        {
+          "question_id": "n3_017",
+          "call_order": 1,
+          "status": "ok",
+          "target_edge_count": 2,
+          "actual_edge_count": 2,
+          "obeyed_edge_count": true,
+          "matches_requested_count": true,
+          "valid": true,
+          "candidate": {
+            "nodes": [
+              "A",
+              "B",
+              "C"
+            ],
+            "edges": [
+              [
+                "A",
+                "B"
+              ],
+              [
+                "A",
+                "C"
+              ]
+            ]
+          },
+          "candidate_hash": "107d8f39871d53b1316b0b46729b8b84",
+          "response": "Graph: A->B, A->C",
+          "usage": {
+            "prompt_tokens": 341,
+            "completion_tokens": 400,
+            "total_tokens": 741
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "duration_seconds": 3.918,
+              "status": "ok",
+              "error": null,
+              "request_id": null,
+              "finish_reason": "stop",
+              "usage": {
+                "prompt_tokens": 341,
+                "completion_tokens": 400,
+                "total_tokens": 741
+              },
+              "cost": 0.0
+            }
+          ]
+        },
+        {
+          "question_id": "n2_016",
+          "call_order": 2,
+          "status": "ok",
+          "target_edge_count": 2,
+          "actual_edge_count": 2,
+          "obeyed_edge_count": true,
+          "matches_requested_count": true,
+          "valid": true,
+          "candidate": {
+            "nodes": [
+              "A",
+              "B",
+              "C"
+            ],
+            "edges": [
+              [
+                "C",
+                "A"
+              ],
+              [
+                "A",
+                "B"
+              ]
+            ]
+          },
+          "candidate_hash": "ef2e0d4100033a4a0dd53e04394d4ee6",
+          "response": "Graph: C->A, A->B",
+          "usage": {
+            "prompt_tokens": 325,
+            "completion_tokens": 461,
+            "total_tokens": 786
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "duration_seconds": 4.687,
+              "status": "ok",
+              "error": null,
+              "request_id": null,
+              "finish_reason": "stop",
+              "usage": {
+                "prompt_tokens": 325,
+                "completion_tokens": 461,
+                "total_tokens": 786
+              },
+              "cost": 0.0
+            }
+          ]
+        },
+        {
+          "question_id": "n3_004",
+          "call_order": 1,
+          "status": "ok",
+          "target_edge_count": 2,
+          "actual_edge_count": 2,
+          "obeyed_edge_count": true,
+          "matches_requested_count": true,
+          "valid": true,
+          "candidate": {
+            "nodes": [
+              "A",
+              "B",
+              "C"
+            ],
+            "edges": [
+              [
+                "C",
+                "A"
+              ],
+              [
+                "C",
+                "B"
+              ]
+            ]
+          },
+          "candidate_hash": "ed012d01fe298f0b07846521f44c7bce",
+          "response": "Graph: C->A, C->B",
+          "usage": {
+            "prompt_tokens": 341,
+            "completion_tokens": 780,
+            "total_tokens": 1121
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "duration_seconds": 7.88,
+              "status": "ok",
+              "error": null,
+              "request_id": null,
+              "finish_reason": "stop",
+              "usage": {
+                "prompt_tokens": 341,
+                "completion_tokens": 780,
+                "total_tokens": 1121
+              },
+              "cost": 0.0
+            }
+          ]
+        },
+        {
+          "question_id": "n2_022",
+          "call_order": 2,
+          "status": "ok",
+          "target_edge_count": 2,
+          "actual_edge_count": 2,
+          "obeyed_edge_count": true,
+          "matches_requested_count": true,
+          "valid": true,
+          "candidate": {
+            "nodes": [
+              "A",
+              "B",
+              "C"
+            ],
+            "edges": [
+              [
+                "C",
+                "B"
+              ],
+              [
+                "A",
+                "B"
+              ]
+            ]
+          },
+          "candidate_hash": "0735060949b929eb2c5408228b0cb405",
+          "response": "Graph: C->B, A->B",
+          "usage": {
+            "prompt_tokens": 325,
+            "completion_tokens": 1439,
+            "total_tokens": 1764
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "duration_seconds": 11.838,
+              "status": "ok",
+              "error": null,
+              "request_id": null,
+              "finish_reason": "stop",
+              "usage": {
+                "prompt_tokens": 325,
+                "completion_tokens": 1439,
+                "total_tokens": 1764
+              },
+              "cost": 0.0
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
