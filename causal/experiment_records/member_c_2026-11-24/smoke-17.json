@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "settings": {
+    "dataset_sha256": "c6b366718cb56b86e539df2905b42b4995c359f66032831828f87499c52978ad",
+    "n_queries": 3,
+    "n_samples": 1,
+    "seed": 17,
+    "llm_type": "dashscope",
+    "model": "deepseek-v4.1-flash-1017",
+    "temperature": 0.7,
+    "max_tokens": 2048,
+    "max_retries": 1,
+    "request_timeout": 60.0,
+    "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+    "n_observations_filter": null
+  },
+  "question_ids": [
+    "n2_022"
+  ]
+}
