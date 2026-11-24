@@ -45,3 +45,17 @@ python3 -m unittest -v test_generation_executor.py
 ```
 
 These checks make no paid API calls and do not establish a Recovery gain.
+
+For a single-question prompt preview with no API call:
+
+```bash
+python3 run_generation_pilot.py \
+  --dataset datasets/boolean_extended_d2.json \
+  --config config/config_api.example.yaml \
+  --target-operator-count 1 --seed 17 --dry-run
+```
+
+Remove `--dry-run` to make one provider call, after setting
+`DASHSCOPE_API_KEY` in the shell. The pilot prints a compact development
+record; `--output` optionally saves it locally. Do not add pilot logs to the
+formal results on `main`.
