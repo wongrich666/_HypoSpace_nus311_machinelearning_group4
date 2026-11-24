@@ -102,7 +102,8 @@ class OpenRouterLLM(LLMInterface):
         api_key: Optional[str] = None,
         temperature: float = 0.7,
         max_tokens: int = 40960,
-        base_url: str = "https://openrouter.ai/api/v1"
+        base_url: str = "https://openrouter.ai/api/v1",
+        request_timeout: float = 60.0,
     ):
         """
         Initialize OpenRouter LLM interface.
@@ -122,6 +123,9 @@ class OpenRouterLLM(LLMInterface):
         self.temperature = temperature
         self.max_tokens = max_tokens
         self.base_url = base_url
+        if request_timeout <= 0:
+            raise ValueError("request_timeout must be positive")
+        self.request_timeout = request_timeout
         self.headers = {
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json"
@@ -141,14 +145,16 @@ class OpenRouterLLM(LLMInterface):
             payload = {
                 "model": self.model,
                 "messages": [
-                    {"role": "system", "content": "You are an expert in causal inference and graph theory."},
+                    {"role": "system", "content": "You are an expert in Boolean logic and expression discovery."},
                     {"role": "user", "content": prompt}
                 ],
                 "temperature": self.temperature,
                 "max_tokens": self.max_tokens
             }
             
-            response = requests.post(url, headers=self.headers, json=payload)
+            response = requests.post(
+                url, headers=self.headers, json=payload, timeout=self.request_timeout
+            )
             response.raise_for_status()
             # print('result0',response)
             result = response.json()
@@ -170,14 +176,21 @@ class OpenRouterLLM(LLMInterface):
             return {
                 'response': result['choices'][0]['message']['content'],
                 'usage': usage_data,
-                'cost': cost
+                'cost': cost,
+                'finish_reason': result['choices'][0].get('finish_reason'),
+                'request_id': response.headers.get('x-request-id') or result.get('id'),
             }
             
         except requests.exceptions.RequestException as e:
+            status = e.response.status_code if e.response is not None else None
+            detail = f"HTTP {status}" if status is not None else type(e).__name__
             return {
-                'response': f"Error querying OpenRouter: {str(e)}",
+                'response': f"Error querying OpenRouter: {detail}",
                 'usage': {'prompt_tokens': 0, 'completion_tokens': 0, 'total_tokens': 0},
-                'cost': 0.0
+                'cost': 0.0,
+                'retryable': (status == 429 or (status is not None and 500 <= status < 600)
+                              or isinstance(e, (requests.exceptions.Timeout,
+                                                requests.exceptions.ConnectionError))),
             }
         except (KeyError, IndexError) as e:
             return {
