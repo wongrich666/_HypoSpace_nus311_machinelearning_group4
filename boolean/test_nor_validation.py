@@ -25,6 +25,14 @@ class NorValidationTest(unittest.TestCase):
                 nor_count+=self.b.get_expression_mechanistic_key(gt['formula'])==key
         self.assertEqual(nor_count,15)
 
+    def test_public_space_counterexample_rejected(self):
+        formula = 'NOT x OR y OR (x AND y)'
+        self.assertEqual(len(self.b.public_space_keys), 34)
+        self.assertFalse(self.b._in_space(formula))
+        self.assertFalse(self.b.validate_expression(formula, [BooleanObservation({'x':0,'y':1},1)])[0])
+        self.assertTrue(self.b._in_space('x'))
+        self.assertTrue(self.b._in_space('y'))
+
     def test_key_unchanged_and_constraints_retained(self):
         self.assertEqual(self.b.get_expression_mechanistic_key('NOT (x OR y)'),('NOR',(('VAR','x'),('VAR','y'))))
         self.assertNotEqual(self.b.get_expression_mechanistic_key('NOT (x OR y)'),self.b.get_expression_mechanistic_key('NOT x AND NOT y'))

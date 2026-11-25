@@ -120,7 +120,7 @@ def settings_from(budget):
         "adaptive_parameters": budget["adaptive_parameters"],
         "method_definitions": budget["method_definitions"],
         "actions": [0, 1, 2, 3],
-        "validator": "fixed_not_or_composition",
+        "validator": "public_enumeration_membership_extended_d2_v1",
         "code_revision": git_revision(),
         "source_version": source_version(),
     }

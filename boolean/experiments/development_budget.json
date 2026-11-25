@@ -33,12 +33,13 @@
     "n2_inputs_10_11_outputs_00"
   ],
   "dataset_sha256": "1041174fecd914fe822a2d407b9f7c22e0e42d2f8c133775ec1026c17b0660fb",
-  "protocol_id": "boolean-extended-d2-dev-fixed16-low4096-four-methods-v2",
+  "protocol_id": "boolean-extended-d2-dev-fixed16-low4096-four-methods-v3-public-space",
   "seed_scope": "question selection and controller only; no provider seed parameter sent",
   "method_definitions": {
     "memory": "unconstrained operator count with prior-candidate memory",
     "uniform": "independent uniform random choice from [0,1,2,3]; no reward learning",
     "round_robin": "cycle 0,1,2,3 from zero for each question; no reward learning",
     "adaptive": "B-confirmed feedback strategy"
-  }
+  },
+  "validator": "public_enumeration_membership_extended_d2_v1"
 }
