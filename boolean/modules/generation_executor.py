@@ -31,6 +31,7 @@ class BooleanGenerationResult:
     target_operator_count: Optional[int]
     prompt: str = ""
     response: Optional[str] = None
+    reasoning_content: str = ""
     candidate: Optional[str] = None
     actual_operator_count: Optional[int] = None
     obeyed_operator_count: Optional[bool] = None
@@ -44,7 +45,7 @@ class BooleanGenerationResult:
 def _transient_error(message: str) -> bool:
     message = message.lower()
     return any(term in message for term in (
-        "timeout", "timed out", "connection", "rate limit", "rate_limit",
+        "timeout", "timed out", "connection", "ssl", "rate limit", "rate_limit",
         "429", "500", "502", "503", "504", "server error",
     ))
 
@@ -116,6 +117,9 @@ def generate_boolean_one(
             "error": error,
             "request_id": payload.get("request_id"),
             "finish_reason": payload.get("finish_reason"),
+            "content": payload.get("response") if isinstance(payload.get("response"), str) else "",
+            "reasoning_content": payload.get("reasoning_content") or "",
+            "request_parameters": payload.get("request_parameters"),
             "usage": {key: int(usage.get(key) or 0) for key in result.usage},
             "cost": cost,
         }
@@ -132,7 +136,8 @@ def generate_boolean_one(
                 continue
             return result
 
-        result.response = payload.get("response") or ""
+        result.response = payload.get("response") if isinstance(payload.get("response"), str) else ""
+        result.reasoning_content = payload.get("reasoning_content") or ""
         if payload.get("finish_reason") == "length":
             result.status = "truncated"
             return result

@@ -1,6 +1,13 @@
 import traceback
 import random
 import requests
+
+
+def direct_http_session() -> requests.Session:
+    """Ignore process and system proxy settings. TLS verification stays enabled."""
+    session = requests.Session()
+    session.trust_env = False
+    return session
 from abc import ABC, abstractmethod
 from typing import List, Optional, Dict, Any, Tuple
 import re
@@ -102,7 +109,9 @@ class OpenRouterLLM(LLMInterface):
         api_key: Optional[str] = None,
         temperature: float = 0.7,
         max_tokens: int = 40960,
-        base_url: str = "https://openrouter.ai/api/v1"
+        base_url: str = "https://openrouter.ai/api/v1",
+        request_timeout: float = 60.0,
+        reasoning_effort: Optional[str] = None,
     ):
         """
         Initialize OpenRouter LLM interface.
@@ -122,6 +131,11 @@ class OpenRouterLLM(LLMInterface):
         self.temperature = temperature
         self.max_tokens = max_tokens
         self.base_url = base_url
+        if request_timeout <= 0:
+            raise ValueError("request_timeout must be positive")
+        self.request_timeout = request_timeout
+        self.reasoning_effort = reasoning_effort
+        self.session = direct_http_session()
         self.headers = {
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json"
@@ -134,21 +148,37 @@ class OpenRouterLLM(LLMInterface):
         result = self.query_with_usage(prompt)
         return result['response']
     
+    def request_body(self, prompt: str) -> Dict[str, Any]:
+        """JSON body actually posted. reasoning_effort is omitted only when unset."""
+        body = {
+            "model": self.model,
+            "messages": [
+                {"role": "system", "content": "You are an expert in Boolean expressions. Return one expression and no explanation."},
+                {"role": "user", "content": prompt}
+            ],
+            "temperature": self.temperature,
+            "max_tokens": self.max_tokens,
+        }
+        if self.reasoning_effort:
+            body["reasoning_effort"] = self.reasoning_effort
+        return body
+
     def query_with_usage(self, prompt: str) -> Dict[str, Any]:
         """Query OpenRouter API with usage tracking."""
+        request_parameters = {
+            "model": self.model,
+            "temperature": self.temperature,
+            "max_tokens": self.max_tokens,
+            "reasoning_effort": self.reasoning_effort,
+            "request_timeout": self.request_timeout,
+        }
         try:
             url = f"{self.base_url}/chat/completions"
-            payload = {
-                "model": self.model,
-                "messages": [
-                    {"role": "system", "content": "You are an expert in causal inference and graph theory."},
-                    {"role": "user", "content": prompt}
-                ],
-                "temperature": self.temperature,
-                "max_tokens": self.max_tokens
-            }
+            payload = self.request_body(prompt)
             
-            response = requests.post(url, headers=self.headers, json=payload)
+            response = self.session.post(
+                url, headers=self.headers, json=payload, timeout=self.request_timeout
+            )
             response.raise_for_status()
             # print('result0',response)
             result = response.json()
@@ -167,21 +197,39 @@ class OpenRouterLLM(LLMInterface):
             cost = (usage_data['prompt_tokens'] * pricing['input'] + 
                    usage_data['completion_tokens'] * pricing['output']) / 1_000_000
             
+            message = result['choices'][0]['message']
+            content = message.get('content')
+            reasoning = message.get('reasoning_content')
             return {
-                'response': result['choices'][0]['message']['content'],
+                'response': content if isinstance(content, str) else "",
+                'reasoning_content': reasoning if isinstance(reasoning, str) else "",
                 'usage': usage_data,
-                'cost': cost
+                'cost': cost,
+                'finish_reason': result['choices'][0].get('finish_reason'),
+                'request_id': response.headers.get('x-request-id') or result.get('id'),
+                'request_parameters': request_parameters,
+                'retryable': False,
             }
             
         except requests.exceptions.RequestException as e:
+            status = e.response.status_code if e.response is not None else None
+            detail = f"HTTP {status}" if status is not None else type(e).__name__
             return {
-                'response': f"Error querying OpenRouter: {str(e)}",
+                'response': f"Error querying OpenRouter: {detail}",
+                'reasoning_content': "",
+                'request_parameters': request_parameters,
+                'retryable': (
+                    status == 429 or (status is not None and 500 <= status < 600)
+                    or isinstance(e, (requests.exceptions.Timeout, requests.exceptions.ConnectionError))
+                ),
                 'usage': {'prompt_tokens': 0, 'completion_tokens': 0, 'total_tokens': 0},
                 'cost': 0.0
             }
         except (KeyError, IndexError) as e:
             return {
                 'response': f"Error parsing OpenRouter response: {str(e)}",
+                'reasoning_content': "",
+                'request_parameters': request_parameters,
                 'usage': {'prompt_tokens': 0, 'completion_tokens': 0, 'total_tokens': 0},
                 'cost': 0.0
             }
