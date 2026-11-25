@@ -97,6 +97,13 @@ def decoding_metadata(decoding: str) -> Dict:
             "allocation_source": "none",
             "uses_ground_truth_distribution": False,
         }
+    if decoding in ("uniform", "round_robin"):
+        return {
+            "decoding": decoding,
+            "method_label": f"Non-learning operator-count {decoding}",
+            "allocation_source": "public_operator_counts",
+            "uses_ground_truth_distribution": False,
+        }
     if decoding == "adaptive":
         return {
             "decoding": "adaptive",
@@ -857,9 +864,9 @@ class BooleanBenchmarkRefined:
         """
         if isinstance(n_queries_per_sample, bool) or not isinstance(n_queries_per_sample, int) or n_queries_per_sample <= 0:
             raise ValueError("Explicit positive n_queries_per_sample required; answer-count budgets disabled")
-        if decoding not in ("memory", "stratified", "adaptive"):
+        if decoding not in ("memory", "stratified", "uniform", "round_robin", "adaptive"):
             raise ValueError("Unknown decoding method")
-        if decoding == "adaptive" and seed is None:
+        if decoding in ("uniform", "round_robin", "adaptive") and seed is None:
             raise ValueError("Adaptive runs require a fixed seed")
         # Create checkpoint directory
         checkpoint_path = Path(checkpoint_dir)
@@ -943,7 +950,7 @@ class BooleanBenchmarkRefined:
                 n_queries = n_queries_per_sample
                 controller = None
                 controller_seed = None
-                if decoding == "adaptive":
+                if decoding in ("uniform", "round_robin", "adaptive"):
                     params = adaptive_parameters or {}
                     question_id = obs_set["observation_set_id"]
                     controller_seed = int(hashlib.sha256(
@@ -952,6 +959,7 @@ class BooleanBenchmarkRefined:
                     controller = BooleanAdaptiveController(
                         self.max_operator_count,
                         seed=controller_seed,
+                        strategy=decoding,
                         forget_factor=params.get("forget_factor", 0.9),
                         temperature=params.get("controller_temperature", 1.0),
                         explore_bonus=params.get("explore_bonus", 0.15),
@@ -968,6 +976,8 @@ class BooleanBenchmarkRefined:
                 result["max_operator_count"] = self.max_operator_count
                 if controller is not None:
                     result["method_parameters"] = {
+                        "strategy": controller.strategy,
+                        "actions": list(range(self.max_operator_count + 1)),
                         "forget_factor": controller.forget_factor,
                         "controller_temperature": controller.temperature,
                         "explore_bonus": controller.explore_bonus,
@@ -1223,7 +1233,7 @@ def main():
     parser.add_argument("--n-queries", type=int, required=True, help="Fixed candidate slots per question; development protocol uses 16")
     parser.add_argument("--query-multiplier", type=float, default=1.0, help="Multiplier for adaptive queries (n_queries = n_gt * multiplier)")
     parser.add_argument("--seed", type=int, default=None, help="Random seed for sampling")
-    parser.add_argument("--decoding", choices=["memory", "stratified", "adaptive"], default="memory",
+    parser.add_argument("--decoding", choices=["memory", "stratified", "uniform", "round_robin", "adaptive"], default="memory",
                         help="memory, oracle stratified, or online adaptive operator-count control")
     
     args = parser.parse_args()

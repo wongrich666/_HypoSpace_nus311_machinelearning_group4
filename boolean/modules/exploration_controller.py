@@ -33,6 +33,7 @@ class BooleanAdaptiveController:
         max_operator_count: int,
         *,
         seed: Optional[int] = None,
+        strategy: str = "adaptive",
         forget_factor: float = 0.9,
         temperature: float = 1.0,
         explore_bonus: float = 0.15,
@@ -43,6 +44,9 @@ class BooleanAdaptiveController:
             raise ValueError("temperature must be positive")
         if explore_bonus < 0:
             raise ValueError("explore_bonus must be non-negative")
+        if strategy not in ("adaptive", "uniform", "round_robin"):
+            raise ValueError("Unknown controller strategy")
+        self.strategy = strategy
         self.max_operator_count = _as_nonneg_int(max_operator_count, "max_operator_count")
         self.forget_factor = float(forget_factor)
         self.temperature = float(temperature)
@@ -57,7 +61,7 @@ class BooleanAdaptiveController:
     def reset(self, seed: Optional[int] = None) -> None:
         if seed is not None:
             self.seed = int(seed)
-            self._rng = random.Random(self.seed)
+        self._rng = random.Random(self.seed)
         self._scores = {k: 0.0 for k in self._actions}
         self._counts = {k: 0 for k in self._actions}
         self.decision_log = []
@@ -65,28 +69,33 @@ class BooleanAdaptiveController:
     def select_action(self, state: Optional[Mapping[str, Any]] = None) -> int:
         state = state or {}
         _reject_oracle(state)
-        total = max(1, sum(self._counts.values()))
-        logits = []
-        for action in self._actions:
-            bonus = self.explore_bonus * math.sqrt(
-                math.log(total + 1.0) / (self._counts[action] + 1.0)
-            )
-            logits.append((self._scores[action] + bonus) / self.temperature)
-        shift = max(logits)
-        weights = [math.exp(item - shift) for item in logits]
-        draw = self._rng.random() * sum(weights)
-        cursor = 0.0
-        chosen = self._actions[-1]
-        for action, weight in zip(self._actions, weights):
-            cursor += weight
-            if draw <= cursor:
-                chosen = action
-                break
+        if self.strategy == "uniform":
+            chosen = self._rng.choice(self._actions)
+        elif self.strategy == "round_robin":
+            chosen = self._actions[sum(self._counts.values()) % len(self._actions)]
+        else:
+            total = max(1, sum(self._counts.values()))
+            logits = []
+            for action in self._actions:
+                bonus = self.explore_bonus * math.sqrt(
+                    math.log(total + 1.0) / (self._counts[action] + 1.0)
+                )
+                logits.append((self._scores[action] + bonus) / self.temperature)
+            shift = max(logits)
+            weights = [math.exp(item - shift) for item in logits]
+            draw = self._rng.random() * sum(weights)
+            cursor = 0.0
+            chosen = self._actions[-1]
+            for action, weight in zip(self._actions, weights):
+                cursor += weight
+                if draw <= cursor:
+                    chosen = action
+                    break
         self.decision_log.append({
             "event": "select_action",
-            "strategy": "adaptive",
+            "strategy": self.strategy,
             "target_operator_count": chosen,
-            "rationale": f"adaptive softmax forget={self.forget_factor}",
+            "rationale": (f"adaptive softmax forget={self.forget_factor}" if self.strategy == "adaptive" else self.strategy),
             "query_index": state.get("query_index"),
             "n_unique_valid": state.get("n_unique_valid"),
             "scores": {str(k): v for k, v in self._scores.items()},
@@ -101,7 +110,7 @@ class BooleanAdaptiveController:
         _reject_oracle(feedback)
         if action is None:
             self.decision_log.append({
-                "event": "update", "strategy": "adaptive", "action": None,
+                "event": "update", "strategy": self.strategy, "action": None,
                 "rationale": "skip learning: null action",
             })
             return
@@ -109,16 +118,17 @@ class BooleanAdaptiveController:
         if action not in self._scores:
             raise ValueError("action is outside the public operator-count bound")
         reward = 1.0 if feedback.get("is_new_valid") else 0.0
-        for key in self._actions:
-            self._scores[key] *= self.forget_factor
-        self._scores[action] += reward
+        if self.strategy == "adaptive":
+            for key in self._actions:
+                self._scores[key] *= self.forget_factor
+            self._scores[action] += reward
         self._counts[action] += 1
         self.decision_log.append({
             "event": "update",
-            "strategy": "adaptive",
+            "strategy": self.strategy,
             "action": action,
             "rationale": (
-                f"adaptive forget={self.forget_factor}: action={action} "
+                f"{self.strategy} forget={self.forget_factor}: action={action} "
                 f"new={bool(feedback.get('is_new_valid'))} score[{action}]={self._scores[action]:.4f}"
             ),
             "is_valid": bool(feedback.get("is_valid", False)),
