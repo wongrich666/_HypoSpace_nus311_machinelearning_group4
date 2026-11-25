@@ -22,7 +22,7 @@ import traceback
 sys.path.append(str(Path(__file__).parent))
 
 from modules.llm_interface import LLMInterface, OpenRouterLLM, OpenAILLM, AnthropicLLM
-from boolean_dataset import BooleanExpression, BooleanObservation
+from boolean_dataset import BooleanExpression, BooleanObservation, BooleanDiscoveryGame
 from modules.generation_executor import generate_boolean_one
 from modules.exploration_controller import BooleanAdaptiveController
 
@@ -167,6 +167,17 @@ class BooleanBenchmarkRefined:
         self.operators = set(self.metadata['operators'])
         self.max_depth = self.metadata['max_depth']
         self.max_operator_count = public_operator_bound(self.metadata)
+        # Scope the exhaustive membership check to the audited extended_d2 grammar.
+        # Enumerate from public metadata only, never per-question answer sets.
+        self.public_space_keys = None
+        if (set(self.variables) == {"x", "y"}
+                and self.operators == {"AND", "OR", "NOT"} and self.max_depth == 2):
+            self.public_space_keys = frozenset(
+                expr.mechanistic_key(**self.mechanistic_opts)
+                for expr in BooleanDiscoveryGame.generate_all_expressions(
+                    self.variables, self.operators, self.max_depth, self.mechanistic_opts)
+            )
+
         
         # Flatten all datasets into a single list for sampling
         self.all_observation_sets = []
@@ -404,6 +415,10 @@ class BooleanBenchmarkRefined:
             # Check depth
             if self._get_ast_depth(expr.sympy_expr) > self.max_depth:
                 return False
+            if (self.public_space_keys is not None
+                    and expr.mechanistic_key(**self.mechanistic_opts) not in self.public_space_keys):
+                return False
+
             
             return True
         except:
@@ -460,6 +475,8 @@ class BooleanBenchmarkRefined:
     
     def validate_expression(self, expr_str: str, observations: List[BooleanObservation]) -> Tuple[bool, Optional[Dict]]:
         """Validate if expression is consistent with observations and meets constraints."""
+        if not self._in_space(expr_str):
+            return False, None
         try:
             # Now create expression and validate
             expr = BooleanExpression(expr_str, self.variables, self.operators)

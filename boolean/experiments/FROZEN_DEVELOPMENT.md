@@ -8,9 +8,9 @@ actual implementation together; historical output manifests are never rewritten.
 From the repository root (DASHSCOPE_API_KEY must already be in the environment):
 
 ```powershell
-python boolean/run_frozen_development.py --out D:/MLfinalproject/boolean_frozen_four_methods_v2 --n-queries 16 --methods memory uniform round_robin adaptive --dry-run
-python boolean/run_frozen_development.py --out D:/MLfinalproject/boolean_frozen_four_methods_v2 --n-queries 16 --methods memory uniform round_robin adaptive
-python boolean/run_frozen_development.py --out D:/MLfinalproject/boolean_frozen_four_methods_v2 --n-queries 16 --methods adaptive
+python boolean/run_frozen_development.py --out D:/MLfinalproject/boolean_frozen_four_methods_v3 --n-queries 16 --methods memory uniform round_robin adaptive --dry-run
+python boolean/run_frozen_development.py --out D:/MLfinalproject/boolean_frozen_four_methods_v3 --n-queries 16 --methods memory uniform round_robin adaptive
+python boolean/run_frozen_development.py --out D:/MLfinalproject/boolean_frozen_four_methods_v3 --n-queries 16 --methods adaptive
 ```
 
 Use `--questions 0 2 3 4` to select a subset; indices follow question_ids in the config.
@@ -63,3 +63,13 @@ finish_reason=length, status=truncated, and attempts lengths (must be <=3); veri
 16 completed rows per method. Then use --questions 1 2 3 4 with the same output
 directory/config/source. Do not silently change settings between batches. API errors
 after three attempts stop the launcher. Inspect them before resuming.
+
+## Validator correction (v3)
+
+For extended_d2, candidates must also have an official mechanistic key in the
+34-expression space enumerated from public grammar metadata. This corrects the
+acceptance of NOT x OR y OR (x AND y); no per-question ground truths are used.
+Both _in_space and validate_expression enforce this check. Other grammars retain
+their existing checks. Actions 0..3 and adaptive rewards are unchanged.
+Use a new output directory and manifest; old adaptive trajectories cannot be
+corrected by offline rescoring when incorrect rewards affected later actions.
