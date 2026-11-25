@@ -1,4 +1,4 @@
-# Boolean development freeze: low / 4096
+# Boolean four-method development freeze: low / 4096
 
 The authoritative configuration is `development_budget.json`; controller semantics are in
 `adaptive_strategy_manifest.json`. This freezes the existing five development questions,
@@ -8,9 +8,9 @@ actual implementation together; historical output manifests are never rewritten.
 From the repository root (DASHSCOPE_API_KEY must already be in the environment):
 
 ```powershell
-python boolean/run_frozen_development.py --out D:/MLfinalproject/boolean_frozen_low4096_v1 --n-queries 16 --methods memory stratified --dry-run
-python boolean/run_frozen_development.py --out D:/MLfinalproject/boolean_frozen_low4096_v1 --n-queries 16 --methods memory stratified
-python boolean/run_frozen_development.py --out D:/MLfinalproject/boolean_frozen_low4096_v1 --n-queries 16 --methods adaptive
+python boolean/run_frozen_development.py --out D:/MLfinalproject/boolean_frozen_four_methods_v2 --n-queries 16 --methods memory uniform round_robin adaptive --dry-run
+python boolean/run_frozen_development.py --out D:/MLfinalproject/boolean_frozen_four_methods_v2 --n-queries 16 --methods memory uniform round_robin adaptive
+python boolean/run_frozen_development.py --out D:/MLfinalproject/boolean_frozen_four_methods_v2 --n-queries 16 --methods adaptive
 ```
 
 Use `--questions 0 2 3 4` to select a subset; indices follow question_ids in the config.
@@ -21,7 +21,7 @@ An existing 4096 question may be included in a later offline comparison after co
 identical prompts, core-source snapshot, settings, validator and slot rules; record its
 original provenance explicitly. Reusing it is not automatic in this launcher.
 
-Each method has 80 candidate slots, total 240; at most 720 API attempts (not tokens).
+Each method has 80 candidate slots, total 320; at most 960 API attempts (not tokens).
 Truncation, parse failures and invalid outputs consume a slot; only transient transport
 failures retry within that slot, at most three attempts total. No extra replacement slot.
 Only final content is parsed, never reasoning_content. Actual requests, token usage,
@@ -47,3 +47,19 @@ Report mean and per-question Recovery, Recovery@4/8/16, truncation, invalidity,
 duplicates, attempts, tokens and duration. Prices in client cost estimates are not
 verified provider bills. Keep high-effort/2048/8192 runs separate. Use unseen frozen
 questions for final evaluation after this development phase.
+
+## Four-method revision
+
+This revision implements the requested memory / uniform / round_robin / adaptive
+comparison in one runner. Uniform independently samples the four public actions with
+equal probability; round_robin cycles 0,1,2,3 and resets at each question. Neither learns
+from rewards. All four use the same generator, validator, history and slot accounting.
+Adaptive parameters are unchanged. stratified remains available in boolean_benchmark.py
+as an optional oracle-informed comparison, outside this 320-slot budget.
+The prior three-method config is archived as development_budget_three_methods_v1.json.
+
+Start with --questions 0 for all four methods. Inspect each q0_METHOD.jsonl for
+finish_reason=length, status=truncated, and attempts lengths (must be <=3); verify
+16 completed rows per method. Then use --questions 1 2 3 4 with the same output
+directory/config/source. Do not silently change settings between batches. API errors
+after three attempts stop the launcher. Inspect them before resuming.

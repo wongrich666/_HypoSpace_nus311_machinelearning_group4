@@ -33,7 +33,8 @@ SOURCE_FILES = [
 ]
 BUDGET_PATH = BOOLEAN / "experiments" / "development_budget.json"
 DATASET = BOOLEAN / "datasets" / "boolean_extended_d2.json"
-METHODS = ["memory", "stratified", "adaptive"]
+METHODS = ["memory", "uniform", "round_robin", "adaptive"]
+SELECTABLE = METHODS + ["stratified"]
 
 
 def api_key():
@@ -91,10 +92,12 @@ def save_snapshot(out, version):
 
 def load_budget():
     budget = json.loads(BUDGET_PATH.read_text(encoding="utf-8"))
-    if budget["planned_methods"] != METHODS or budget["candidate_slots_total"] != 240:
-        raise SystemExit("development budget is not the approved 3-method, 240-slot protocol")
+    if budget["planned_methods"] != METHODS or budget["candidate_slots_total"] != 320:
+        raise SystemExit("development budget is not the approved 4-method, 320-slot protocol")
     if budget["n_samples"] != 5 or budget["n_queries"] != 16 or budget["seed"] != 42:
         raise SystemExit("development budget does not match the frozen validation settings")
+    if budget["max_attempts_per_slot"] != 3:
+        raise SystemExit("Frozen protocol requires at most three attempts per slot")
     return budget
 
 
@@ -115,6 +118,8 @@ def settings_from(budget):
         "reasoning_effort": budget["reasoning_effort"],
         "base_url": budget["base_url"],
         "adaptive_parameters": budget["adaptive_parameters"],
+        "method_definitions": budget["method_definitions"],
+        "actions": [0, 1, 2, 3],
         "validator": "fixed_not_or_composition",
         "code_revision": git_revision(),
         "source_version": source_version(),
@@ -148,7 +153,7 @@ def main():
     parser.add_argument('--out', type=Path, required=True)
     parser.add_argument('--n-queries', type=int, required=True)
     parser.add_argument('--questions', nargs='+', type=int, choices=range(5), default=list(range(5)))
-    parser.add_argument('--methods', nargs='+', choices=METHODS, default=METHODS)
+    parser.add_argument('--methods', nargs='+', choices=SELECTABLE, default=METHODS)
     parser.add_argument('--dry-run', action='store_true', help='Validate protocol without API requests')
     args = parser.parse_args()
     out = args.out.resolve()
@@ -244,7 +249,7 @@ def main():
 
             result = benchmark.run_benchmark(
                 llm, n_queries_per_sample=budget["n_queries"], seed=budget["seed"],
-                verbose=False, checkpoint_dir=str(out / "checkpoints"), max_retries=3,
+                verbose=False, checkpoint_dir=str(out / "checkpoints"), max_retries=budget["max_attempts_per_slot"],
                 run_id=f"q{index}_{method}_{uuid.uuid4().hex}",
                 decoding=method, selected_questions=[questions[index]],
                 on_candidate_complete=sink, prior_completions=prior,

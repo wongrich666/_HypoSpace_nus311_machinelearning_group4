@@ -6,10 +6,11 @@
   "seed": 42,
   "planned_methods": [
     "memory",
-    "stratified",
+    "uniform",
+    "round_robin",
     "adaptive"
   ],
-  "candidate_slots_total": 240,
+  "candidate_slots_total": 320,
   "max_attempts_per_slot": 3,
   "failed_candidates_consume_slots": true,
   "model": "deepseek-v4.1-flash-1017",
@@ -23,7 +24,7 @@
     "controller_temperature": 1.0,
     "explore_bonus": 0.15
   },
-  "note": "Frozen development protocol. Old manifests are immutable. Use run_frozen_development.py with a new output directory. stratified is oracle-informed. This is not a held-out final evaluation.",
+  "note": "Four-method development freeze; stratified is an optional oracle-informed comparison outside the 320 slots. Preserve all old manifests. Use a new output directory.",
   "question_ids": [
     "n2_inputs_00_10_outputs_10",
     "n1_inputs_01_outputs_1",
@@ -32,6 +33,12 @@
     "n2_inputs_10_11_outputs_00"
   ],
   "dataset_sha256": "1041174fecd914fe822a2d407b9f7c22e0e42d2f8c133775ec1026c17b0660fb",
-  "protocol_id": "boolean-extended-d2-dev-fixed16-low4096-v1",
-  "seed_scope": "question selection and controller only; no provider seed parameter sent"
+  "protocol_id": "boolean-extended-d2-dev-fixed16-low4096-four-methods-v2",
+  "seed_scope": "question selection and controller only; no provider seed parameter sent",
+  "method_definitions": {
+    "memory": "unconstrained operator count with prior-candidate memory",
+    "uniform": "independent uniform random choice from [0,1,2,3]; no reward learning",
+    "round_robin": "cycle 0,1,2,3 from zero for each question; no reward learning",
+    "adaptive": "B-confirmed feedback strategy"
+  }
 }
