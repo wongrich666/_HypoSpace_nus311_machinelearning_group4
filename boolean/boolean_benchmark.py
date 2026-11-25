@@ -1,6 +1,8 @@
 import sys
 import json
 import argparse
+import copy
+import hashlib
 import os
 import re
 import yaml
@@ -22,8 +24,22 @@ sys.path.append(str(Path(__file__).parent))
 from modules.llm_interface import LLMInterface, OpenRouterLLM, OpenAILLM, AnthropicLLM
 from boolean_dataset import BooleanExpression, BooleanObservation
 from modules.generation_executor import generate_boolean_one
+from modules.exploration_controller import BooleanAdaptiveController
 
 _BOOL_OPS = ("NOR", "XOR", "AND", "OR", "NOT")
+
+
+def public_operator_bound(metadata: Dict) -> int:
+    """Maximum operator count from public depth, not from the answer set.
+
+    A full binary expression of depth d contains 2^d - 1 operators.
+    """
+    depth = metadata.get("max_depth") if isinstance(metadata, dict) else None
+    if isinstance(depth, bool) or not isinstance(depth, int) or depth < 0:
+        raise ValueError("Dataset metadata needs a nonnegative public max_depth")
+    bound = (1 << depth) - 1
+    print(f"Using public operator bound from max_depth={depth}: max_operator_count={bound}")
+    return bound
 
 
 def boolean_operator_complexity(formula: str) -> int:
@@ -81,6 +97,13 @@ def decoding_metadata(decoding: str) -> Dict:
             "allocation_source": "none",
             "uses_ground_truth_distribution": False,
         }
+    if decoding == "adaptive":
+        return {
+            "decoding": "adaptive",
+            "method_label": "Online operator-count adaptive decoding",
+            "allocation_source": "validation_feedback",
+            "uses_ground_truth_distribution": False,
+        }
     return {
         "decoding": decoding,
         "method_label": None,
@@ -136,6 +159,7 @@ class BooleanBenchmarkRefined:
         self.variables = self.metadata['variables']
         self.operators = set(self.metadata['operators'])
         self.max_depth = self.metadata['max_depth']
+        self.max_operator_count = public_operator_bound(self.metadata)
         
         # Flatten all datasets into a single list for sampling
         self.all_observation_sets = []
@@ -403,11 +427,10 @@ class BooleanBenchmarkRefined:
         while stack:
             node = stack.pop()
 
-            # NOR pattern: Not(Or(...))
-            if isinstance(node, sp.Not) and isinstance(node.args[0], sp.Or):
-                if 'NOR' not in allowed_ops:
-                    return False
-                # treat as primitive; do NOT traverse inside
+            # A NOR key does not require a primitive NOR in the grammar.
+            # Otherwise validate NOT and its OR subtree as ordinary operators.
+            if (isinstance(node, sp.Not) and isinstance(node.args[0], sp.Or)
+                    and 'NOR' in allowed_ops):
                 continue
 
             # primitive checks
@@ -532,6 +555,9 @@ class BooleanBenchmarkRefined:
         verbose: bool = True,
         max_retries: int = 5,
         decoding: str = "memory",
+        controller=None,
+        on_candidate_complete=None,
+        prior_completions=None,
     ) -> Dict:
         """
         Evaluate LLM on a single observation set.
@@ -541,6 +567,8 @@ class BooleanBenchmarkRefined:
         """
         if isinstance(n_queries, bool) or not isinstance(n_queries, int) or n_queries <= 0:
             raise ValueError("A positive fixed candidate budget is required")
+        if controller is not None and decoding != "memory":
+            raise ValueError("controller cannot be combined with oracle stratified decoding")
         # Extract observations and ground truths
         observations = [
             BooleanObservation(obs['inputs'], obs['output']) 
@@ -592,55 +620,144 @@ class BooleanBenchmarkRefined:
             schedule = [None] * n_queries
         
         request_log = []
-        for i, target_complexity in enumerate(schedule):
+        seen_valid_keys = set()
+        prior_completions = list(prior_completions or [])
+        if any(row.get("query_index") != index for index, row in enumerate(prior_completions)):
+            raise ValueError("prior completions must be a contiguous 0-based prefix")
+        if len(prior_completions) > n_queries:
+            raise ValueError("prior completions exceed the fixed candidate budget")
+
+        def absorb(index, hypothesis_str, feedback, usage, attempts, record):
+            nonlocal parse_success_count, in_space_count
+            nonlocal total_prompt_tokens, total_completion_tokens, total_tokens, total_cost
+            usage = usage or {}
+            total_prompt_tokens += int(usage.get("prompt_tokens") or 0)
+            total_completion_tokens += int(usage.get("completion_tokens") or 0)
+            total_tokens += int(usage.get("total_tokens") or 0)
+            total_cost += sum(float(attempt.get("cost") or 0) for attempt in attempts or [])
+            request_log.append(record)
+            for attempt in attempts or []:
+                if attempt.get("error"):
+                    error_type = self._classify_error(attempt["error"])
+                    error_counts[error_type] = error_counts.get(error_type, 0) + 1
+                    errors.append({
+                        "query_index": index, "attempt": attempt.get("attempt"),
+                        "error_message": attempt["error"], "error_type": error_type,
+                    })
+            if hypothesis_str:
+                parse_success_count += 1
+                all_hypotheses.append(hypothesis_str)
+                if self._in_space(hypothesis_str):
+                    in_space_count += 1
+                    all_mech_key = self.get_expression_mechanistic_key(hypothesis_str)
+                    if all_mech_key and all_mech_key not in all_unique_mechanistic_keys:
+                        all_unique_mechanistic_keys.add(all_mech_key)
+                        unique_all_expressions.append(hypothesis_str)
+                if feedback.get("is_valid"):
+                    valid_hypotheses.append(hypothesis_str)
+                    mech_key = feedback.get("mechanistic_key")
+                    if mech_key and mech_key not in unique_mechanistic_keys:
+                        unique_mechanistic_keys.add(mech_key)
+                        unique_valid_expressions.append(hypothesis_str)
+            if feedback.get("is_valid") and feedback.get("mechanistic_key"):
+                seen_valid_keys.add(feedback["mechanistic_key"])
+
+        for row in prior_completions:
+            logged = copy.deepcopy(row.get("feedback") or {})
+            hypothesis_str = row.get("candidate")
+            if controller is not None:
+                state = {
+                    "query_index": row["query_index"], "n_queries": n_queries,
+                    "observations": [obs.to_string() for obs in observations],
+                    "variables": list(self.variables),
+                    "max_operator_count": self.max_operator_count,
+                    "n_unique_valid": len(seen_valid_keys),
+                }
+                replay_action = controller.select_action(state)
+                if replay_action != row.get("target_operator_count"):
+                    raise ValueError("replayed controller action does not match the candidate log")
+                controller.update(replay_action, logged)
+            schedule[row["query_index"]] = row.get("target_operator_count")
+            absorb(row["query_index"], hypothesis_str, logged, row.get("usage"), row.get("attempts"), copy.deepcopy(row))
+
+        for i in range(len(prior_completions), n_queries):
+            target_complexity = schedule[i]
+            decision_start = len(getattr(controller, "decision_log", []))
+            if controller is not None:
+                state = {
+                    "query_index": i, "n_queries": n_queries,
+                    "observations": [obs.to_string() for obs in observations],
+                    "variables": list(self.variables),
+                    "max_operator_count": self.max_operator_count,
+                    "n_unique_valid": len(seen_valid_keys),
+                }
+                target_complexity = controller.select_action(state)
+                if (
+                    isinstance(target_complexity, bool) or not isinstance(target_complexity, int)
+                    or target_complexity < 0 or target_complexity > self.max_operator_count
+                ):
+                    raise ValueError("controller action must be an allowed operator count")
+                schedule[i] = target_complexity
             generation = generate_boolean_one(
                 self, llm, observations, all_hypotheses, target_complexity,
                 max_attempts=max_retries,
             )
             hypothesis_str = generation.candidate
-            total_prompt_tokens += generation.usage['prompt_tokens']
-            total_completion_tokens += generation.usage['completion_tokens']
-            total_tokens += generation.usage['total_tokens']
-            total_cost += generation.cost
-            request_log.append({
-                'query_index': i, 'status': generation.status,
-                'candidate': hypothesis_str, 'response': generation.response,
-                'target_operator_count': generation.target_operator_count,
-                'actual_operator_count': generation.actual_operator_count,
-                'obeyed_operator_count': generation.obeyed_operator_count,
-                'usage': generation.usage, 'attempts': generation.attempts,
-            })
-            for attempt in generation.attempts:
-                if attempt['error']:
-                    error_type = self._classify_error(attempt['error'])
-                    error_counts[error_type] = error_counts.get(error_type, 0) + 1
-                    errors.append({'query_index': i, 'attempt': attempt['attempt'],
-                                   'error_message': attempt['error'], 'error_type': error_type})
-            if hypothesis_str:
-                parse_success_count += 1
-                all_hypotheses.append(hypothesis_str)
-                
-                # Only count novelty for in-space expressions
-                if self._in_space(hypothesis_str):
-                    in_space_count += 1
-                    
-                    # Check uniqueness among in-space hypotheses (for novelty calculation)
-                    all_mech_key = self.get_expression_mechanistic_key(hypothesis_str)
-                    if all_mech_key and all_mech_key not in all_unique_mechanistic_keys:
-                        all_unique_mechanistic_keys.add(all_mech_key)
-                        unique_all_expressions.append(hypothesis_str)
-                
-                # Validate expression against observations
-                is_valid, truth_table = self.validate_expression(hypothesis_str, observations)
-                
-                if is_valid:
-                    valid_hypotheses.append(hypothesis_str)
-                    
-                    # Check uniqueness among valid hypotheses
-                    mech_key = self.get_expression_mechanistic_key(hypothesis_str)
-                    if mech_key and mech_key not in unique_mechanistic_keys:
-                        unique_mechanistic_keys.add(mech_key)
-                        unique_valid_expressions.append(hypothesis_str)
+            mech_key = self.get_expression_mechanistic_key(hypothesis_str) if hypothesis_str else None
+            is_valid = False
+            failure_reason = None
+            failure_detail = None
+            if generation.status != "ok" or not hypothesis_str:
+                failure_reason = "truncated_output" if generation.status == "truncated" else (
+                    generation.status if generation.status != "ok" else "parse_error"
+                )
+                if generation.attempts:
+                    last = generation.attempts[-1]
+                    failure_detail = last.get("parse_error") or last.get("error")
+            elif not self._in_space(hypothesis_str):
+                failure_reason = "out_of_space"
+            else:
+                is_valid, _truth_table = self.validate_expression(hypothesis_str, observations)
+                if not is_valid:
+                    failure_reason = "observation_mismatch"
+            logged_key = None if mech_key is None else repr(mech_key)
+            is_new = bool(is_valid and logged_key and logged_key not in seen_valid_keys)
+            feedback = {
+                "status": generation.status,
+                "is_valid": is_valid,
+                "failure_reason": failure_reason,
+                "failure_detail": failure_detail,
+                "mechanistic_key": logged_key,
+                "is_new_valid": is_new,
+                "is_duplicate_valid": bool(is_valid and not is_new),
+                "reward": int(is_new),
+                "target_operator_count": target_complexity,
+                "actual_operator_count": generation.actual_operator_count,
+                "obeyed_operator_count": generation.obeyed_operator_count,
+                "usage": dict(generation.usage),
+                "api_attempt_count": len(generation.attempts),
+            }
+            if controller is not None:
+                controller.update(target_complexity, copy.deepcopy(feedback))
+            record = {
+                "query_index": i,
+                "observation_set_id": observation_set["observation_set_id"],
+                "status": generation.status,
+                "candidate": hypothesis_str,
+                "prompt": generation.prompt,
+                "response": generation.response,
+                "reasoning_content": generation.reasoning_content,
+                "target_operator_count": target_complexity,
+                "actual_operator_count": generation.actual_operator_count,
+                "obeyed_operator_count": generation.obeyed_operator_count,
+                "usage": generation.usage,
+                "attempts": generation.attempts,
+                "feedback": feedback,
+                "decision_log": copy.deepcopy(getattr(controller, "decision_log", [])[decision_start:]),
+            }
+            absorb(i, hypothesis_str, feedback, generation.usage, generation.attempts, record)
+            if on_candidate_complete is not None:
+                on_candidate_complete(copy.deepcopy(record))
         
         # Calculate metrics
         parse_success_rate = parse_success_count / n_queries if n_queries > 0 else 0
@@ -717,6 +834,11 @@ class BooleanBenchmarkRefined:
         run_id: Optional[str] = None,
         decoding: str = "memory",
         pricing_config: Optional[Dict] = None,
+        selected_questions=None,
+        on_candidate_complete=None,
+        prior_completions=None,
+        max_retries: int = 3,
+        adaptive_parameters: Optional[Dict] = None,
     ) -> Dict:
         """
         Run the benchmark with sampling.
@@ -735,6 +857,10 @@ class BooleanBenchmarkRefined:
         """
         if isinstance(n_queries_per_sample, bool) or not isinstance(n_queries_per_sample, int) or n_queries_per_sample <= 0:
             raise ValueError("Explicit positive n_queries_per_sample required; answer-count budgets disabled")
+        if decoding not in ("memory", "stratified", "adaptive"):
+            raise ValueError("Unknown decoding method")
+        if decoding == "adaptive" and seed is None:
+            raise ValueError("Adaptive runs require a fixed seed")
         # Create checkpoint directory
         checkpoint_path = Path(checkpoint_dir)
         checkpoint_path.mkdir(parents=True, exist_ok=True)
@@ -746,6 +872,8 @@ class BooleanBenchmarkRefined:
         safe_llm_name = llm.get_name().replace('/', '_').replace('(', '_').replace(')', '_').replace(' ', '_')
         checkpoint_file = checkpoint_path / f"checkpoint_{safe_llm_name}_{run_id}.json"
         
+        sampled_sets = list(selected_questions) if selected_questions is not None else self.sample_observation_sets(n_samples, seed)
+        n_samples = len(sampled_sets)
         print(f"\nRunning refined Boolean benchmark")
         print(f"LLM: {llm.get_name()}")
         print(f"Decoding: {decoding}")
@@ -757,8 +885,8 @@ class BooleanBenchmarkRefined:
         print(f"Checkpoint file: {checkpoint_file}")
         print("-" * 50)
         
-        # Sample observation sets
-        sampled_sets = self.sample_observation_sets(n_samples, seed)
+        if prior_completions and n_samples != 1:
+            raise ValueError("prior completions can resume only one question")
         
         # Initialize results tracking
         all_results = []
@@ -813,10 +941,37 @@ class BooleanBenchmarkRefined:
             try:
                 # Determine number of queries for this observation set
                 n_queries = n_queries_per_sample
-
+                controller = None
+                controller_seed = None
+                if decoding == "adaptive":
+                    params = adaptive_parameters or {}
+                    question_id = obs_set["observation_set_id"]
+                    controller_seed = int(hashlib.sha256(
+                        json.dumps([seed, question_id]).encode()
+                    ).hexdigest()[:16], 16)
+                    controller = BooleanAdaptiveController(
+                        self.max_operator_count,
+                        seed=controller_seed,
+                        forget_factor=params.get("forget_factor", 0.9),
+                        temperature=params.get("controller_temperature", 1.0),
+                        explore_bonus=params.get("explore_bonus", 0.15),
+                    )
                 result = self.evaluate_single_observation_set(
-                    llm, obs_set, n_queries, verbose=False, decoding=decoding
+                    llm, obs_set, n_queries, verbose=False, max_retries=max_retries,
+                    decoding="memory" if controller is not None else decoding,
+                    controller=controller, on_candidate_complete=on_candidate_complete,
+                    prior_completions=prior_completions,
                 )
+                result["decoding"] = decoding
+                result["controller_seed"] = controller_seed
+                result["decision_log"] = copy.deepcopy(getattr(controller, "decision_log", []))
+                result["max_operator_count"] = self.max_operator_count
+                if controller is not None:
+                    result["method_parameters"] = {
+                        "forget_factor": controller.forget_factor,
+                        "controller_temperature": controller.temperature,
+                        "explore_bonus": controller.explore_bonus,
+                    }
                 
                 all_results.append(result)
                 valid_rates.append(result['valid_rate'])
@@ -868,6 +1023,8 @@ class BooleanBenchmarkRefined:
                 with open(checkpoint_file, 'w') as f:
                     json.dump(checkpoint_data, f, indent=2)
 
+            except RuntimeError:
+                raise
             except Exception as e:
                 print(f"  Error processing sample {idx + 1}: {str(e)}")
                 traceback.print_exc()
@@ -1042,6 +1199,8 @@ def setup_llm(llm_type: str, **kwargs) -> LLMInterface:
             temperature=kwargs.get('temperature', 0.7),
             max_tokens=kwargs.get('max_tokens', 2048),
             base_url=kwargs.get('base_url', 'https://dashscope.aliyuncs.com/compatible-mode/v1'),
+            request_timeout=kwargs.get('request_timeout', 60.0),
+            reasoning_effort=kwargs.get('reasoning_effort'),
         )
     
     else:
@@ -1064,8 +1223,8 @@ def main():
     parser.add_argument("--n-queries", type=int, required=True, help="Fixed candidate slots per question; development protocol uses 16")
     parser.add_argument("--query-multiplier", type=float, default=1.0, help="Multiplier for adaptive queries (n_queries = n_gt * multiplier)")
     parser.add_argument("--seed", type=int, default=None, help="Random seed for sampling")
-    parser.add_argument("--decoding", choices=["memory", "stratified"], default="memory",
-                        help="memory: prior-hypothesis prompting; stratified: complexity-stratified decoding")
+    parser.add_argument("--decoding", choices=["memory", "stratified", "adaptive"], default="memory",
+                        help="memory, oracle stratified, or online adaptive operator-count control")
     
     args = parser.parse_args()
     if args.n_queries <= 0:

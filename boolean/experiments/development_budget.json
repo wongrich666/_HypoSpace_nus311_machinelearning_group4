@@ -4,9 +4,34 @@
   "n_samples": 5,
   "n_queries": 16,
   "seed": 42,
-  "planned_methods": ["memory", "uniform", "round_robin", "adaptive"],
-  "candidate_slots_total": 320,
+  "planned_methods": [
+    "memory",
+    "stratified",
+    "adaptive"
+  ],
+  "candidate_slots_total": 240,
   "max_attempts_per_slot": 3,
   "failed_candidates_consume_slots": true,
-  "note": "Budget protocol only. Boolean controller integration and frozen question-ID manifest are pending. Run CLI with explicit --n-queries 16; this file is not automatically loaded."
+  "model": "deepseek-v4.1-flash-1017",
+  "temperature": 0.7,
+  "max_tokens": 4096,
+  "reasoning_effort": "low",
+  "request_timeout": 60,
+  "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+  "adaptive_parameters": {
+    "forget_factor": 0.9,
+    "controller_temperature": 1.0,
+    "explore_bonus": 0.15
+  },
+  "note": "Frozen development protocol. Old manifests are immutable. Use run_frozen_development.py with a new output directory. stratified is oracle-informed. This is not a held-out final evaluation.",
+  "question_ids": [
+    "n2_inputs_00_10_outputs_10",
+    "n1_inputs_01_outputs_1",
+    "n3_inputs_00_01_10_outputs_011",
+    "n2_inputs_10_11_outputs_11",
+    "n2_inputs_10_11_outputs_00"
+  ],
+  "dataset_sha256": "1041174fecd914fe822a2d407b9f7c22e0e42d2f8c133775ec1026c17b0660fb",
+  "protocol_id": "boolean-extended-d2-dev-fixed16-low4096-v1",
+  "seed_scope": "question selection and controller only; no provider seed parameter sent"
 }
