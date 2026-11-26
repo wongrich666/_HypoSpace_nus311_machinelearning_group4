@@ -1,0 +1,2670 @@
+{
+  "run_id": "qwen_full_adaptive_q7_9fc992e3d6ef47419f8e73978b11b143",
+  "llm_name": "OpenRouter(qwen3.5-27b)",
+  "n_samples": 1,
+  "n_queries_per_sample": 16,
+  "query_multiplier": null,
+  "query_mode": "fixed",
+  "seed": 42,
+  "decoding": "adaptive",
+  "method_label": "Online operator-count adaptive decoding",
+  "allocation_source": "validation_feedback",
+  "uses_ground_truth_distribution": false,
+  "timestamp": "2026-11-26T18:07:42.086185",
+  "statistics": {
+    "valid_rate": {
+      "mean": 0.25,
+      "std": 0.0,
+      "var": 0.0,
+      "min": 0.25,
+      "max": 0.25,
+      "p_value": null
+    },
+    "novelty_rate": {
+      "mean": 0.625,
+      "std": 0.0,
+      "var": 0.0,
+      "min": 0.625,
+      "max": 0.625,
+      "p_value": null
+    },
+    "recovery_rate": {
+      "mean": 0.25,
+      "std": 0.0,
+      "var": 0.0,
+      "min": 0.25,
+      "max": 0.25,
+      "p_value": null
+    }
+  },
+  "token_usage": {
+    "prompt_tokens": 10221,
+    "completion_tokens": 114,
+    "total_tokens": 10335,
+    "avg_tokens_per_sample": 10335.0,
+    "avg_tokens_per_query": 645.9375
+  },
+  "cost": {
+    "total_cost": 0.010335000000000002,
+    "avg_cost_per_sample": 0.010335000000000002,
+    "avg_cost_per_query": 0.0006459375000000001
+  },
+  "cost_estimate": {
+    "estimated_cost": null,
+    "currency": "CNY",
+    "pricing_source": null,
+    "pricing_verified": false
+  },
+  "error_summary": {
+    "total_errors": 0,
+    "error_types": {},
+    "error_rate": 0.0
+  },
+  "per_sample_results": [
+    {
+      "observation_set_id": "n2_inputs_00_10_outputs_00",
+      "n_observations": 2,
+      "n_ground_truths": 12,
+      "n_queries": 16,
+      "n_valid": 4,
+      "n_unique_valid": 3,
+      "n_unique_all": 10,
+      "n_recovered_gts": 3,
+      "request_log": [
+        {
+          "query_index": 0,
+          "observation_set_id": "n2_inputs_00_10_outputs_00",
+          "status": "ok",
+          "candidate": "x AND y",
+          "prompt": "You are given partial observations of a Boolean function with variables: x, y\n\n            Allowed operators: AND (conjunction), OR (disjunction), NOT (negation)\n\n            Observations (input -> output):\n            (x=0, y=0) -> 0\n(x=1, y=0) -> 0\n\n            Prior expressions generated (avoid repeating any expression \n            that is equivalent under the rules below):\n            None\n\n            Task: Generate a single Boolean expression that is consistent with ALL observations.\n\n            Requirements:\n            1. Use ONLY the variables: x, y\n            2. Use ONLY these operators: AND, OR, NOT\n            3. The expression must match all given observations\n            4. Structural uniqueness is judged by these rules:\n            - Commutativity: reorderings are the SAME (e.g., x AND y = y AND x).\n        - Idempotence: duplicates of the same input under AND/OR collapse (e.g., x AND x = x; x OR x = x).\n        - Associativity flattening: cascades of the SAME operator are the SAME regardless of parentheses (e.g., (x AND y) AND x = x AND (y AND x) = x AND x AND y).\n        - No distributivity, absorption, or De Morgan normalization: mixing operators keeps expressions DIFFERENT (e.g., (x AND y) OR z \u2260 x AND (y OR z)).\n            5. Expression depth should be at most 2 levels of nesting\n            6. Do not use boolean constants True or False anywhere in the expression.\n            7. Complexity constraint: the expression must contain EXACTLY 1 operator occurrences. Count each AND, OR, NOT, XOR, and NOR as one operator. A variable alone has complexity 0.\n            \n            Output format: \n            - Return ONLY the Boolean expression on a single line\n            - Use plain text format (no LaTeX, no markdown, no special formatting)\n            - Use uppercase for operators. \n            - Use lowercase for variables: x, y\n            - Use parentheses for grouping when needed\n            - Start your response with \"Expression: \" followed by the expression\n            \n            Examples of correct format:\n            Expression: x AND y\n            Expression: (x OR y) AND NOT x\n            Expression: NOT (x AND y)\n            Expression: NOR(x, y)\n            \n            DO NOT use formats like:\n            - \\(x \\land y\\)  (LaTeX)\n            - `x AND y`  (markdown)\n            - x \u2227 y  (mathematical symbols)\n            ",
+          "response": "Expression: x AND y",
+          "reasoning_content": "",
+          "target_operator_count": 1,
+          "actual_operator_count": 1,
+          "obeyed_operator_count": true,
+          "usage": {
+            "prompt_tokens": 591,
+            "completion_tokens": 6,
+            "total_tokens": 597
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "duration_seconds": 0.781,
+              "status": "ok",
+              "error": null,
+              "request_id": "e56a5882-6d80-9ded-9f10-c30324abd0b9",
+              "finish_reason": "stop",
+              "content": "Expression: x AND y",
+              "reasoning_content": "",
+              "request_parameters": {
+                "model": "qwen3.5-27b",
+                "temperature": 0.7,
+                "max_tokens": 4096,
+                "reasoning_effort": null,
+                "enable_thinking": false,
+                "request_timeout": 60
+              },
+              "usage": {
+                "prompt_tokens": 591,
+                "completion_tokens": 6,
+                "total_tokens": 597
+              },
+              "cost": 0.000597
+            }
+          ],
+          "feedback": {
+            "status": "ok",
+            "is_valid": true,
+            "failure_reason": null,
+            "failure_detail": null,
+            "mechanistic_key": "('AND', (('VAR', 'x'), ('VAR', 'y')))",
+            "is_new_valid": true,
+            "is_duplicate_valid": false,
+            "reward": 1,
+            "target_operator_count": 1,
+            "actual_operator_count": 1,
+            "obeyed_operator_count": true,
+            "usage": {
+              "prompt_tokens": 591,
+              "completion_tokens": 6,
+              "total_tokens": 597
+            },
+            "api_attempt_count": 1
+          },
+          "decision_log": [
+            {
+              "event": "select_action",
+              "strategy": "adaptive",
+              "target_operator_count": 1,
+              "rationale": "adaptive softmax forget=0.9",
+              "query_index": 0,
+              "n_unique_valid": 0,
+              "scores": {
+                "0": 0.0,
+                "1": 0.0,
+                "2": 0.0,
+                "3": 0.0
+              },
+              "counts": {
+                "0": 0,
+                "1": 0,
+                "2": 0,
+                "3": 0
+              },
+              "forget_factor": 0.9,
+              "controller_temperature": 1.0,
+              "explore_bonus": 0.15
+            },
+            {
+              "event": "update",
+              "strategy": "adaptive",
+              "action": 1,
+              "rationale": "adaptive forget=0.9: action=1 new=True score[1]=1.0000",
+              "is_valid": true,
+              "is_new_valid": true,
+              "failure_reason": null,
+              "reward": 1.0,
+              "scores": {
+                "0": 0.0,
+                "1": 1.0,
+                "2": 0.0,
+                "3": 0.0
+              },
+              "counts": {
+                "0": 0,
+                "1": 1,
+                "2": 0,
+                "3": 0
+              }
+            }
+          ]
+        },
+        {
+          "query_index": 1,
+          "observation_set_id": "n2_inputs_00_10_outputs_00",
+          "status": "ok",
+          "candidate": "NOT x",
+          "prompt": "You are given partial observations of a Boolean function with variables: x, y\n\n            Allowed operators: AND (conjunction), OR (disjunction), NOT (negation)\n\n            Observations (input -> output):\n            (x=0, y=0) -> 0\n(x=1, y=0) -> 0\n\n            Prior expressions generated (avoid repeating any expression \n            that is equivalent under the rules below):\n            Expression: x AND y\n\n            Task: Generate a single Boolean expression that is consistent with ALL observations.\n\n            Requirements:\n            1. Use ONLY the variables: x, y\n            2. Use ONLY these operators: AND, OR, NOT\n            3. The expression must match all given observations\n            4. Structural uniqueness is judged by these rules:\n            - Commutativity: reorderings are the SAME (e.g., x AND y = y AND x).\n        - Idempotence: duplicates of the same input under AND/OR collapse (e.g., x AND x = x; x OR x = x).\n        - Associativity flattening: cascades of the SAME operator are the SAME regardless of parentheses (e.g., (x AND y) AND x = x AND (y AND x) = x AND x AND y).\n        - No distributivity, absorption, or De Morgan normalization: mixing operators keeps expressions DIFFERENT (e.g., (x AND y) OR z \u2260 x AND (y OR z)).\n            5. Expression depth should be at most 2 levels of nesting\n            6. Do not use boolean constants True or False anywhere in the expression.\n            7. Complexity constraint: the expression must contain EXACTLY 1 operator occurrences. Count each AND, OR, NOT, XOR, and NOR as one operator. A variable alone has complexity 0.\n            \n            Output format: \n            - Return ONLY the Boolean expression on a single line\n            - Use plain text format (no LaTeX, no markdown, no special formatting)\n            - Use uppercase for operators. \n            - Use lowercase for variables: x, y\n            - Use parentheses for grouping when needed\n            - Start your response with \"Expression: \" followed by the expression\n            \n            Examples of correct format:\n            Expression: x AND y\n            Expression: (x OR y) AND NOT x\n            Expression: NOT (x AND y)\n            Expression: NOR(x, y)\n            \n            DO NOT use formats like:\n            - \\(x \\land y\\)  (LaTeX)\n            - `x AND y`  (markdown)\n            - x \u2227 y  (mathematical symbols)\n            ",
+          "response": "Expression: NOT x",
+          "reasoning_content": "",
+          "target_operator_count": 1,
+          "actual_operator_count": 1,
+          "obeyed_operator_count": true,
+          "usage": {
+            "prompt_tokens": 595,
+            "completion_tokens": 5,
+            "total_tokens": 600
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "duration_seconds": 14.312,
+              "status": "ok",
+              "error": null,
+              "request_id": "7e9f8768-dbb5-9afa-ad11-1f1a4a9cab2d",
+              "finish_reason": "stop",
+              "content": "Expression: NOT x",
+              "reasoning_content": "",
+              "request_parameters": {
+                "model": "qwen3.5-27b",
+                "temperature": 0.7,
+                "max_tokens": 4096,
+                "reasoning_effort": null,
+                "enable_thinking": false,
+                "request_timeout": 60
+              },
+              "usage": {
+                "prompt_tokens": 595,
+                "completion_tokens": 5,
+                "total_tokens": 600
+              },
+              "cost": 0.0006
+            }
+          ],
+          "feedback": {
+            "status": "ok",
+            "is_valid": false,
+            "failure_reason": "observation_mismatch",
+            "failure_detail": null,
+            "mechanistic_key": "('NOT', ('VAR', 'x'))",
+            "is_new_valid": false,
+            "is_duplicate_valid": false,
+            "reward": 0,
+            "target_operator_count": 1,
+            "actual_operator_count": 1,
+            "obeyed_operator_count": true,
+            "usage": {
+              "prompt_tokens": 595,
+              "completion_tokens": 5,
+              "total_tokens": 600
+            },
+            "api_attempt_count": 1
+          },
+          "decision_log": [
+            {
+              "event": "select_action",
+              "strategy": "adaptive",
+              "target_operator_count": 1,
+              "rationale": "adaptive softmax forget=0.9",
+              "query_index": 1,
+              "n_unique_valid": 1,
+              "scores": {
+                "0": 0.0,
+                "1": 1.0,
+                "2": 0.0,
+                "3": 0.0
+              },
+              "counts": {
+                "0": 0,
+                "1": 1,
+                "2": 0,
+                "3": 0
+              },
+              "forget_factor": 0.9,
+              "controller_temperature": 1.0,
+              "explore_bonus": 0.15
+            },
+            {
+              "event": "update",
+              "strategy": "adaptive",
+              "action": 1,
+              "rationale": "adaptive forget=0.9: action=1 new=False score[1]=0.9000",
+              "is_valid": false,
+              "is_new_valid": false,
+              "failure_reason": "observation_mismatch",
+              "reward": 0.0,
+              "scores": {
+                "0": 0.0,
+                "1": 0.9,
+                "2": 0.0,
+                "3": 0.0
+              },
+              "counts": {
+                "0": 0,
+                "1": 2,
+                "2": 0,
+                "3": 0
+              }
+            }
+          ]
+        },
+        {
+          "query_index": 2,
+          "observation_set_id": "n2_inputs_00_10_outputs_00",
+          "status": "ok",
+          "candidate": "x AND NOT y",
+          "prompt": "You are given partial observations of a Boolean function with variables: x, y\n\n            Allowed operators: AND (conjunction), OR (disjunction), NOT (negation)\n\n            Observations (input -> output):\n            (x=0, y=0) -> 0\n(x=1, y=0) -> 0\n\n            Prior expressions generated (avoid repeating any expression \n            that is equivalent under the rules below):\n            Expression: x AND y\nExpression: NOT x\n\n            Task: Generate a single Boolean expression that is consistent with ALL observations.\n\n            Requirements:\n            1. Use ONLY the variables: x, y\n            2. Use ONLY these operators: AND, OR, NOT\n            3. The expression must match all given observations\n            4. Structural uniqueness is judged by these rules:\n            - Commutativity: reorderings are the SAME (e.g., x AND y = y AND x).\n        - Idempotence: duplicates of the same input under AND/OR collapse (e.g., x AND x = x; x OR x = x).\n        - Associativity flattening: cascades of the SAME operator are the SAME regardless of parentheses (e.g., (x AND y) AND x = x AND (y AND x) = x AND x AND y).\n        - No distributivity, absorption, or De Morgan normalization: mixing operators keeps expressions DIFFERENT (e.g., (x AND y) OR z \u2260 x AND (y OR z)).\n            5. Expression depth should be at most 2 levels of nesting\n            6. Do not use boolean constants True or False anywhere in the expression.\n            7. Complexity constraint: the expression must contain EXACTLY 2 operator occurrences. Count each AND, OR, NOT, XOR, and NOR as one operator. A variable alone has complexity 0.\n            \n            Output format: \n            - Return ONLY the Boolean expression on a single line\n            - Use plain text format (no LaTeX, no markdown, no special formatting)\n            - Use uppercase for operators. \n            - Use lowercase for variables: x, y\n            - Use parentheses for grouping when needed\n            - Start your response with \"Expression: \" followed by the expression\n            \n            Examples of correct format:\n            Expression: x AND y\n            Expression: (x OR y) AND NOT x\n            Expression: NOT (x AND y)\n            Expression: NOR(x, y)\n            \n            DO NOT use formats like:\n            - \\(x \\land y\\)  (LaTeX)\n            - `x AND y`  (markdown)\n            - x \u2227 y  (mathematical symbols)\n            ",
+          "response": "Expression: x AND NOT y",
+          "reasoning_content": "",
+          "target_operator_count": 2,
+          "actual_operator_count": 2,
+          "obeyed_operator_count": true,
+          "usage": {
+            "prompt_tokens": 600,
+            "completion_tokens": 7,
+            "total_tokens": 607
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "duration_seconds": 0.828,
+              "status": "ok",
+              "error": null,
+              "request_id": "7f412334-2731-9d90-91cc-48ef15c03506",
+              "finish_reason": "stop",
+              "content": "Expression: x AND NOT y",
+              "reasoning_content": "",
+              "request_parameters": {
+                "model": "qwen3.5-27b",
+                "temperature": 0.7,
+                "max_tokens": 4096,
+                "reasoning_effort": null,
+                "enable_thinking": false,
+                "request_timeout": 60
+              },
+              "usage": {
+                "prompt_tokens": 600,
+                "completion_tokens": 7,
+                "total_tokens": 607
+              },
+              "cost": 0.000607
+            }
+          ],
+          "feedback": {
+            "status": "ok",
+            "is_valid": false,
+            "failure_reason": "observation_mismatch",
+            "failure_detail": null,
+            "mechanistic_key": "('AND', (('NOT', ('VAR', 'y')), ('VAR', 'x')))",
+            "is_new_valid": false,
+            "is_duplicate_valid": false,
+            "reward": 0,
+            "target_operator_count": 2,
+            "actual_operator_count": 2,
+            "obeyed_operator_count": true,
+            "usage": {
+              "prompt_tokens": 600,
+              "completion_tokens": 7,
+              "total_tokens": 607
+            },
+            "api_attempt_count": 1
+          },
+          "decision_log": [
+            {
+              "event": "select_action",
+              "strategy": "adaptive",
+              "target_operator_count": 2,
+              "rationale": "adaptive softmax forget=0.9",
+              "query_index": 2,
+              "n_unique_valid": 1,
+              "scores": {
+                "0": 0.0,
+                "1": 0.9,
+                "2": 0.0,
+                "3": 0.0
+              },
+              "counts": {
+                "0": 0,
+                "1": 2,
+                "2": 0,
+                "3": 0
+              },
+              "forget_factor": 0.9,
+              "controller_temperature": 1.0,
+              "explore_bonus": 0.15
+            },
+            {
+              "event": "update",
+              "strategy": "adaptive",
+              "action": 2,
+              "rationale": "adaptive forget=0.9: action=2 new=False score[2]=0.0000",
+              "is_valid": false,
+              "is_new_valid": false,
+              "failure_reason": "observation_mismatch",
+              "reward": 0.0,
+              "scores": {
+                "0": 0.0,
+                "1": 0.81,
+                "2": 0.0,
+                "3": 0.0
+              },
+              "counts": {
+                "0": 0,
+                "1": 2,
+                "2": 1,
+                "3": 0
+              }
+            }
+          ]
+        },
+        {
+          "query_index": 3,
+          "observation_set_id": "n2_inputs_00_10_outputs_00",
+          "status": "ok",
+          "candidate": "y",
+          "prompt": "You are given partial observations of a Boolean function with variables: x, y\n\n            Allowed operators: AND (conjunction), OR (disjunction), NOT (negation)\n\n            Observations (input -> output):\n            (x=0, y=0) -> 0\n(x=1, y=0) -> 0\n\n            Prior expressions generated (avoid repeating any expression \n            that is equivalent under the rules below):\n            Expression: x AND y\nExpression: NOT x\nExpression: x AND NOT y\n\n            Task: Generate a single Boolean expression that is consistent with ALL observations.\n\n            Requirements:\n            1. Use ONLY the variables: x, y\n            2. Use ONLY these operators: AND, OR, NOT\n            3. The expression must match all given observations\n            4. Structural uniqueness is judged by these rules:\n            - Commutativity: reorderings are the SAME (e.g., x AND y = y AND x).\n        - Idempotence: duplicates of the same input under AND/OR collapse (e.g., x AND x = x; x OR x = x).\n        - Associativity flattening: cascades of the SAME operator are the SAME regardless of parentheses (e.g., (x AND y) AND x = x AND (y AND x) = x AND x AND y).\n        - No distributivity, absorption, or De Morgan normalization: mixing operators keeps expressions DIFFERENT (e.g., (x AND y) OR z \u2260 x AND (y OR z)).\n            5. Expression depth should be at most 2 levels of nesting\n            6. Do not use boolean constants True or False anywhere in the expression.\n            7. Complexity constraint: the expression must contain EXACTLY 0 operator occurrences. Count each AND, OR, NOT, XOR, and NOR as one operator. A variable alone has complexity 0.\n            \n            Output format: \n            - Return ONLY the Boolean expression on a single line\n            - Use plain text format (no LaTeX, no markdown, no special formatting)\n            - Use uppercase for operators. \n            - Use lowercase for variables: x, y\n            - Use parentheses for grouping when needed\n            - Start your response with \"Expression: \" followed by the expression\n            \n            Examples of correct format:\n            Expression: x AND y\n            Expression: (x OR y) AND NOT x\n            Expression: NOT (x AND y)\n            Expression: NOR(x, y)\n            \n            DO NOT use formats like:\n            - \\(x \\land y\\)  (LaTeX)\n            - `x AND y`  (markdown)\n            - x \u2227 y  (mathematical symbols)\n            ",
+          "response": "Expression: y",
+          "reasoning_content": "",
+          "target_operator_count": 0,
+          "actual_operator_count": 0,
+          "obeyed_operator_count": true,
+          "usage": {
+            "prompt_tokens": 607,
+            "completion_tokens": 4,
+            "total_tokens": 611
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "duration_seconds": 0.703,
+              "status": "ok",
+              "error": null,
+              "request_id": "08dbf556-3334-9757-931a-0ea6e9ae1a2d",
+              "finish_reason": "stop",
+              "content": "Expression: y",
+              "reasoning_content": "",
+              "request_parameters": {
+                "model": "qwen3.5-27b",
+                "temperature": 0.7,
+                "max_tokens": 4096,
+                "reasoning_effort": null,
+                "enable_thinking": false,
+                "request_timeout": 60
+              },
+              "usage": {
+                "prompt_tokens": 607,
+                "completion_tokens": 4,
+                "total_tokens": 611
+              },
+              "cost": 0.000611
+            }
+          ],
+          "feedback": {
+            "status": "ok",
+            "is_valid": true,
+            "failure_reason": null,
+            "failure_detail": null,
+            "mechanistic_key": "('VAR', 'y')",
+            "is_new_valid": true,
+            "is_duplicate_valid": false,
+            "reward": 1,
+            "target_operator_count": 0,
+            "actual_operator_count": 0,
+            "obeyed_operator_count": true,
+            "usage": {
+              "prompt_tokens": 607,
+              "completion_tokens": 4,
+              "total_tokens": 611
+            },
+            "api_attempt_count": 1
+          },
+          "decision_log": [
+            {
+              "event": "select_action",
+              "strategy": "adaptive",
+              "target_operator_count": 0,
+              "rationale": "adaptive softmax forget=0.9",
+              "query_index": 3,
+              "n_unique_valid": 1,
+              "scores": {
+                "0": 0.0,
+                "1": 0.81,
+                "2": 0.0,
+                "3": 0.0
+              },
+              "counts": {
+                "0": 0,
+                "1": 2,
+                "2": 1,
+                "3": 0
+              },
+              "forget_factor": 0.9,
+              "controller_temperature": 1.0,
+              "explore_bonus": 0.15
+            },
+            {
+              "event": "update",
+              "strategy": "adaptive",
+              "action": 0,
+              "rationale": "adaptive forget=0.9: action=0 new=True score[0]=1.0000",
+              "is_valid": true,
+              "is_new_valid": true,
+              "failure_reason": null,
+              "reward": 1.0,
+              "scores": {
+                "0": 1.0,
+                "1": 0.7290000000000001,
+                "2": 0.0,
+                "3": 0.0
+              },
+              "counts": {
+                "0": 1,
+                "1": 2,
+                "2": 1,
+                "3": 0
+              }
+            }
+          ]
+        },
+        {
+          "query_index": 4,
+          "observation_set_id": "n2_inputs_00_10_outputs_00",
+          "status": "ok",
+          "candidate": "x",
+          "prompt": "You are given partial observations of a Boolean function with variables: x, y\n\n            Allowed operators: AND (conjunction), OR (disjunction), NOT (negation)\n\n            Observations (input -> output):\n            (x=0, y=0) -> 0\n(x=1, y=0) -> 0\n\n            Prior expressions generated (avoid repeating any expression \n            that is equivalent under the rules below):\n            Expression: x AND y\nExpression: NOT x\nExpression: x AND NOT y\nExpression: y\n\n            Task: Generate a single Boolean expression that is consistent with ALL observations.\n\n            Requirements:\n            1. Use ONLY the variables: x, y\n            2. Use ONLY these operators: AND, OR, NOT\n            3. The expression must match all given observations\n            4. Structural uniqueness is judged by these rules:\n            - Commutativity: reorderings are the SAME (e.g., x AND y = y AND x).\n        - Idempotence: duplicates of the same input under AND/OR collapse (e.g., x AND x = x; x OR x = x).\n        - Associativity flattening: cascades of the SAME operator are the SAME regardless of parentheses (e.g., (x AND y) AND x = x AND (y AND x) = x AND x AND y).\n        - No distributivity, absorption, or De Morgan normalization: mixing operators keeps expressions DIFFERENT (e.g., (x AND y) OR z \u2260 x AND (y OR z)).\n            5. Expression depth should be at most 2 levels of nesting\n            6. Do not use boolean constants True or False anywhere in the expression.\n            7. Complexity constraint: the expression must contain EXACTLY 0 operator occurrences. Count each AND, OR, NOT, XOR, and NOR as one operator. A variable alone has complexity 0.\n            \n            Output format: \n            - Return ONLY the Boolean expression on a single line\n            - Use plain text format (no LaTeX, no markdown, no special formatting)\n            - Use uppercase for operators. \n            - Use lowercase for variables: x, y\n            - Use parentheses for grouping when needed\n            - Start your response with \"Expression: \" followed by the expression\n            \n            Examples of correct format:\n            Expression: x AND y\n            Expression: (x OR y) AND NOT x\n            Expression: NOT (x AND y)\n            Expression: NOR(x, y)\n            \n            DO NOT use formats like:\n            - \\(x \\land y\\)  (LaTeX)\n            - `x AND y`  (markdown)\n            - x \u2227 y  (mathematical symbols)\n            ",
+          "response": "Expression: x",
+          "reasoning_content": "",
+          "target_operator_count": 0,
+          "actual_operator_count": 0,
+          "obeyed_operator_count": true,
+          "usage": {
+            "prompt_tokens": 611,
+            "completion_tokens": 4,
+            "total_tokens": 615
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "duration_seconds": 1.109,
+              "status": "ok",
+              "error": null,
+              "request_id": "c0691d1c-e845-95a3-8b98-5dff1ddb8dca",
+              "finish_reason": "stop",
+              "content": "Expression: x",
+              "reasoning_content": "",
+              "request_parameters": {
+                "model": "qwen3.5-27b",
+                "temperature": 0.7,
+                "max_tokens": 4096,
+                "reasoning_effort": null,
+                "enable_thinking": false,
+                "request_timeout": 60
+              },
+              "usage": {
+                "prompt_tokens": 611,
+                "completion_tokens": 4,
+                "total_tokens": 615
+              },
+              "cost": 0.000615
+            }
+          ],
+          "feedback": {
+            "status": "ok",
+            "is_valid": false,
+            "failure_reason": "observation_mismatch",
+            "failure_detail": null,
+            "mechanistic_key": "('VAR', 'x')",
+            "is_new_valid": false,
+            "is_duplicate_valid": false,
+            "reward": 0,
+            "target_operator_count": 0,
+            "actual_operator_count": 0,
+            "obeyed_operator_count": true,
+            "usage": {
+              "prompt_tokens": 611,
+              "completion_tokens": 4,
+              "total_tokens": 615
+            },
+            "api_attempt_count": 1
+          },
+          "decision_log": [
+            {
+              "event": "select_action",
+              "strategy": "adaptive",
+              "target_operator_count": 0,
+              "rationale": "adaptive softmax forget=0.9",
+              "query_index": 4,
+              "n_unique_valid": 2,
+              "scores": {
+                "0": 1.0,
+                "1": 0.7290000000000001,
+                "2": 0.0,
+                "3": 0.0
+              },
+              "counts": {
+                "0": 1,
+                "1": 2,
+                "2": 1,
+                "3": 0
+              },
+              "forget_factor": 0.9,
+              "controller_temperature": 1.0,
+              "explore_bonus": 0.15
+            },
+            {
+              "event": "update",
+              "strategy": "adaptive",
+              "action": 0,
+              "rationale": "adaptive forget=0.9: action=0 new=False score[0]=0.9000",
+              "is_valid": false,
+              "is_new_valid": false,
+              "failure_reason": "observation_mismatch",
+              "reward": 0.0,
+              "scores": {
+                "0": 0.9,
+                "1": 0.6561000000000001,
+                "2": 0.0,
+                "3": 0.0
+              },
+              "counts": {
+                "0": 2,
+                "1": 2,
+                "2": 1,
+                "3": 0
+              }
+            }
+          ]
+        },
+        {
+          "query_index": 5,
+          "observation_set_id": "n2_inputs_00_10_outputs_00",
+          "status": "ok",
+          "candidate": "(NOT x) OR (x AND y)",
+          "prompt": "You are given partial observations of a Boolean function with variables: x, y\n\n            Allowed operators: AND (conjunction), OR (disjunction), NOT (negation)\n\n            Observations (input -> output):\n            (x=0, y=0) -> 0\n(x=1, y=0) -> 0\n\n            Prior expressions generated (avoid repeating any expression \n            that is equivalent under the rules below):\n            Expression: x AND y\nExpression: NOT x\nExpression: x AND NOT y\nExpression: y\nExpression: x\n\n            Task: Generate a single Boolean expression that is consistent with ALL observations.\n\n            Requirements:\n            1. Use ONLY the variables: x, y\n            2. Use ONLY these operators: AND, OR, NOT\n            3. The expression must match all given observations\n            4. Structural uniqueness is judged by these rules:\n            - Commutativity: reorderings are the SAME (e.g., x AND y = y AND x).\n        - Idempotence: duplicates of the same input under AND/OR collapse (e.g., x AND x = x; x OR x = x).\n        - Associativity flattening: cascades of the SAME operator are the SAME regardless of parentheses (e.g., (x AND y) AND x = x AND (y AND x) = x AND x AND y).\n        - No distributivity, absorption, or De Morgan normalization: mixing operators keeps expressions DIFFERENT (e.g., (x AND y) OR z \u2260 x AND (y OR z)).\n            5. Expression depth should be at most 2 levels of nesting\n            6. Do not use boolean constants True or False anywhere in the expression.\n            7. Complexity constraint: the expression must contain EXACTLY 3 operator occurrences. Count each AND, OR, NOT, XOR, and NOR as one operator. A variable alone has complexity 0.\n            \n            Output format: \n            - Return ONLY the Boolean expression on a single line\n            - Use plain text format (no LaTeX, no markdown, no special formatting)\n            - Use uppercase for operators. \n            - Use lowercase for variables: x, y\n            - Use parentheses for grouping when needed\n            - Start your response with \"Expression: \" followed by the expression\n            \n            Examples of correct format:\n            Expression: x AND y\n            Expression: (x OR y) AND NOT x\n            Expression: NOT (x AND y)\n            Expression: NOR(x, y)\n            \n            DO NOT use formats like:\n            - \\(x \\land y\\)  (LaTeX)\n            - `x AND y`  (markdown)\n            - x \u2227 y  (mathematical symbols)\n            ",
+          "response": "Expression: (NOT x) OR (x AND y)",
+          "reasoning_content": "",
+          "target_operator_count": 3,
+          "actual_operator_count": 3,
+          "obeyed_operator_count": true,
+          "usage": {
+            "prompt_tokens": 615,
+            "completion_tokens": 13,
+            "total_tokens": 628
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "duration_seconds": 0.766,
+              "status": "ok",
+              "error": null,
+              "request_id": "5c21a7cc-8399-9cb7-87bd-debed46682e1",
+              "finish_reason": "stop",
+              "content": "Expression: (NOT x) OR (x AND y)",
+              "reasoning_content": "",
+              "request_parameters": {
+                "model": "qwen3.5-27b",
+                "temperature": 0.7,
+                "max_tokens": 4096,
+                "reasoning_effort": null,
+                "enable_thinking": false,
+                "request_timeout": 60
+              },
+              "usage": {
+                "prompt_tokens": 615,
+                "completion_tokens": 13,
+                "total_tokens": 628
+              },
+              "cost": 0.000628
+            }
+          ],
+          "feedback": {
+            "status": "ok",
+            "is_valid": false,
+            "failure_reason": "observation_mismatch",
+            "failure_detail": null,
+            "mechanistic_key": "('OR', (('AND', (('VAR', 'x'), ('VAR', 'y'))), ('NOT', ('VAR', 'x'))))",
+            "is_new_valid": false,
+            "is_duplicate_valid": false,
+            "reward": 0,
+            "target_operator_count": 3,
+            "actual_operator_count": 3,
+            "obeyed_operator_count": true,
+            "usage": {
+              "prompt_tokens": 615,
+              "completion_tokens": 13,
+              "total_tokens": 628
+            },
+            "api_attempt_count": 1
+          },
+          "decision_log": [
+            {
+              "event": "select_action",
+              "strategy": "adaptive",
+              "target_operator_count": 3,
+              "rationale": "adaptive softmax forget=0.9",
+              "query_index": 5,
+              "n_unique_valid": 2,
+              "scores": {
+                "0": 0.9,
+                "1": 0.6561000000000001,
+                "2": 0.0,
+                "3": 0.0
+              },
+              "counts": {
+                "0": 2,
+                "1": 2,
+                "2": 1,
+                "3": 0
+              },
+              "forget_factor": 0.9,
+              "controller_temperature": 1.0,
+              "explore_bonus": 0.15
+            },
+            {
+              "event": "update",
+              "strategy": "adaptive",
+              "action": 3,
+              "rationale": "adaptive forget=0.9: action=3 new=False score[3]=0.0000",
+              "is_valid": false,
+              "is_new_valid": false,
+              "failure_reason": "observation_mismatch",
+              "reward": 0.0,
+              "scores": {
+                "0": 0.81,
+                "1": 0.5904900000000002,
+                "2": 0.0,
+                "3": 0.0
+              },
+              "counts": {
+                "0": 2,
+                "1": 2,
+                "2": 1,
+                "3": 1
+              }
+            }
+          ]
+        },
+        {
+          "query_index": 6,
+          "observation_set_id": "n2_inputs_00_10_outputs_00",
+          "status": "ok",
+          "candidate": "(x AND y) OR NOT x",
+          "prompt": "You are given partial observations of a Boolean function with variables: x, y\n\n            Allowed operators: AND (conjunction), OR (disjunction), NOT (negation)\n\n            Observations (input -> output):\n            (x=0, y=0) -> 0\n(x=1, y=0) -> 0\n\n            Prior expressions generated (avoid repeating any expression \n            that is equivalent under the rules below):\n            Expression: x AND y\nExpression: NOT x\nExpression: x AND NOT y\nExpression: y\nExpression: x\nExpression: (NOT x) OR (x AND y)\n\n            Task: Generate a single Boolean expression that is consistent with ALL observations.\n\n            Requirements:\n            1. Use ONLY the variables: x, y\n            2. Use ONLY these operators: AND, OR, NOT\n            3. The expression must match all given observations\n            4. Structural uniqueness is judged by these rules:\n            - Commutativity: reorderings are the SAME (e.g., x AND y = y AND x).\n        - Idempotence: duplicates of the same input under AND/OR collapse (e.g., x AND x = x; x OR x = x).\n        - Associativity flattening: cascades of the SAME operator are the SAME regardless of parentheses (e.g., (x AND y) AND x = x AND (y AND x) = x AND x AND y).\n        - No distributivity, absorption, or De Morgan normalization: mixing operators keeps expressions DIFFERENT (e.g., (x AND y) OR z \u2260 x AND (y OR z)).\n            5. Expression depth should be at most 2 levels of nesting\n            6. Do not use boolean constants True or False anywhere in the expression.\n            7. Complexity constraint: the expression must contain EXACTLY 3 operator occurrences. Count each AND, OR, NOT, XOR, and NOR as one operator. A variable alone has complexity 0.\n            \n            Output format: \n            - Return ONLY the Boolean expression on a single line\n            - Use plain text format (no LaTeX, no markdown, no special formatting)\n            - Use uppercase for operators. \n            - Use lowercase for variables: x, y\n            - Use parentheses for grouping when needed\n            - Start your response with \"Expression: \" followed by the expression\n            \n            Examples of correct format:\n            Expression: x AND y\n            Expression: (x OR y) AND NOT x\n            Expression: NOT (x AND y)\n            Expression: NOR(x, y)\n            \n            DO NOT use formats like:\n            - \\(x \\land y\\)  (LaTeX)\n            - `x AND y`  (markdown)\n            - x \u2227 y  (mathematical symbols)\n            ",
+          "response": "Expression: (x AND y) OR NOT x",
+          "reasoning_content": "",
+          "target_operator_count": 3,
+          "actual_operator_count": 3,
+          "obeyed_operator_count": true,
+          "usage": {
+            "prompt_tokens": 628,
+            "completion_tokens": 11,
+            "total_tokens": 639
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "duration_seconds": 1.266,
+              "status": "ok",
+              "error": null,
+              "request_id": "c0394933-7680-9d7d-8c55-f6967bb7d2b8",
+              "finish_reason": "stop",
+              "content": "Expression: (x AND y) OR NOT x",
+              "reasoning_content": "",
+              "request_parameters": {
+                "model": "qwen3.5-27b",
+                "temperature": 0.7,
+                "max_tokens": 4096,
+                "reasoning_effort": null,
+                "enable_thinking": false,
+                "request_timeout": 60
+              },
+              "usage": {
+                "prompt_tokens": 628,
+                "completion_tokens": 11,
+                "total_tokens": 639
+              },
+              "cost": 0.000639
+            }
+          ],
+          "feedback": {
+            "status": "ok",
+            "is_valid": false,
+            "failure_reason": "observation_mismatch",
+            "failure_detail": null,
+            "mechanistic_key": "('OR', (('AND', (('VAR', 'x'), ('VAR', 'y'))), ('NOT', ('VAR', 'x'))))",
+            "is_new_valid": false,
+            "is_duplicate_valid": false,
+            "reward": 0,
+            "target_operator_count": 3,
+            "actual_operator_count": 3,
+            "obeyed_operator_count": true,
+            "usage": {
+              "prompt_tokens": 628,
+              "completion_tokens": 11,
+              "total_tokens": 639
+            },
+            "api_attempt_count": 1
+          },
+          "decision_log": [
+            {
+              "event": "select_action",
+              "strategy": "adaptive",
+              "target_operator_count": 3,
+              "rationale": "adaptive softmax forget=0.9",
+              "query_index": 6,
+              "n_unique_valid": 2,
+              "scores": {
+                "0": 0.81,
+                "1": 0.5904900000000002,
+                "2": 0.0,
+                "3": 0.0
+              },
+              "counts": {
+                "0": 2,
+                "1": 2,
+                "2": 1,
+                "3": 1
+              },
+              "forget_factor": 0.9,
+              "controller_temperature": 1.0,
+              "explore_bonus": 0.15
+            },
+            {
+              "event": "update",
+              "strategy": "adaptive",
+              "action": 3,
+              "rationale": "adaptive forget=0.9: action=3 new=False score[3]=0.0000",
+              "is_valid": false,
+              "is_new_valid": false,
+              "failure_reason": "observation_mismatch",
+              "reward": 0.0,
+              "scores": {
+                "0": 0.7290000000000001,
+                "1": 0.5314410000000002,
+                "2": 0.0,
+                "3": 0.0
+              },
+              "counts": {
+                "0": 2,
+                "1": 2,
+                "2": 1,
+                "3": 2
+              }
+            }
+          ]
+        },
+        {
+          "query_index": 7,
+          "observation_set_id": "n2_inputs_00_10_outputs_00",
+          "status": "ok",
+          "candidate": "y",
+          "prompt": "You are given partial observations of a Boolean function with variables: x, y\n\n            Allowed operators: AND (conjunction), OR (disjunction), NOT (negation)\n\n            Observations (input -> output):\n            (x=0, y=0) -> 0\n(x=1, y=0) -> 0\n\n            Prior expressions generated (avoid repeating any expression \n            that is equivalent under the rules below):\n            Expression: x AND y\nExpression: NOT x\nExpression: x AND NOT y\nExpression: y\nExpression: x\nExpression: (NOT x) OR (x AND y)\nExpression: (x AND y) OR NOT x\n\n            Task: Generate a single Boolean expression that is consistent with ALL observations.\n\n            Requirements:\n            1. Use ONLY the variables: x, y\n            2. Use ONLY these operators: AND, OR, NOT\n            3. The expression must match all given observations\n            4. Structural uniqueness is judged by these rules:\n            - Commutativity: reorderings are the SAME (e.g., x AND y = y AND x).\n        - Idempotence: duplicates of the same input under AND/OR collapse (e.g., x AND x = x; x OR x = x).\n        - Associativity flattening: cascades of the SAME operator are the SAME regardless of parentheses (e.g., (x AND y) AND x = x AND (y AND x) = x AND x AND y).\n        - No distributivity, absorption, or De Morgan normalization: mixing operators keeps expressions DIFFERENT (e.g., (x AND y) OR z \u2260 x AND (y OR z)).\n            5. Expression depth should be at most 2 levels of nesting\n            6. Do not use boolean constants True or False anywhere in the expression.\n            7. Complexity constraint: the expression must contain EXACTLY 0 operator occurrences. Count each AND, OR, NOT, XOR, and NOR as one operator. A variable alone has complexity 0.\n            \n            Output format: \n            - Return ONLY the Boolean expression on a single line\n            - Use plain text format (no LaTeX, no markdown, no special formatting)\n            - Use uppercase for operators. \n            - Use lowercase for variables: x, y\n            - Use parentheses for grouping when needed\n            - Start your response with \"Expression: \" followed by the expression\n            \n            Examples of correct format:\n            Expression: x AND y\n            Expression: (x OR y) AND NOT x\n            Expression: NOT (x AND y)\n            Expression: NOR(x, y)\n            \n            DO NOT use formats like:\n            - \\(x \\land y\\)  (LaTeX)\n            - `x AND y`  (markdown)\n            - x \u2227 y  (mathematical symbols)\n            ",
+          "response": "Expression: y",
+          "reasoning_content": "",
+          "target_operator_count": 0,
+          "actual_operator_count": 0,
+          "obeyed_operator_count": true,
+          "usage": {
+            "prompt_tokens": 639,
+            "completion_tokens": 4,
+            "total_tokens": 643
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "duration_seconds": 4.078,
+              "status": "ok",
+              "error": null,
+              "request_id": "5d76b41b-5f94-9a10-8790-6784537e9ef0",
+              "finish_reason": "stop",
+              "content": "Expression: y",
+              "reasoning_content": "",
+              "request_parameters": {
+                "model": "qwen3.5-27b",
+                "temperature": 0.7,
+                "max_tokens": 4096,
+                "reasoning_effort": null,
+                "enable_thinking": false,
+                "request_timeout": 60
+              },
+              "usage": {
+                "prompt_tokens": 639,
+                "completion_tokens": 4,
+                "total_tokens": 643
+              },
+              "cost": 0.000643
+            }
+          ],
+          "feedback": {
+            "status": "ok",
+            "is_valid": true,
+            "failure_reason": null,
+            "failure_detail": null,
+            "mechanistic_key": "('VAR', 'y')",
+            "is_new_valid": false,
+            "is_duplicate_valid": true,
+            "reward": 0,
+            "target_operator_count": 0,
+            "actual_operator_count": 0,
+            "obeyed_operator_count": true,
+            "usage": {
+              "prompt_tokens": 639,
+              "completion_tokens": 4,
+              "total_tokens": 643
+            },
+            "api_attempt_count": 1
+          },
+          "decision_log": [
+            {
+              "event": "select_action",
+              "strategy": "adaptive",
+              "target_operator_count": 0,
+              "rationale": "adaptive softmax forget=0.9",
+              "query_index": 7,
+              "n_unique_valid": 2,
+              "scores": {
+                "0": 0.7290000000000001,
+                "1": 0.5314410000000002,
+                "2": 0.0,
+                "3": 0.0
+              },
+              "counts": {
+                "0": 2,
+                "1": 2,
+                "2": 1,
+                "3": 2
+              },
+              "forget_factor": 0.9,
+              "controller_temperature": 1.0,
+              "explore_bonus": 0.15
+            },
+            {
+              "event": "update",
+              "strategy": "adaptive",
+              "action": 0,
+              "rationale": "adaptive forget=0.9: action=0 new=False score[0]=0.6561",
+              "is_valid": true,
+              "is_new_valid": false,
+              "failure_reason": null,
+              "reward": 0.0,
+              "scores": {
+                "0": 0.6561000000000001,
+                "1": 0.47829690000000014,
+                "2": 0.0,
+                "3": 0.0
+              },
+              "counts": {
+                "0": 3,
+                "1": 2,
+                "2": 1,
+                "3": 2
+              }
+            }
+          ]
+        },
+        {
+          "query_index": 8,
+          "observation_set_id": "n2_inputs_00_10_outputs_00",
+          "status": "ok",
+          "candidate": "NOT y",
+          "prompt": "You are given partial observations of a Boolean function with variables: x, y\n\n            Allowed operators: AND (conjunction), OR (disjunction), NOT (negation)\n\n            Observations (input -> output):\n            (x=0, y=0) -> 0\n(x=1, y=0) -> 0\n\n            Prior expressions generated (avoid repeating any expression \n            that is equivalent under the rules below):\n            Expression: x AND y\nExpression: NOT x\nExpression: x AND NOT y\nExpression: y\nExpression: x\nExpression: (NOT x) OR (x AND y)\nExpression: (x AND y) OR NOT x\nExpression: y\n\n            Task: Generate a single Boolean expression that is consistent with ALL observations.\n\n            Requirements:\n            1. Use ONLY the variables: x, y\n            2. Use ONLY these operators: AND, OR, NOT\n            3. The expression must match all given observations\n            4. Structural uniqueness is judged by these rules:\n            - Commutativity: reorderings are the SAME (e.g., x AND y = y AND x).\n        - Idempotence: duplicates of the same input under AND/OR collapse (e.g., x AND x = x; x OR x = x).\n        - Associativity flattening: cascades of the SAME operator are the SAME regardless of parentheses (e.g., (x AND y) AND x = x AND (y AND x) = x AND x AND y).\n        - No distributivity, absorption, or De Morgan normalization: mixing operators keeps expressions DIFFERENT (e.g., (x AND y) OR z \u2260 x AND (y OR z)).\n            5. Expression depth should be at most 2 levels of nesting\n            6. Do not use boolean constants True or False anywhere in the expression.\n            7. Complexity constraint: the expression must contain EXACTLY 1 operator occurrences. Count each AND, OR, NOT, XOR, and NOR as one operator. A variable alone has complexity 0.\n            \n            Output format: \n            - Return ONLY the Boolean expression on a single line\n            - Use plain text format (no LaTeX, no markdown, no special formatting)\n            - Use uppercase for operators. \n            - Use lowercase for variables: x, y\n            - Use parentheses for grouping when needed\n            - Start your response with \"Expression: \" followed by the expression\n            \n            Examples of correct format:\n            Expression: x AND y\n            Expression: (x OR y) AND NOT x\n            Expression: NOT (x AND y)\n            Expression: NOR(x, y)\n            \n            DO NOT use formats like:\n            - \\(x \\land y\\)  (LaTeX)\n            - `x AND y`  (markdown)\n            - x \u2227 y  (mathematical symbols)\n            ",
+          "response": "Expression: NOT y",
+          "reasoning_content": "",
+          "target_operator_count": 1,
+          "actual_operator_count": 1,
+          "obeyed_operator_count": true,
+          "usage": {
+            "prompt_tokens": 643,
+            "completion_tokens": 5,
+            "total_tokens": 648
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "duration_seconds": 0.75,
+              "status": "ok",
+              "error": null,
+              "request_id": "de147766-fdb1-99f0-a7d6-710ada81eb6f",
+              "finish_reason": "stop",
+              "content": "Expression: NOT y",
+              "reasoning_content": "",
+              "request_parameters": {
+                "model": "qwen3.5-27b",
+                "temperature": 0.7,
+                "max_tokens": 4096,
+                "reasoning_effort": null,
+                "enable_thinking": false,
+                "request_timeout": 60
+              },
+              "usage": {
+                "prompt_tokens": 643,
+                "completion_tokens": 5,
+                "total_tokens": 648
+              },
+              "cost": 0.000648
+            }
+          ],
+          "feedback": {
+            "status": "ok",
+            "is_valid": false,
+            "failure_reason": "observation_mismatch",
+            "failure_detail": null,
+            "mechanistic_key": "('NOT', ('VAR', 'y'))",
+            "is_new_valid": false,
+            "is_duplicate_valid": false,
+            "reward": 0,
+            "target_operator_count": 1,
+            "actual_operator_count": 1,
+            "obeyed_operator_count": true,
+            "usage": {
+              "prompt_tokens": 643,
+              "completion_tokens": 5,
+              "total_tokens": 648
+            },
+            "api_attempt_count": 1
+          },
+          "decision_log": [
+            {
+              "event": "select_action",
+              "strategy": "adaptive",
+              "target_operator_count": 1,
+              "rationale": "adaptive softmax forget=0.9",
+              "query_index": 8,
+              "n_unique_valid": 2,
+              "scores": {
+                "0": 0.6561000000000001,
+                "1": 0.47829690000000014,
+                "2": 0.0,
+                "3": 0.0
+              },
+              "counts": {
+                "0": 3,
+                "1": 2,
+                "2": 1,
+                "3": 2
+              },
+              "forget_factor": 0.9,
+              "controller_temperature": 1.0,
+              "explore_bonus": 0.15
+            },
+            {
+              "event": "update",
+              "strategy": "adaptive",
+              "action": 1,
+              "rationale": "adaptive forget=0.9: action=1 new=False score[1]=0.4305",
+              "is_valid": false,
+              "is_new_valid": false,
+              "failure_reason": "observation_mismatch",
+              "reward": 0.0,
+              "scores": {
+                "0": 0.5904900000000002,
+                "1": 0.43046721000000016,
+                "2": 0.0,
+                "3": 0.0
+              },
+              "counts": {
+                "0": 3,
+                "1": 3,
+                "2": 1,
+                "3": 2
+              }
+            }
+          ]
+        },
+        {
+          "query_index": 9,
+          "observation_set_id": "n2_inputs_00_10_outputs_00",
+          "status": "ok",
+          "candidate": "NOT y",
+          "prompt": "You are given partial observations of a Boolean function with variables: x, y\n\n            Allowed operators: AND (conjunction), OR (disjunction), NOT (negation)\n\n            Observations (input -> output):\n            (x=0, y=0) -> 0\n(x=1, y=0) -> 0\n\n            Prior expressions generated (avoid repeating any expression \n            that is equivalent under the rules below):\n            Expression: x AND y\nExpression: NOT x\nExpression: x AND NOT y\nExpression: y\nExpression: x\nExpression: (NOT x) OR (x AND y)\nExpression: (x AND y) OR NOT x\nExpression: y\nExpression: NOT y\n\n            Task: Generate a single Boolean expression that is consistent with ALL observations.\n\n            Requirements:\n            1. Use ONLY the variables: x, y\n            2. Use ONLY these operators: AND, OR, NOT\n            3. The expression must match all given observations\n            4. Structural uniqueness is judged by these rules:\n            - Commutativity: reorderings are the SAME (e.g., x AND y = y AND x).\n        - Idempotence: duplicates of the same input under AND/OR collapse (e.g., x AND x = x; x OR x = x).\n        - Associativity flattening: cascades of the SAME operator are the SAME regardless of parentheses (e.g., (x AND y) AND x = x AND (y AND x) = x AND x AND y).\n        - No distributivity, absorption, or De Morgan normalization: mixing operators keeps expressions DIFFERENT (e.g., (x AND y) OR z \u2260 x AND (y OR z)).\n            5. Expression depth should be at most 2 levels of nesting\n            6. Do not use boolean constants True or False anywhere in the expression.\n            7. Complexity constraint: the expression must contain EXACTLY 1 operator occurrences. Count each AND, OR, NOT, XOR, and NOR as one operator. A variable alone has complexity 0.\n            \n            Output format: \n            - Return ONLY the Boolean expression on a single line\n            - Use plain text format (no LaTeX, no markdown, no special formatting)\n            - Use uppercase for operators. \n            - Use lowercase for variables: x, y\n            - Use parentheses for grouping when needed\n            - Start your response with \"Expression: \" followed by the expression\n            \n            Examples of correct format:\n            Expression: x AND y\n            Expression: (x OR y) AND NOT x\n            Expression: NOT (x AND y)\n            Expression: NOR(x, y)\n            \n            DO NOT use formats like:\n            - \\(x \\land y\\)  (LaTeX)\n            - `x AND y`  (markdown)\n            - x \u2227 y  (mathematical symbols)\n            ",
+          "response": "Expression: NOT y",
+          "reasoning_content": "",
+          "target_operator_count": 1,
+          "actual_operator_count": 1,
+          "obeyed_operator_count": true,
+          "usage": {
+            "prompt_tokens": 648,
+            "completion_tokens": 5,
+            "total_tokens": 653
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "duration_seconds": 1.171,
+              "status": "ok",
+              "error": null,
+              "request_id": "fec5dd2e-0f3b-9a94-b0a2-feee8a8fbed8",
+              "finish_reason": "stop",
+              "content": "Expression: NOT y",
+              "reasoning_content": "",
+              "request_parameters": {
+                "model": "qwen3.5-27b",
+                "temperature": 0.7,
+                "max_tokens": 4096,
+                "reasoning_effort": null,
+                "enable_thinking": false,
+                "request_timeout": 60
+              },
+              "usage": {
+                "prompt_tokens": 648,
+                "completion_tokens": 5,
+                "total_tokens": 653
+              },
+              "cost": 0.000653
+            }
+          ],
+          "feedback": {
+            "status": "ok",
+            "is_valid": false,
+            "failure_reason": "observation_mismatch",
+            "failure_detail": null,
+            "mechanistic_key": "('NOT', ('VAR', 'y'))",
+            "is_new_valid": false,
+            "is_duplicate_valid": false,
+            "reward": 0,
+            "target_operator_count": 1,
+            "actual_operator_count": 1,
+            "obeyed_operator_count": true,
+            "usage": {
+              "prompt_tokens": 648,
+              "completion_tokens": 5,
+              "total_tokens": 653
+            },
+            "api_attempt_count": 1
+          },
+          "decision_log": [
+            {
+              "event": "select_action",
+              "strategy": "adaptive",
+              "target_operator_count": 1,
+              "rationale": "adaptive softmax forget=0.9",
+              "query_index": 9,
+              "n_unique_valid": 2,
+              "scores": {
+                "0": 0.5904900000000002,
+                "1": 0.43046721000000016,
+                "2": 0.0,
+                "3": 0.0
+              },
+              "counts": {
+                "0": 3,
+                "1": 3,
+                "2": 1,
+                "3": 2
+              },
+              "forget_factor": 0.9,
+              "controller_temperature": 1.0,
+              "explore_bonus": 0.15
+            },
+            {
+              "event": "update",
+              "strategy": "adaptive",
+              "action": 1,
+              "rationale": "adaptive forget=0.9: action=1 new=False score[1]=0.3874",
+              "is_valid": false,
+              "is_new_valid": false,
+              "failure_reason": "observation_mismatch",
+              "reward": 0.0,
+              "scores": {
+                "0": 0.5314410000000002,
+                "1": 0.38742048900000015,
+                "2": 0.0,
+                "3": 0.0
+              },
+              "counts": {
+                "0": 3,
+                "1": 4,
+                "2": 1,
+                "3": 2
+              }
+            }
+          ]
+        },
+        {
+          "query_index": 10,
+          "observation_set_id": "n2_inputs_00_10_outputs_00",
+          "status": "ok",
+          "candidate": "NOT (x OR y)",
+          "prompt": "You are given partial observations of a Boolean function with variables: x, y\n\n            Allowed operators: AND (conjunction), OR (disjunction), NOT (negation)\n\n            Observations (input -> output):\n            (x=0, y=0) -> 0\n(x=1, y=0) -> 0\n\n            Prior expressions generated (avoid repeating any expression \n            that is equivalent under the rules below):\n            Expression: x AND y\nExpression: NOT x\nExpression: x AND NOT y\nExpression: y\nExpression: x\nExpression: (NOT x) OR (x AND y)\nExpression: (x AND y) OR NOT x\nExpression: y\nExpression: NOT y\nExpression: NOT y\n\n            Task: Generate a single Boolean expression that is consistent with ALL observations.\n\n            Requirements:\n            1. Use ONLY the variables: x, y\n            2. Use ONLY these operators: AND, OR, NOT\n            3. The expression must match all given observations\n            4. Structural uniqueness is judged by these rules:\n            - Commutativity: reorderings are the SAME (e.g., x AND y = y AND x).\n        - Idempotence: duplicates of the same input under AND/OR collapse (e.g., x AND x = x; x OR x = x).\n        - Associativity flattening: cascades of the SAME operator are the SAME regardless of parentheses (e.g., (x AND y) AND x = x AND (y AND x) = x AND x AND y).\n        - No distributivity, absorption, or De Morgan normalization: mixing operators keeps expressions DIFFERENT (e.g., (x AND y) OR z \u2260 x AND (y OR z)).\n            5. Expression depth should be at most 2 levels of nesting\n            6. Do not use boolean constants True or False anywhere in the expression.\n            7. Complexity constraint: the expression must contain EXACTLY 1 operator occurrences. Count each AND, OR, NOT, XOR, and NOR as one operator. A variable alone has complexity 0.\n            \n            Output format: \n            - Return ONLY the Boolean expression on a single line\n            - Use plain text format (no LaTeX, no markdown, no special formatting)\n            - Use uppercase for operators. \n            - Use lowercase for variables: x, y\n            - Use parentheses for grouping when needed\n            - Start your response with \"Expression: \" followed by the expression\n            \n            Examples of correct format:\n            Expression: x AND y\n            Expression: (x OR y) AND NOT x\n            Expression: NOT (x AND y)\n            Expression: NOR(x, y)\n            \n            DO NOT use formats like:\n            - \\(x \\land y\\)  (LaTeX)\n            - `x AND y`  (markdown)\n            - x \u2227 y  (mathematical symbols)\n            ",
+          "response": "Expression: NOT (x OR y)",
+          "reasoning_content": "",
+          "target_operator_count": 1,
+          "actual_operator_count": 2,
+          "obeyed_operator_count": false,
+          "usage": {
+            "prompt_tokens": 653,
+            "completion_tokens": 9,
+            "total_tokens": 662
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "duration_seconds": 0.781,
+              "status": "ok",
+              "error": null,
+              "request_id": "ae62ca1a-e85d-9a38-bee2-841e14ab8542",
+              "finish_reason": "stop",
+              "content": "Expression: NOT (x OR y)",
+              "reasoning_content": "",
+              "request_parameters": {
+                "model": "qwen3.5-27b",
+                "temperature": 0.7,
+                "max_tokens": 4096,
+                "reasoning_effort": null,
+                "enable_thinking": false,
+                "request_timeout": 60
+              },
+              "usage": {
+                "prompt_tokens": 653,
+                "completion_tokens": 9,
+                "total_tokens": 662
+              },
+              "cost": 0.000662
+            }
+          ],
+          "feedback": {
+            "status": "ok",
+            "is_valid": false,
+            "failure_reason": "observation_mismatch",
+            "failure_detail": null,
+            "mechanistic_key": "('NOR', (('VAR', 'x'), ('VAR', 'y')))",
+            "is_new_valid": false,
+            "is_duplicate_valid": false,
+            "reward": 0,
+            "target_operator_count": 1,
+            "actual_operator_count": 2,
+            "obeyed_operator_count": false,
+            "usage": {
+              "prompt_tokens": 653,
+              "completion_tokens": 9,
+              "total_tokens": 662
+            },
+            "api_attempt_count": 1
+          },
+          "decision_log": [
+            {
+              "event": "select_action",
+              "strategy": "adaptive",
+              "target_operator_count": 1,
+              "rationale": "adaptive softmax forget=0.9",
+              "query_index": 10,
+              "n_unique_valid": 2,
+              "scores": {
+                "0": 0.5314410000000002,
+                "1": 0.38742048900000015,
+                "2": 0.0,
+                "3": 0.0
+              },
+              "counts": {
+                "0": 3,
+                "1": 4,
+                "2": 1,
+                "3": 2
+              },
+              "forget_factor": 0.9,
+              "controller_temperature": 1.0,
+              "explore_bonus": 0.15
+            },
+            {
+              "event": "update",
+              "strategy": "adaptive",
+              "action": 1,
+              "rationale": "adaptive forget=0.9: action=1 new=False score[1]=0.3487",
+              "is_valid": false,
+              "is_new_valid": false,
+              "failure_reason": "observation_mismatch",
+              "reward": 0.0,
+              "scores": {
+                "0": 0.47829690000000014,
+                "1": 0.34867844010000015,
+                "2": 0.0,
+                "3": 0.0
+              },
+              "counts": {
+                "0": 3,
+                "1": 5,
+                "2": 1,
+                "3": 2
+              }
+            }
+          ]
+        },
+        {
+          "query_index": 11,
+          "observation_set_id": "n2_inputs_00_10_outputs_00",
+          "status": "ok",
+          "candidate": "NOT x AND NOT y",
+          "prompt": "You are given partial observations of a Boolean function with variables: x, y\n\n            Allowed operators: AND (conjunction), OR (disjunction), NOT (negation)\n\n            Observations (input -> output):\n            (x=0, y=0) -> 0\n(x=1, y=0) -> 0\n\n            Prior expressions generated (avoid repeating any expression \n            that is equivalent under the rules below):\n            Expression: x AND y\nExpression: NOT x\nExpression: x AND NOT y\nExpression: y\nExpression: x\nExpression: (NOT x) OR (x AND y)\nExpression: (x AND y) OR NOT x\nExpression: y\nExpression: NOT y\nExpression: NOT y\nExpression: NOT (x OR y)\n\n            Task: Generate a single Boolean expression that is consistent with ALL observations.\n\n            Requirements:\n            1. Use ONLY the variables: x, y\n            2. Use ONLY these operators: AND, OR, NOT\n            3. The expression must match all given observations\n            4. Structural uniqueness is judged by these rules:\n            - Commutativity: reorderings are the SAME (e.g., x AND y = y AND x).\n        - Idempotence: duplicates of the same input under AND/OR collapse (e.g., x AND x = x; x OR x = x).\n        - Associativity flattening: cascades of the SAME operator are the SAME regardless of parentheses (e.g., (x AND y) AND x = x AND (y AND x) = x AND x AND y).\n        - No distributivity, absorption, or De Morgan normalization: mixing operators keeps expressions DIFFERENT (e.g., (x AND y) OR z \u2260 x AND (y OR z)).\n            5. Expression depth should be at most 2 levels of nesting\n            6. Do not use boolean constants True or False anywhere in the expression.\n            7. Complexity constraint: the expression must contain EXACTLY 0 operator occurrences. Count each AND, OR, NOT, XOR, and NOR as one operator. A variable alone has complexity 0.\n            \n            Output format: \n            - Return ONLY the Boolean expression on a single line\n            - Use plain text format (no LaTeX, no markdown, no special formatting)\n            - Use uppercase for operators. \n            - Use lowercase for variables: x, y\n            - Use parentheses for grouping when needed\n            - Start your response with \"Expression: \" followed by the expression\n            \n            Examples of correct format:\n            Expression: x AND y\n            Expression: (x OR y) AND NOT x\n            Expression: NOT (x AND y)\n            Expression: NOR(x, y)\n            \n            DO NOT use formats like:\n            - \\(x \\land y\\)  (LaTeX)\n            - `x AND y`  (markdown)\n            - x \u2227 y  (mathematical symbols)\n            ",
+          "response": "Expression: NOT x AND NOT y",
+          "reasoning_content": "",
+          "target_operator_count": 0,
+          "actual_operator_count": 3,
+          "obeyed_operator_count": false,
+          "usage": {
+            "prompt_tokens": 662,
+            "completion_tokens": 8,
+            "total_tokens": 670
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "duration_seconds": 0.828,
+              "status": "ok",
+              "error": null,
+              "request_id": "9fcdbe98-f431-9c04-b728-b4813dabc255",
+              "finish_reason": "stop",
+              "content": "Expression: NOT x AND NOT y",
+              "reasoning_content": "",
+              "request_parameters": {
+                "model": "qwen3.5-27b",
+                "temperature": 0.7,
+                "max_tokens": 4096,
+                "reasoning_effort": null,
+                "enable_thinking": false,
+                "request_timeout": 60
+              },
+              "usage": {
+                "prompt_tokens": 662,
+                "completion_tokens": 8,
+                "total_tokens": 670
+              },
+              "cost": 0.00067
+            }
+          ],
+          "feedback": {
+            "status": "ok",
+            "is_valid": false,
+            "failure_reason": "observation_mismatch",
+            "failure_detail": null,
+            "mechanistic_key": "('AND', (('NOT', ('VAR', 'x')), ('NOT', ('VAR', 'y'))))",
+            "is_new_valid": false,
+            "is_duplicate_valid": false,
+            "reward": 0,
+            "target_operator_count": 0,
+            "actual_operator_count": 3,
+            "obeyed_operator_count": false,
+            "usage": {
+              "prompt_tokens": 662,
+              "completion_tokens": 8,
+              "total_tokens": 670
+            },
+            "api_attempt_count": 1
+          },
+          "decision_log": [
+            {
+              "event": "select_action",
+              "strategy": "adaptive",
+              "target_operator_count": 0,
+              "rationale": "adaptive softmax forget=0.9",
+              "query_index": 11,
+              "n_unique_valid": 2,
+              "scores": {
+                "0": 0.47829690000000014,
+                "1": 0.34867844010000015,
+                "2": 0.0,
+                "3": 0.0
+              },
+              "counts": {
+                "0": 3,
+                "1": 5,
+                "2": 1,
+                "3": 2
+              },
+              "forget_factor": 0.9,
+              "controller_temperature": 1.0,
+              "explore_bonus": 0.15
+            },
+            {
+              "event": "update",
+              "strategy": "adaptive",
+              "action": 0,
+              "rationale": "adaptive forget=0.9: action=0 new=False score[0]=0.4305",
+              "is_valid": false,
+              "is_new_valid": false,
+              "failure_reason": "observation_mismatch",
+              "reward": 0.0,
+              "scores": {
+                "0": 0.43046721000000016,
+                "1": 0.31381059609000017,
+                "2": 0.0,
+                "3": 0.0
+              },
+              "counts": {
+                "0": 4,
+                "1": 5,
+                "2": 1,
+                "3": 2
+              }
+            }
+          ]
+        },
+        {
+          "query_index": 12,
+          "observation_set_id": "n2_inputs_00_10_outputs_00",
+          "status": "ok",
+          "candidate": "NOT x AND NOT y",
+          "prompt": "You are given partial observations of a Boolean function with variables: x, y\n\n            Allowed operators: AND (conjunction), OR (disjunction), NOT (negation)\n\n            Observations (input -> output):\n            (x=0, y=0) -> 0\n(x=1, y=0) -> 0\n\n            Prior expressions generated (avoid repeating any expression \n            that is equivalent under the rules below):\n            Expression: x AND y\nExpression: NOT x\nExpression: x AND NOT y\nExpression: y\nExpression: x\nExpression: (NOT x) OR (x AND y)\nExpression: (x AND y) OR NOT x\nExpression: y\nExpression: NOT y\nExpression: NOT y\nExpression: NOT (x OR y)\nExpression: NOT x AND NOT y\n\n            Task: Generate a single Boolean expression that is consistent with ALL observations.\n\n            Requirements:\n            1. Use ONLY the variables: x, y\n            2. Use ONLY these operators: AND, OR, NOT\n            3. The expression must match all given observations\n            4. Structural uniqueness is judged by these rules:\n            - Commutativity: reorderings are the SAME (e.g., x AND y = y AND x).\n        - Idempotence: duplicates of the same input under AND/OR collapse (e.g., x AND x = x; x OR x = x).\n        - Associativity flattening: cascades of the SAME operator are the SAME regardless of parentheses (e.g., (x AND y) AND x = x AND (y AND x) = x AND x AND y).\n        - No distributivity, absorption, or De Morgan normalization: mixing operators keeps expressions DIFFERENT (e.g., (x AND y) OR z \u2260 x AND (y OR z)).\n            5. Expression depth should be at most 2 levels of nesting\n            6. Do not use boolean constants True or False anywhere in the expression.\n            7. Complexity constraint: the expression must contain EXACTLY 0 operator occurrences. Count each AND, OR, NOT, XOR, and NOR as one operator. A variable alone has complexity 0.\n            \n            Output format: \n            - Return ONLY the Boolean expression on a single line\n            - Use plain text format (no LaTeX, no markdown, no special formatting)\n            - Use uppercase for operators. \n            - Use lowercase for variables: x, y\n            - Use parentheses for grouping when needed\n            - Start your response with \"Expression: \" followed by the expression\n            \n            Examples of correct format:\n            Expression: x AND y\n            Expression: (x OR y) AND NOT x\n            Expression: NOT (x AND y)\n            Expression: NOR(x, y)\n            \n            DO NOT use formats like:\n            - \\(x \\land y\\)  (LaTeX)\n            - `x AND y`  (markdown)\n            - x \u2227 y  (mathematical symbols)\n            ",
+          "response": "Expression: NOT x AND NOT y",
+          "reasoning_content": "",
+          "target_operator_count": 0,
+          "actual_operator_count": 3,
+          "obeyed_operator_count": false,
+          "usage": {
+            "prompt_tokens": 670,
+            "completion_tokens": 8,
+            "total_tokens": 678
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "duration_seconds": 0.891,
+              "status": "ok",
+              "error": null,
+              "request_id": "82f290d0-4bf3-9234-a4e0-5b619a4ec2f9",
+              "finish_reason": "stop",
+              "content": "Expression: NOT x AND NOT y",
+              "reasoning_content": "",
+              "request_parameters": {
+                "model": "qwen3.5-27b",
+                "temperature": 0.7,
+                "max_tokens": 4096,
+                "reasoning_effort": null,
+                "enable_thinking": false,
+                "request_timeout": 60
+              },
+              "usage": {
+                "prompt_tokens": 670,
+                "completion_tokens": 8,
+                "total_tokens": 678
+              },
+              "cost": 0.000678
+            }
+          ],
+          "feedback": {
+            "status": "ok",
+            "is_valid": false,
+            "failure_reason": "observation_mismatch",
+            "failure_detail": null,
+            "mechanistic_key": "('AND', (('NOT', ('VAR', 'x')), ('NOT', ('VAR', 'y'))))",
+            "is_new_valid": false,
+            "is_duplicate_valid": false,
+            "reward": 0,
+            "target_operator_count": 0,
+            "actual_operator_count": 3,
+            "obeyed_operator_count": false,
+            "usage": {
+              "prompt_tokens": 670,
+              "completion_tokens": 8,
+              "total_tokens": 678
+            },
+            "api_attempt_count": 1
+          },
+          "decision_log": [
+            {
+              "event": "select_action",
+              "strategy": "adaptive",
+              "target_operator_count": 0,
+              "rationale": "adaptive softmax forget=0.9",
+              "query_index": 12,
+              "n_unique_valid": 2,
+              "scores": {
+                "0": 0.43046721000000016,
+                "1": 0.31381059609000017,
+                "2": 0.0,
+                "3": 0.0
+              },
+              "counts": {
+                "0": 4,
+                "1": 5,
+                "2": 1,
+                "3": 2
+              },
+              "forget_factor": 0.9,
+              "controller_temperature": 1.0,
+              "explore_bonus": 0.15
+            },
+            {
+              "event": "update",
+              "strategy": "adaptive",
+              "action": 0,
+              "rationale": "adaptive forget=0.9: action=0 new=False score[0]=0.3874",
+              "is_valid": false,
+              "is_new_valid": false,
+              "failure_reason": "observation_mismatch",
+              "reward": 0.0,
+              "scores": {
+                "0": 0.38742048900000015,
+                "1": 0.28242953648100017,
+                "2": 0.0,
+                "3": 0.0
+              },
+              "counts": {
+                "0": 5,
+                "1": 5,
+                "2": 1,
+                "3": 2
+              }
+            }
+          ]
+        },
+        {
+          "query_index": 13,
+          "observation_set_id": "n2_inputs_00_10_outputs_00",
+          "status": "ok",
+          "candidate": "NOT (x OR y)",
+          "prompt": "You are given partial observations of a Boolean function with variables: x, y\n\n            Allowed operators: AND (conjunction), OR (disjunction), NOT (negation)\n\n            Observations (input -> output):\n            (x=0, y=0) -> 0\n(x=1, y=0) -> 0\n\n            Prior expressions generated (avoid repeating any expression \n            that is equivalent under the rules below):\n            Expression: x AND y\nExpression: NOT x\nExpression: x AND NOT y\nExpression: y\nExpression: x\nExpression: (NOT x) OR (x AND y)\nExpression: (x AND y) OR NOT x\nExpression: y\nExpression: NOT y\nExpression: NOT y\nExpression: NOT (x OR y)\nExpression: NOT x AND NOT y\nExpression: NOT x AND NOT y\n\n            Task: Generate a single Boolean expression that is consistent with ALL observations.\n\n            Requirements:\n            1. Use ONLY the variables: x, y\n            2. Use ONLY these operators: AND, OR, NOT\n            3. The expression must match all given observations\n            4. Structural uniqueness is judged by these rules:\n            - Commutativity: reorderings are the SAME (e.g., x AND y = y AND x).\n        - Idempotence: duplicates of the same input under AND/OR collapse (e.g., x AND x = x; x OR x = x).\n        - Associativity flattening: cascades of the SAME operator are the SAME regardless of parentheses (e.g., (x AND y) AND x = x AND (y AND x) = x AND x AND y).\n        - No distributivity, absorption, or De Morgan normalization: mixing operators keeps expressions DIFFERENT (e.g., (x AND y) OR z \u2260 x AND (y OR z)).\n            5. Expression depth should be at most 2 levels of nesting\n            6. Do not use boolean constants True or False anywhere in the expression.\n            7. Complexity constraint: the expression must contain EXACTLY 1 operator occurrences. Count each AND, OR, NOT, XOR, and NOR as one operator. A variable alone has complexity 0.\n            \n            Output format: \n            - Return ONLY the Boolean expression on a single line\n            - Use plain text format (no LaTeX, no markdown, no special formatting)\n            - Use uppercase for operators. \n            - Use lowercase for variables: x, y\n            - Use parentheses for grouping when needed\n            - Start your response with \"Expression: \" followed by the expression\n            \n            Examples of correct format:\n            Expression: x AND y\n            Expression: (x OR y) AND NOT x\n            Expression: NOT (x AND y)\n            Expression: NOR(x, y)\n            \n            DO NOT use formats like:\n            - \\(x \\land y\\)  (LaTeX)\n            - `x AND y`  (markdown)\n            - x \u2227 y  (mathematical symbols)\n            ",
+          "response": "Expression: NOT (x OR y)",
+          "reasoning_content": "",
+          "target_operator_count": 1,
+          "actual_operator_count": 2,
+          "obeyed_operator_count": false,
+          "usage": {
+            "prompt_tokens": 678,
+            "completion_tokens": 9,
+            "total_tokens": 687
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "duration_seconds": 0.843,
+              "status": "ok",
+              "error": null,
+              "request_id": "7b52090e-654a-986d-a65c-e68585c94e0c",
+              "finish_reason": "stop",
+              "content": "Expression: NOT (x OR y)",
+              "reasoning_content": "",
+              "request_parameters": {
+                "model": "qwen3.5-27b",
+                "temperature": 0.7,
+                "max_tokens": 4096,
+                "reasoning_effort": null,
+                "enable_thinking": false,
+                "request_timeout": 60
+              },
+              "usage": {
+                "prompt_tokens": 678,
+                "completion_tokens": 9,
+                "total_tokens": 687
+              },
+              "cost": 0.000687
+            }
+          ],
+          "feedback": {
+            "status": "ok",
+            "is_valid": false,
+            "failure_reason": "observation_mismatch",
+            "failure_detail": null,
+            "mechanistic_key": "('NOR', (('VAR', 'x'), ('VAR', 'y')))",
+            "is_new_valid": false,
+            "is_duplicate_valid": false,
+            "reward": 0,
+            "target_operator_count": 1,
+            "actual_operator_count": 2,
+            "obeyed_operator_count": false,
+            "usage": {
+              "prompt_tokens": 678,
+              "completion_tokens": 9,
+              "total_tokens": 687
+            },
+            "api_attempt_count": 1
+          },
+          "decision_log": [
+            {
+              "event": "select_action",
+              "strategy": "adaptive",
+              "target_operator_count": 1,
+              "rationale": "adaptive softmax forget=0.9",
+              "query_index": 13,
+              "n_unique_valid": 2,
+              "scores": {
+                "0": 0.38742048900000015,
+                "1": 0.28242953648100017,
+                "2": 0.0,
+                "3": 0.0
+              },
+              "counts": {
+                "0": 5,
+                "1": 5,
+                "2": 1,
+                "3": 2
+              },
+              "forget_factor": 0.9,
+              "controller_temperature": 1.0,
+              "explore_bonus": 0.15
+            },
+            {
+              "event": "update",
+              "strategy": "adaptive",
+              "action": 1,
+              "rationale": "adaptive forget=0.9: action=1 new=False score[1]=0.2542",
+              "is_valid": false,
+              "is_new_valid": false,
+              "failure_reason": "observation_mismatch",
+              "reward": 0.0,
+              "scores": {
+                "0": 0.34867844010000015,
+                "1": 0.25418658283290013,
+                "2": 0.0,
+                "3": 0.0
+              },
+              "counts": {
+                "0": 5,
+                "1": 6,
+                "2": 1,
+                "3": 2
+              }
+            }
+          ]
+        },
+        {
+          "query_index": 14,
+          "observation_set_id": "n2_inputs_00_10_outputs_00",
+          "status": "ok",
+          "candidate": "NOT x AND y",
+          "prompt": "You are given partial observations of a Boolean function with variables: x, y\n\n            Allowed operators: AND (conjunction), OR (disjunction), NOT (negation)\n\n            Observations (input -> output):\n            (x=0, y=0) -> 0\n(x=1, y=0) -> 0\n\n            Prior expressions generated (avoid repeating any expression \n            that is equivalent under the rules below):\n            Expression: x AND y\nExpression: NOT x\nExpression: x AND NOT y\nExpression: y\nExpression: x\nExpression: (NOT x) OR (x AND y)\nExpression: (x AND y) OR NOT x\nExpression: y\nExpression: NOT y\nExpression: NOT y\nExpression: NOT (x OR y)\nExpression: NOT x AND NOT y\nExpression: NOT x AND NOT y\nExpression: NOT (x OR y)\n\n            Task: Generate a single Boolean expression that is consistent with ALL observations.\n\n            Requirements:\n            1. Use ONLY the variables: x, y\n            2. Use ONLY these operators: AND, OR, NOT\n            3. The expression must match all given observations\n            4. Structural uniqueness is judged by these rules:\n            - Commutativity: reorderings are the SAME (e.g., x AND y = y AND x).\n        - Idempotence: duplicates of the same input under AND/OR collapse (e.g., x AND x = x; x OR x = x).\n        - Associativity flattening: cascades of the SAME operator are the SAME regardless of parentheses (e.g., (x AND y) AND x = x AND (y AND x) = x AND x AND y).\n        - No distributivity, absorption, or De Morgan normalization: mixing operators keeps expressions DIFFERENT (e.g., (x AND y) OR z \u2260 x AND (y OR z)).\n            5. Expression depth should be at most 2 levels of nesting\n            6. Do not use boolean constants True or False anywhere in the expression.\n            7. Complexity constraint: the expression must contain EXACTLY 0 operator occurrences. Count each AND, OR, NOT, XOR, and NOR as one operator. A variable alone has complexity 0.\n            \n            Output format: \n            - Return ONLY the Boolean expression on a single line\n            - Use plain text format (no LaTeX, no markdown, no special formatting)\n            - Use uppercase for operators. \n            - Use lowercase for variables: x, y\n            - Use parentheses for grouping when needed\n            - Start your response with \"Expression: \" followed by the expression\n            \n            Examples of correct format:\n            Expression: x AND y\n            Expression: (x OR y) AND NOT x\n            Expression: NOT (x AND y)\n            Expression: NOR(x, y)\n            \n            DO NOT use formats like:\n            - \\(x \\land y\\)  (LaTeX)\n            - `x AND y`  (markdown)\n            - x \u2227 y  (mathematical symbols)\n            ",
+          "response": "Expression: NOT x AND y",
+          "reasoning_content": "",
+          "target_operator_count": 0,
+          "actual_operator_count": 2,
+          "obeyed_operator_count": false,
+          "usage": {
+            "prompt_tokens": 687,
+            "completion_tokens": 7,
+            "total_tokens": 694
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "duration_seconds": 0.984,
+              "status": "ok",
+              "error": null,
+              "request_id": "500f0a87-675b-9a9c-a39e-4f29cadd006f",
+              "finish_reason": "stop",
+              "content": "Expression: NOT x AND y",
+              "reasoning_content": "",
+              "request_parameters": {
+                "model": "qwen3.5-27b",
+                "temperature": 0.7,
+                "max_tokens": 4096,
+                "reasoning_effort": null,
+                "enable_thinking": false,
+                "request_timeout": 60
+              },
+              "usage": {
+                "prompt_tokens": 687,
+                "completion_tokens": 7,
+                "total_tokens": 694
+              },
+              "cost": 0.000694
+            }
+          ],
+          "feedback": {
+            "status": "ok",
+            "is_valid": true,
+            "failure_reason": null,
+            "failure_detail": null,
+            "mechanistic_key": "('AND', (('NOT', ('VAR', 'x')), ('VAR', 'y')))",
+            "is_new_valid": true,
+            "is_duplicate_valid": false,
+            "reward": 1,
+            "target_operator_count": 0,
+            "actual_operator_count": 2,
+            "obeyed_operator_count": false,
+            "usage": {
+              "prompt_tokens": 687,
+              "completion_tokens": 7,
+              "total_tokens": 694
+            },
+            "api_attempt_count": 1
+          },
+          "decision_log": [
+            {
+              "event": "select_action",
+              "strategy": "adaptive",
+              "target_operator_count": 0,
+              "rationale": "adaptive softmax forget=0.9",
+              "query_index": 14,
+              "n_unique_valid": 2,
+              "scores": {
+                "0": 0.34867844010000015,
+                "1": 0.25418658283290013,
+                "2": 0.0,
+                "3": 0.0
+              },
+              "counts": {
+                "0": 5,
+                "1": 6,
+                "2": 1,
+                "3": 2
+              },
+              "forget_factor": 0.9,
+              "controller_temperature": 1.0,
+              "explore_bonus": 0.15
+            },
+            {
+              "event": "update",
+              "strategy": "adaptive",
+              "action": 0,
+              "rationale": "adaptive forget=0.9: action=0 new=True score[0]=1.3138",
+              "is_valid": true,
+              "is_new_valid": true,
+              "failure_reason": null,
+              "reward": 1.0,
+              "scores": {
+                "0": 1.3138105960900002,
+                "1": 0.22876792454961012,
+                "2": 0.0,
+                "3": 0.0
+              },
+              "counts": {
+                "0": 6,
+                "1": 6,
+                "2": 1,
+                "3": 2
+              }
+            }
+          ]
+        },
+        {
+          "query_index": 15,
+          "observation_set_id": "n2_inputs_00_10_outputs_00",
+          "status": "ok",
+          "candidate": "NOT (x OR y)",
+          "prompt": "You are given partial observations of a Boolean function with variables: x, y\n\n            Allowed operators: AND (conjunction), OR (disjunction), NOT (negation)\n\n            Observations (input -> output):\n            (x=0, y=0) -> 0\n(x=1, y=0) -> 0\n\n            Prior expressions generated (avoid repeating any expression \n            that is equivalent under the rules below):\n            Expression: x AND y\nExpression: NOT x\nExpression: x AND NOT y\nExpression: y\nExpression: x\nExpression: (NOT x) OR (x AND y)\nExpression: (x AND y) OR NOT x\nExpression: y\nExpression: NOT y\nExpression: NOT y\nExpression: NOT (x OR y)\nExpression: NOT x AND NOT y\nExpression: NOT x AND NOT y\nExpression: NOT (x OR y)\nExpression: NOT x AND y\n\n            Task: Generate a single Boolean expression that is consistent with ALL observations.\n\n            Requirements:\n            1. Use ONLY the variables: x, y\n            2. Use ONLY these operators: AND, OR, NOT\n            3. The expression must match all given observations\n            4. Structural uniqueness is judged by these rules:\n            - Commutativity: reorderings are the SAME (e.g., x AND y = y AND x).\n        - Idempotence: duplicates of the same input under AND/OR collapse (e.g., x AND x = x; x OR x = x).\n        - Associativity flattening: cascades of the SAME operator are the SAME regardless of parentheses (e.g., (x AND y) AND x = x AND (y AND x) = x AND x AND y).\n        - No distributivity, absorption, or De Morgan normalization: mixing operators keeps expressions DIFFERENT (e.g., (x AND y) OR z \u2260 x AND (y OR z)).\n            5. Expression depth should be at most 2 levels of nesting\n            6. Do not use boolean constants True or False anywhere in the expression.\n            7. Complexity constraint: the expression must contain EXACTLY 2 operator occurrences. Count each AND, OR, NOT, XOR, and NOR as one operator. A variable alone has complexity 0.\n            \n            Output format: \n            - Return ONLY the Boolean expression on a single line\n            - Use plain text format (no LaTeX, no markdown, no special formatting)\n            - Use uppercase for operators. \n            - Use lowercase for variables: x, y\n            - Use parentheses for grouping when needed\n            - Start your response with \"Expression: \" followed by the expression\n            \n            Examples of correct format:\n            Expression: x AND y\n            Expression: (x OR y) AND NOT x\n            Expression: NOT (x AND y)\n            Expression: NOR(x, y)\n            \n            DO NOT use formats like:\n            - \\(x \\land y\\)  (LaTeX)\n            - `x AND y`  (markdown)\n            - x \u2227 y  (mathematical symbols)\n            ",
+          "response": "Expression: NOT (x OR y)",
+          "reasoning_content": "",
+          "target_operator_count": 2,
+          "actual_operator_count": 2,
+          "obeyed_operator_count": true,
+          "usage": {
+            "prompt_tokens": 694,
+            "completion_tokens": 9,
+            "total_tokens": 703
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "duration_seconds": 0.969,
+              "status": "ok",
+              "error": null,
+              "request_id": "ba539e6d-2f1a-9efa-ada6-3ed61c0b0d5d",
+              "finish_reason": "stop",
+              "content": "Expression: NOT (x OR y)",
+              "reasoning_content": "",
+              "request_parameters": {
+                "model": "qwen3.5-27b",
+                "temperature": 0.7,
+                "max_tokens": 4096,
+                "reasoning_effort": null,
+                "enable_thinking": false,
+                "request_timeout": 60
+              },
+              "usage": {
+                "prompt_tokens": 694,
+                "completion_tokens": 9,
+                "total_tokens": 703
+              },
+              "cost": 0.000703
+            }
+          ],
+          "feedback": {
+            "status": "ok",
+            "is_valid": false,
+            "failure_reason": "observation_mismatch",
+            "failure_detail": null,
+            "mechanistic_key": "('NOR', (('VAR', 'x'), ('VAR', 'y')))",
+            "is_new_valid": false,
+            "is_duplicate_valid": false,
+            "reward": 0,
+            "target_operator_count": 2,
+            "actual_operator_count": 2,
+            "obeyed_operator_count": true,
+            "usage": {
+              "prompt_tokens": 694,
+              "completion_tokens": 9,
+              "total_tokens": 703
+            },
+            "api_attempt_count": 1
+          },
+          "decision_log": [
+            {
+              "event": "select_action",
+              "strategy": "adaptive",
+              "target_operator_count": 2,
+              "rationale": "adaptive softmax forget=0.9",
+              "query_index": 15,
+              "n_unique_valid": 3,
+              "scores": {
+                "0": 1.3138105960900002,
+                "1": 0.22876792454961012,
+                "2": 0.0,
+                "3": 0.0
+              },
+              "counts": {
+                "0": 6,
+                "1": 6,
+                "2": 1,
+                "3": 2
+              },
+              "forget_factor": 0.9,
+              "controller_temperature": 1.0,
+              "explore_bonus": 0.15
+            },
+            {
+              "event": "update",
+              "strategy": "adaptive",
+              "action": 2,
+              "rationale": "adaptive forget=0.9: action=2 new=False score[2]=0.0000",
+              "is_valid": false,
+              "is_new_valid": false,
+              "failure_reason": "observation_mismatch",
+              "reward": 0.0,
+              "scores": {
+                "0": 1.1824295364810002,
+                "1": 0.2058911320946491,
+                "2": 0.0,
+                "3": 0.0
+              },
+              "counts": {
+                "0": 6,
+                "1": 6,
+                "2": 2,
+                "3": 2
+              }
+            }
+          ]
+        }
+      ],
+      "api_attempt_count": 16,
+      "parse_success_rate": 1.0,
+      "in_space_rate": 1.0,
+      "valid_rate": 0.25,
+      "novelty_rate": 0.625,
+      "recovery_rate": 0.25,
+      "decoding": "adaptive",
+      "complexity_schedule": null,
+      "all_hypotheses": [
+        "x AND y",
+        "NOT x",
+        "x AND NOT y",
+        "y",
+        "x",
+        "(NOT x) OR (x AND y)",
+        "(x AND y) OR NOT x",
+        "y",
+        "NOT y",
+        "NOT y",
+        "NOT (x OR y)",
+        "NOT x AND NOT y",
+        "NOT x AND NOT y",
+        "NOT (x OR y)",
+        "NOT x AND y",
+        "NOT (x OR y)"
+      ],
+      "valid_hypotheses": [
+        "x AND y",
+        "y",
+        "y",
+        "NOT x AND y"
+      ],
+      "unique_valid_expressions": [
+        "x AND y",
+        "y",
+        "NOT x AND y"
+      ],
+      "unique_all_expressions": [
+        "x AND y",
+        "NOT x",
+        "x AND NOT y",
+        "y",
+        "x",
+        "(NOT x) OR (x AND y)",
+        "NOT y",
+        "NOT (x OR y)",
+        "NOT x AND NOT y",
+        "NOT x AND y"
+      ],
+      "token_usage": {
+        "prompt_tokens": 10221,
+        "completion_tokens": 114,
+        "total_tokens": 10335
+      },
+      "cost": 0.010335000000000002,
+      "errors": [],
+      "error_summary": {
+        "total_errors": 0,
+        "error_types": {}
+      },
+      "controller_seed": 4549678210023698661,
+      "decision_log": [
+        {
+          "event": "select_action",
+          "strategy": "adaptive",
+          "target_operator_count": 1,
+          "rationale": "adaptive softmax forget=0.9",
+          "query_index": 0,
+          "n_unique_valid": 0,
+          "scores": {
+            "0": 0.0,
+            "1": 0.0,
+            "2": 0.0,
+            "3": 0.0
+          },
+          "counts": {
+            "0": 0,
+            "1": 0,
+            "2": 0,
+            "3": 0
+          },
+          "forget_factor": 0.9,
+          "controller_temperature": 1.0,
+          "explore_bonus": 0.15
+        },
+        {
+          "event": "update",
+          "strategy": "adaptive",
+          "action": 1,
+          "rationale": "adaptive forget=0.9: action=1 new=True score[1]=1.0000",
+          "is_valid": true,
+          "is_new_valid": true,
+          "failure_reason": null,
+          "reward": 1.0,
+          "scores": {
+            "0": 0.0,
+            "1": 1.0,
+            "2": 0.0,
+            "3": 0.0
+          },
+          "counts": {
+            "0": 0,
+            "1": 1,
+            "2": 0,
+            "3": 0
+          }
+        },
+        {
+          "event": "select_action",
+          "strategy": "adaptive",
+          "target_operator_count": 1,
+          "rationale": "adaptive softmax forget=0.9",
+          "query_index": 1,
+          "n_unique_valid": 1,
+          "scores": {
+            "0": 0.0,
+            "1": 1.0,
+            "2": 0.0,
+            "3": 0.0
+          },
+          "counts": {
+            "0": 0,
+            "1": 1,
+            "2": 0,
+            "3": 0
+          },
+          "forget_factor": 0.9,
+          "controller_temperature": 1.0,
+          "explore_bonus": 0.15
+        },
+        {
+          "event": "update",
+          "strategy": "adaptive",
+          "action": 1,
+          "rationale": "adaptive forget=0.9: action=1 new=False score[1]=0.9000",
+          "is_valid": false,
+          "is_new_valid": false,
+          "failure_reason": "observation_mismatch",
+          "reward": 0.0,
+          "scores": {
+            "0": 0.0,
+            "1": 0.9,
+            "2": 0.0,
+            "3": 0.0
+          },
+          "counts": {
+            "0": 0,
+            "1": 2,
+            "2": 0,
+            "3": 0
+          }
+        },
+        {
+          "event": "select_action",
+          "strategy": "adaptive",
+          "target_operator_count": 2,
+          "rationale": "adaptive softmax forget=0.9",
+          "query_index": 2,
+          "n_unique_valid": 1,
+          "scores": {
+            "0": 0.0,
+            "1": 0.9,
+            "2": 0.0,
+            "3": 0.0
+          },
+          "counts": {
+            "0": 0,
+            "1": 2,
+            "2": 0,
+            "3": 0
+          },
+          "forget_factor": 0.9,
+          "controller_temperature": 1.0,
+          "explore_bonus": 0.15
+        },
+        {
+          "event": "update",
+          "strategy": "adaptive",
+          "action": 2,
+          "rationale": "adaptive forget=0.9: action=2 new=False score[2]=0.0000",
+          "is_valid": false,
+          "is_new_valid": false,
+          "failure_reason": "observation_mismatch",
+          "reward": 0.0,
+          "scores": {
+            "0": 0.0,
+            "1": 0.81,
+            "2": 0.0,
+            "3": 0.0
+          },
+          "counts": {
+            "0": 0,
+            "1": 2,
+            "2": 1,
+            "3": 0
+          }
+        },
+        {
+          "event": "select_action",
+          "strategy": "adaptive",
+          "target_operator_count": 0,
+          "rationale": "adaptive softmax forget=0.9",
+          "query_index": 3,
+          "n_unique_valid": 1,
+          "scores": {
+            "0": 0.0,
+            "1": 0.81,
+            "2": 0.0,
+            "3": 0.0
+          },
+          "counts": {
+            "0": 0,
+            "1": 2,
+            "2": 1,
+            "3": 0
+          },
+          "forget_factor": 0.9,
+          "controller_temperature": 1.0,
+          "explore_bonus": 0.15
+        },
+        {
+          "event": "update",
+          "strategy": "adaptive",
+          "action": 0,
+          "rationale": "adaptive forget=0.9: action=0 new=True score[0]=1.0000",
+          "is_valid": true,
+          "is_new_valid": true,
+          "failure_reason": null,
+          "reward": 1.0,
+          "scores": {
+            "0": 1.0,
+            "1": 0.7290000000000001,
+            "2": 0.0,
+            "3": 0.0
+          },
+          "counts": {
+            "0": 1,
+            "1": 2,
+            "2": 1,
+            "3": 0
+          }
+        },
+        {
+          "event": "select_action",
+          "strategy": "adaptive",
+          "target_operator_count": 0,
+          "rationale": "adaptive softmax forget=0.9",
+          "query_index": 4,
+          "n_unique_valid": 2,
+          "scores": {
+            "0": 1.0,
+            "1": 0.7290000000000001,
+            "2": 0.0,
+            "3": 0.0
+          },
+          "counts": {
+            "0": 1,
+            "1": 2,
+            "2": 1,
+            "3": 0
+          },
+          "forget_factor": 0.9,
+          "controller_temperature": 1.0,
+          "explore_bonus": 0.15
+        },
+        {
+          "event": "update",
+          "strategy": "adaptive",
+          "action": 0,
+          "rationale": "adaptive forget=0.9: action=0 new=False score[0]=0.9000",
+          "is_valid": false,
+          "is_new_valid": false,
+          "failure_reason": "observation_mismatch",
+          "reward": 0.0,
+          "scores": {
+            "0": 0.9,
+            "1": 0.6561000000000001,
+            "2": 0.0,
+            "3": 0.0
+          },
+          "counts": {
+            "0": 2,
+            "1": 2,
+            "2": 1,
+            "3": 0
+          }
+        },
+        {
+          "event": "select_action",
+          "strategy": "adaptive",
+          "target_operator_count": 3,
+          "rationale": "adaptive softmax forget=0.9",
+          "query_index": 5,
+          "n_unique_valid": 2,
+          "scores": {
+            "0": 0.9,
+            "1": 0.6561000000000001,
+            "2": 0.0,
+            "3": 0.0
+          },
+          "counts": {
+            "0": 2,
+            "1": 2,
+            "2": 1,
+            "3": 0
+          },
+          "forget_factor": 0.9,
+          "controller_temperature": 1.0,
+          "explore_bonus": 0.15
+        },
+        {
+          "event": "update",
+          "strategy": "adaptive",
+          "action": 3,
+          "rationale": "adaptive forget=0.9: action=3 new=False score[3]=0.0000",
+          "is_valid": false,
+          "is_new_valid": false,
+          "failure_reason": "observation_mismatch",
+          "reward": 0.0,
+          "scores": {
+            "0": 0.81,
+            "1": 0.5904900000000002,
+            "2": 0.0,
+            "3": 0.0
+          },
+          "counts": {
+            "0": 2,
+            "1": 2,
+            "2": 1,
+            "3": 1
+          }
+        },
+        {
+          "event": "select_action",
+          "strategy": "adaptive",
+          "target_operator_count": 3,
+          "rationale": "adaptive softmax forget=0.9",
+          "query_index": 6,
+          "n_unique_valid": 2,
+          "scores": {
+            "0": 0.81,
+            "1": 0.5904900000000002,
+            "2": 0.0,
+            "3": 0.0
+          },
+          "counts": {
+            "0": 2,
+            "1": 2,
+            "2": 1,
+            "3": 1
+          },
+          "forget_factor": 0.9,
+          "controller_temperature": 1.0,
+          "explore_bonus": 0.15
+        },
+        {
+          "event": "update",
+          "strategy": "adaptive",
+          "action": 3,
+          "rationale": "adaptive forget=0.9: action=3 new=False score[3]=0.0000",
+          "is_valid": false,
+          "is_new_valid": false,
+          "failure_reason": "observation_mismatch",
+          "reward": 0.0,
+          "scores": {
+            "0": 0.7290000000000001,
+            "1": 0.5314410000000002,
+            "2": 0.0,
+            "3": 0.0
+          },
+          "counts": {
+            "0": 2,
+            "1": 2,
+            "2": 1,
+            "3": 2
+          }
+        },
+        {
+          "event": "select_action",
+          "strategy": "adaptive",
+          "target_operator_count": 0,
+          "rationale": "adaptive softmax forget=0.9",
+          "query_index": 7,
+          "n_unique_valid": 2,
+          "scores": {
+            "0": 0.7290000000000001,
+            "1": 0.5314410000000002,
+            "2": 0.0,
+            "3": 0.0
+          },
+          "counts": {
+            "0": 2,
+            "1": 2,
+            "2": 1,
+            "3": 2
+          },
+          "forget_factor": 0.9,
+          "controller_temperature": 1.0,
+          "explore_bonus": 0.15
+        },
+        {
+          "event": "update",
+          "strategy": "adaptive",
+          "action": 0,
+          "rationale": "adaptive forget=0.9: action=0 new=False score[0]=0.6561",
+          "is_valid": true,
+          "is_new_valid": false,
+          "failure_reason": null,
+          "reward": 0.0,
+          "scores": {
+            "0": 0.6561000000000001,
+            "1": 0.47829690000000014,
+            "2": 0.0,
+            "3": 0.0
+          },
+          "counts": {
+            "0": 3,
+            "1": 2,
+            "2": 1,
+            "3": 2
+          }
+        },
+        {
+          "event": "select_action",
+          "strategy": "adaptive",
+          "target_operator_count": 1,
+          "rationale": "adaptive softmax forget=0.9",
+          "query_index": 8,
+          "n_unique_valid": 2,
+          "scores": {
+            "0": 0.6561000000000001,
+            "1": 0.47829690000000014,
+            "2": 0.0,
+            "3": 0.0
+          },
+          "counts": {
+            "0": 3,
+            "1": 2,
+            "2": 1,
+            "3": 2
+          },
+          "forget_factor": 0.9,
+          "controller_temperature": 1.0,
+          "explore_bonus": 0.15
+        },
+        {
+          "event": "update",
+          "strategy": "adaptive",
+          "action": 1,
+          "rationale": "adaptive forget=0.9: action=1 new=False score[1]=0.4305",
+          "is_valid": false,
+          "is_new_valid": false,
+          "failure_reason": "observation_mismatch",
+          "reward": 0.0,
+          "scores": {
+            "0": 0.5904900000000002,
+            "1": 0.43046721000000016,
+            "2": 0.0,
+            "3": 0.0
+          },
+          "counts": {
+            "0": 3,
+            "1": 3,
+            "2": 1,
+            "3": 2
+          }
+        },
+        {
+          "event": "select_action",
+          "strategy": "adaptive",
+          "target_operator_count": 1,
+          "rationale": "adaptive softmax forget=0.9",
+          "query_index": 9,
+          "n_unique_valid": 2,
+          "scores": {
+            "0": 0.5904900000000002,
+            "1": 0.43046721000000016,
+            "2": 0.0,
+            "3": 0.0
+          },
+          "counts": {
+            "0": 3,
+            "1": 3,
+            "2": 1,
+            "3": 2
+          },
+          "forget_factor": 0.9,
+          "controller_temperature": 1.0,
+          "explore_bonus": 0.15
+        },
+        {
+          "event": "update",
+          "strategy": "adaptive",
+          "action": 1,
+          "rationale": "adaptive forget=0.9: action=1 new=False score[1]=0.3874",
+          "is_valid": false,
+          "is_new_valid": false,
+          "failure_reason": "observation_mismatch",
+          "reward": 0.0,
+          "scores": {
+            "0": 0.5314410000000002,
+            "1": 0.38742048900000015,
+            "2": 0.0,
+            "3": 0.0
+          },
+          "counts": {
+            "0": 3,
+            "1": 4,
+            "2": 1,
+            "3": 2
+          }
+        },
+        {
+          "event": "select_action",
+          "strategy": "adaptive",
+          "target_operator_count": 1,
+          "rationale": "adaptive softmax forget=0.9",
+          "query_index": 10,
+          "n_unique_valid": 2,
+          "scores": {
+            "0": 0.5314410000000002,
+            "1": 0.38742048900000015,
+            "2": 0.0,
+            "3": 0.0
+          },
+          "counts": {
+            "0": 3,
+            "1": 4,
+            "2": 1,
+            "3": 2
+          },
+          "forget_factor": 0.9,
+          "controller_temperature": 1.0,
+          "explore_bonus": 0.15
+        },
+        {
+          "event": "update",
+          "strategy": "adaptive",
+          "action": 1,
+          "rationale": "adaptive forget=0.9: action=1 new=False score[1]=0.3487",
+          "is_valid": false,
+          "is_new_valid": false,
+          "failure_reason": "observation_mismatch",
+          "reward": 0.0,
+          "scores": {
+            "0": 0.47829690000000014,
+            "1": 0.34867844010000015,
+            "2": 0.0,
+            "3": 0.0
+          },
+          "counts": {
+            "0": 3,
+            "1": 5,
+            "2": 1,
+            "3": 2
+          }
+        },
+        {
+          "event": "select_action",
+          "strategy": "adaptive",
+          "target_operator_count": 0,
+          "rationale": "adaptive softmax forget=0.9",
+          "query_index": 11,
+          "n_unique_valid": 2,
+          "scores": {
+            "0": 0.47829690000000014,
+            "1": 0.34867844010000015,
+            "2": 0.0,
+            "3": 0.0
+          },
+          "counts": {
+            "0": 3,
+            "1": 5,
+            "2": 1,
+            "3": 2
+          },
+          "forget_factor": 0.9,
+          "controller_temperature": 1.0,
+          "explore_bonus": 0.15
+        },
+        {
+          "event": "update",
+          "strategy": "adaptive",
+          "action": 0,
+          "rationale": "adaptive forget=0.9: action=0 new=False score[0]=0.4305",
+          "is_valid": false,
+          "is_new_valid": false,
+          "failure_reason": "observation_mismatch",
+          "reward": 0.0,
+          "scores": {
+            "0": 0.43046721000000016,
+            "1": 0.31381059609000017,
+            "2": 0.0,
+            "3": 0.0
+          },
+          "counts": {
+            "0": 4,
+            "1": 5,
+            "2": 1,
+            "3": 2
+          }
+        },
+        {
+          "event": "select_action",
+          "strategy": "adaptive",
+          "target_operator_count": 0,
+          "rationale": "adaptive softmax forget=0.9",
+          "query_index": 12,
+          "n_unique_valid": 2,
+          "scores": {
+            "0": 0.43046721000000016,
+            "1": 0.31381059609000017,
+            "2": 0.0,
+            "3": 0.0
+          },
+          "counts": {
+            "0": 4,
+            "1": 5,
+            "2": 1,
+            "3": 2
+          },
+          "forget_factor": 0.9,
+          "controller_temperature": 1.0,
+          "explore_bonus": 0.15
+        },
+        {
+          "event": "update",
+          "strategy": "adaptive",
+          "action": 0,
+          "rationale": "adaptive forget=0.9: action=0 new=False score[0]=0.3874",
+          "is_valid": false,
+          "is_new_valid": false,
+          "failure_reason": "observation_mismatch",
+          "reward": 0.0,
+          "scores": {
+            "0": 0.38742048900000015,
+            "1": 0.28242953648100017,
+            "2": 0.0,
+            "3": 0.0
+          },
+          "counts": {
+            "0": 5,
+            "1": 5,
+            "2": 1,
+            "3": 2
+          }
+        },
+        {
+          "event": "select_action",
+          "strategy": "adaptive",
+          "target_operator_count": 1,
+          "rationale": "adaptive softmax forget=0.9",
+          "query_index": 13,
+          "n_unique_valid": 2,
+          "scores": {
+            "0": 0.38742048900000015,
+            "1": 0.28242953648100017,
+            "2": 0.0,
+            "3": 0.0
+          },
+          "counts": {
+            "0": 5,
+            "1": 5,
+            "2": 1,
+            "3": 2
+          },
+          "forget_factor": 0.9,
+          "controller_temperature": 1.0,
+          "explore_bonus": 0.15
+        },
+        {
+          "event": "update",
+          "strategy": "adaptive",
+          "action": 1,
+          "rationale": "adaptive forget=0.9: action=1 new=False score[1]=0.2542",
+          "is_valid": false,
+          "is_new_valid": false,
+          "failure_reason": "observation_mismatch",
+          "reward": 0.0,
+          "scores": {
+            "0": 0.34867844010000015,
+            "1": 0.25418658283290013,
+            "2": 0.0,
+            "3": 0.0
+          },
+          "counts": {
+            "0": 5,
+            "1": 6,
+            "2": 1,
+            "3": 2
+          }
+        },
+        {
+          "event": "select_action",
+          "strategy": "adaptive",
+          "target_operator_count": 0,
+          "rationale": "adaptive softmax forget=0.9",
+          "query_index": 14,
+          "n_unique_valid": 2,
+          "scores": {
+            "0": 0.34867844010000015,
+            "1": 0.25418658283290013,
+            "2": 0.0,
+            "3": 0.0
+          },
+          "counts": {
+            "0": 5,
+            "1": 6,
+            "2": 1,
+            "3": 2
+          },
+          "forget_factor": 0.9,
+          "controller_temperature": 1.0,
+          "explore_bonus": 0.15
+        },
+        {
+          "event": "update",
+          "strategy": "adaptive",
+          "action": 0,
+          "rationale": "adaptive forget=0.9: action=0 new=True score[0]=1.3138",
+          "is_valid": true,
+          "is_new_valid": true,
+          "failure_reason": null,
+          "reward": 1.0,
+          "scores": {
+            "0": 1.3138105960900002,
+            "1": 0.22876792454961012,
+            "2": 0.0,
+            "3": 0.0
+          },
+          "counts": {
+            "0": 6,
+            "1": 6,
+            "2": 1,
+            "3": 2
+          }
+        },
+        {
+          "event": "select_action",
+          "strategy": "adaptive",
+          "target_operator_count": 2,
+          "rationale": "adaptive softmax forget=0.9",
+          "query_index": 15,
+          "n_unique_valid": 3,
+          "scores": {
+            "0": 1.3138105960900002,
+            "1": 0.22876792454961012,
+            "2": 0.0,
+            "3": 0.0
+          },
+          "counts": {
+            "0": 6,
+            "1": 6,
+            "2": 1,
+            "3": 2
+          },
+          "forget_factor": 0.9,
+          "controller_temperature": 1.0,
+          "explore_bonus": 0.15
+        },
+        {
+          "event": "update",
+          "strategy": "adaptive",
+          "action": 2,
+          "rationale": "adaptive forget=0.9: action=2 new=False score[2]=0.0000",
+          "is_valid": false,
+          "is_new_valid": false,
+          "failure_reason": "observation_mismatch",
+          "reward": 0.0,
+          "scores": {
+            "0": 1.1824295364810002,
+            "1": 0.2058911320946491,
+            "2": 0.0,
+            "3": 0.0
+          },
+          "counts": {
+            "0": 6,
+            "1": 6,
+            "2": 2,
+            "3": 2
+          }
+        }
+      ],
+      "max_operator_count": 3,
+      "method_parameters": {
+        "strategy": "adaptive",
+        "actions": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "forget_factor": 0.9,
+        "controller_temperature": 1.0,
+        "explore_bonus": 0.15
+      }
+    }
+  ],
+  "experiment_manifest": {
+    "schema_version": 1,
+    "settings": {
+      "dataset_sha256": "1041174fecd914fe822a2d407b9f7c22e0e42d2f8c133775ec1026c17b0660fb",
+      "dataset": "datasets/boolean_extended_d2.json",
+      "n_samples": 20,
+      "n_queries": 16,
+      "seed": 42,
+      "methods": [
+        "memory",
+        "adaptive",
+        "adaptive_sde",
+        "memory_sde",
+        "uniform",
+        "round_robin"
+      ],
+      "model": "qwen3.5-27b",
+      "temperature": 0.7,
+      "max_tokens": 4096,
+      "enable_thinking": false,
+      "adaptive_parameters": {
+        "forget_factor": 0.9,
+        "controller_temperature": 1.0,
+        "explore_bonus": 0.15
+      }
+    },
+    "question_ids": [
+      "n3_inputs_00_10_11_outputs_110",
+      "n2_inputs_00_01_outputs_11",
+      "n1_inputs_00_outputs_1",
+      "n3_inputs_01_10_11_outputs_111",
+      "n2_inputs_01_11_outputs_01",
+      "n2_inputs_01_10_outputs_10",
+      "n2_inputs_01_10_outputs_00",
+      "n2_inputs_00_10_outputs_00",
+      "n4_inputs_00_01_10_11_outputs_1100",
+      "n2_inputs_00_01_outputs_10",
+      "n3_inputs_01_10_11_outputs_011",
+      "n3_inputs_00_01_11_outputs_111",
+      "n2_inputs_00_01_outputs_00",
+      "n3_inputs_00_10_11_outputs_011",
+      "n3_inputs_00_01_11_outputs_000",
+      "n1_inputs_10_outputs_0",
+      "n4_inputs_00_01_10_11_outputs_1101",
+      "n3_inputs_01_10_11_outputs_101",
+      "n2_inputs_00_11_outputs_11",
+      "n4_inputs_00_01_10_11_outputs_1000"
+    ]
+  },
+  "provider_base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+  "model": "qwen3.5-27b",
+  "enable_thinking": false,
+  "resumed_logged_candidates": 0
+}
