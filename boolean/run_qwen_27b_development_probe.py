@@ -1,8 +1,12 @@
-"""Qwen 3.5-27B development probe: memory / adaptive / adaptive_sde.
+"""Qwen 3.5-27B development probe for the six Boolean methods.
 
 Matches frozen question IDs and adaptive params from development_budget.json.
 Model settings: qwen3.5-27b, enable_thinking=false, temp=0.7, max_tokens=4096,
 seed=42, 5 questions x 16 slots. Writes a new output tree; never overwrites C.
+
+Default methods are memory / adaptive / adaptive_sde. For the remaining trio use:
+  --methods uniform round_robin memory_sde
+with a NEW --out directory.
 """
 from __future__ import annotations
 
@@ -30,6 +34,7 @@ from member_a_journal import (
     Transport, append_json, atomic_json, digest, exclusive, immutable,
     inspect, jsonl, read_json, reconcile_row, require, RecoveryFault,
 )
+from member_a_memory_sde_benchmark import MemorySDEBenchmark
 from member_a_sde_benchmark import SDEBenchmark
 from modules.exploration_controller import BooleanAdaptiveController
 from modules.experiment_manifest import freeze_questions
@@ -38,7 +43,10 @@ from modules.llm_interface import direct_http_session
 BUDGET_PATH = BOOLEAN / "experiments" / "development_budget.json"
 DATASET = BOOLEAN / "datasets" / "boolean_extended_d2.json"
 MODEL = "qwen3.5-27b"
-METHODS = ("memory", "adaptive", "adaptive_sde")
+PLAIN_METHODS = ("memory", "uniform", "round_robin", "adaptive")
+SDE_METHODS = ("adaptive_sde", "memory_sde")
+METHODS = PLAIN_METHODS + SDE_METHODS
+DEFAULT_METHODS = ("memory", "adaptive", "adaptive_sde")
 BASE_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1"
 
 
@@ -183,18 +191,24 @@ def run_plain_method(benchmark, llm, out: Path, index: int, method: str, questio
     return result
 
 
-def run_adaptive_sde_group(bench, group, question, client, team, mode, manifest_hash):
+def run_sde_group(bench, group, question, method, client, team, mode, manifest_hash):
     qid = question["observation_set_id"]
-    seed = int(hashlib.sha256(json.dumps([team["seed"], qid]).encode()).hexdigest()[:16], 16)
-    params = team["adaptive_parameters"]
-    ctrl = BooleanAdaptiveController(
-        3,
-        seed=seed,
-        strategy="adaptive",
-        forget_factor=params["forget_factor"],
-        temperature=params["controller_temperature"],
-        explore_bonus=params["explore_bonus"],
-    )
+    if method == "adaptive_sde":
+        seed = int(hashlib.sha256(json.dumps([team["seed"], qid]).encode()).hexdigest()[:16], 16)
+        params = team["adaptive_parameters"]
+        ctrl = BooleanAdaptiveController(
+            3,
+            seed=seed,
+            strategy="adaptive",
+            forget_factor=params["forget_factor"],
+            temperature=params["controller_temperature"],
+            explore_bonus=params["explore_bonus"],
+        )
+    elif method == "memory_sde":
+        seed = None
+        ctrl = None
+    else:
+        raise ValueError(f"not an SDE method: {method}")
     group.mkdir(parents=True, exist_ok=True)
     rows = jsonl(group / "candidates.jsonl")
     pending = inspect(rows, jsonl(group / "attempts.jsonl"), qid)
@@ -203,21 +217,21 @@ def run_adaptive_sde_group(bench, group, question, client, team, mode, manifest_
     def sink(row):
         if transport.pending:
             raise RecoveryFault("Unconsumed saved API attempts")
-        row.update(method="adaptive_sde", mode=mode, controller_seed=seed)
+        row.update(method=method, mode=mode, controller_seed=seed)
         if transport.unknown:
             reconcile_row(
                 row,
                 transport.unknown,
                 {"protocol_sha256": manifest_hash},
                 group / f"interruption_slot_{row['query_index'] + 1}.json",
-                "adaptive_sde",
+                method,
             )
             transport.unknown = None
         append_json(group / "candidates.jsonl", row)
         transport.client.slot += 1
         transport.client.attempt = 0
         print(
-            "PROGRESS", "adaptive_sde", qid, row["query_index"] + 1, row["status"],
+            "PROGRESS", method, qid, row["query_index"] + 1, row["status"],
             "reward", row["feedback"]["reward"],
             flush=True,
         )
@@ -228,7 +242,7 @@ def run_adaptive_sde_group(bench, group, question, client, team, mode, manifest_
     all_rows = jsonl(group / "candidates.jsonl")
     require(
         len(all_rows) == 16 and not inspect(all_rows, jsonl(group / "attempts.jsonl"), qid),
-        "Incomplete adaptive_sde group",
+        f"Incomplete {method} group",
     )
     return all_rows
 
@@ -285,7 +299,7 @@ def score_plain(method: str, results: list[dict], ids: list[str], dataset: dict)
     }
 
 
-def score_adaptive_sde(groups: dict, ids: list[str], dataset: dict) -> dict:
+def score_sde(method: str, groups: dict, ids: list[str], dataset: dict) -> dict:
     refs = {
         q["observation_set_id"]: {
             ast.literal_eval(e["mechanistic_key"]) for e in q["ground_truth_expressions"]
@@ -325,7 +339,7 @@ def score_adaptive_sde(groups: dict, ids: list[str], dataset: dict) -> dict:
         curves.append(questions[qid]["recovery_curve"])
     found = sum(q["found"] for q in questions.values())
     return {
-        "method": "adaptive_sde",
+        "method": method,
         "questions": questions,
         "counts": dict(counts),
         "macro_recovery": mean(c[-1] for c in curves),
@@ -351,7 +365,7 @@ def main(argv=None):
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--resume", action="store_true")
-    parser.add_argument("--methods", nargs="+", choices=METHODS, default=list(METHODS))
+    parser.add_argument("--methods", nargs="+", choices=METHODS, default=list(DEFAULT_METHODS))
     args = parser.parse_args(argv)
 
     if os.environ.get("PYTHONHASHSEED") != "1":
@@ -368,7 +382,7 @@ def main(argv=None):
         raise SystemExit("Refusing unrelated output directory")
 
     settings = {
-        "protocol": "qwen27b-three-method-dev-probe-v1",
+        "protocol": "qwen27b-six-method-dev-probe-v1",
         "dataset": "datasets/boolean_extended_d2.json",
         "dataset_sha256": budget["dataset_sha256"],
         "question_ids": ids,
@@ -394,8 +408,11 @@ def main(argv=None):
             immutable(out / "manifest.json", settings)
         else:
             existing = read_json(out / "manifest.json")
-            comparable = {k: existing.get(k) for k in settings}
-            if comparable != settings and not args.resume:
+            locked = (
+                "model", "temperature", "max_tokens", "enable_thinking", "seed",
+                "n_queries", "question_ids", "base_url", "adaptive_parameters",
+            )
+            if any(existing.get(k) != settings.get(k) for k in locked) and not args.resume:
                 raise SystemExit("Existing manifest settings differ; use a new --out or --resume")
 
         snapshot = out / "source_snapshot"
@@ -410,6 +427,8 @@ def main(argv=None):
                 "boolean/experiments/development_budget.json",
                 "boolean/member_a_sde_benchmark.py",
                 "boolean/member_a_structure.py",
+                "boolean/member_a_memory_sde_benchmark.py",
+                "boolean/member_a_memory_structure.py",
             ):
                 target = snapshot / rel
                 target.parent.mkdir(parents=True, exist_ok=True)
@@ -448,7 +467,7 @@ def main(argv=None):
             "n_samples": 5,
             "n_queries": 16,
             "seed": 42,
-            "methods": ["memory", "adaptive", "adaptive_sde"],
+            "methods": list(METHODS),
             "model": MODEL,
             "temperature": 0.7,
             "max_tokens": 4096,
@@ -466,21 +485,59 @@ def main(argv=None):
             raise SystemExit("frozen question IDs differ from development_budget.json")
 
         summary = {"model": MODEL, "enable_thinking": False, "question_ids": ids, "methods": {}}
+        if (out / "summary.json").exists():
+            summary = read_json(out / "summary.json")
+            summary.setdefault("methods", {})
         status_path = out / "status.json"
         atomic_json(status_path, {"status": "running", "methods": list(args.methods)})
 
-        if "memory" in args.methods or "adaptive" in args.methods:
-            for method in ("memory", "adaptive"):
-                if method not in args.methods:
-                    continue
-                method_results = []
-                for index, question in enumerate(questions):
-                    result = run_plain_method(
-                        full_benchmark, llm, out, index, method, question, budget, question_manifest
+        for method in PLAIN_METHODS:
+            if method not in args.methods:
+                continue
+            method_results = []
+            for index, question in enumerate(questions):
+                result = run_plain_method(
+                    full_benchmark, llm, out, index, method, question, budget, question_manifest
+                )
+                method_results.append(result["per_sample_results"][0])
+            metrics = score_plain(method, method_results, ids, dataset)
+            write_method_bundle(out, method, metrics, {"per_sample_results": method_results})
+            summary["methods"][method] = metrics
+            print(
+                "METHOD_DONE", method,
+                "macro_recovery", round(metrics["macro_recovery"], 4),
+                "truncation_rate", round(metrics["truncation_rate"], 4),
+                flush=True,
+            )
+
+        sde_requested = [m for m in SDE_METHODS if m in args.methods]
+        if sde_requested:
+            public = public_dataset(dataset, ids)
+            immutable(out / "public_tasks.json", public)
+            public_questions = public["datasets_by_n_observations"]["public_only"]
+            for method in sde_requested:
+                bench = (
+                    SDEBenchmark(str(out / "public_tasks.json"))
+                    if method == "adaptive_sde"
+                    else MemorySDEBenchmark(str(out / "public_tasks.json"))
+                )
+                require(", ".join(bench.operators) == "AND, OR, NOT", f"{method} operator order mismatch")
+                groups = {}
+                for i, question in enumerate(public_questions):
+                    group = out / method / f"q{i}"
+                    print("START", method, i, question["observation_set_id"], flush=True)
+                    rows = run_sde_group(
+                        bench, group, question, method, llm, budget, "live", digest(out / "manifest.json")
                     )
-                    method_results.append(result["per_sample_results"][0])
-                metrics = score_plain(method, method_results, ids, dataset)
-                write_method_bundle(out, method, metrics, {"per_sample_results": method_results})
+                    groups[question["observation_set_id"]] = rows
+                    print("COMPLETE", method, i, flush=True)
+                metrics = score_sde(method, groups, ids, dataset)
+                write_method_bundle(
+                    out,
+                    method,
+                    metrics,
+                    {"groups": {qid: groups[qid] for qid in ids}},
+                )
                 summary["methods"][method] = metrics
                 print(
                     "METHOD_DONE", method,
@@ -488,36 +545,6 @@ def main(argv=None):
                     "truncation_rate", round(metrics["truncation_rate"], 4),
                     flush=True,
                 )
-
-        if "adaptive_sde" in args.methods:
-            public = public_dataset(dataset, ids)
-            immutable(out / "public_tasks.json", public)
-            sde_bench = SDEBenchmark(str(out / "public_tasks.json"))
-            require(", ".join(sde_bench.operators) == "AND, OR, NOT", "SDE operator order mismatch")
-            groups = {}
-            public_questions = public["datasets_by_n_observations"]["public_only"]
-            for i, question in enumerate(public_questions):
-                group = out / "adaptive_sde" / f"q{i}"
-                print("START", "adaptive_sde", i, question["observation_set_id"], flush=True)
-                rows = run_adaptive_sde_group(
-                    sde_bench, group, question, llm, budget, "live", digest(out / "manifest.json")
-                )
-                groups[question["observation_set_id"]] = rows
-                print("COMPLETE", "adaptive_sde", i, flush=True)
-            metrics = score_adaptive_sde(groups, ids, dataset)
-            write_method_bundle(
-                out,
-                "adaptive_sde",
-                metrics,
-                {"groups": {qid: groups[qid] for qid in ids}},
-            )
-            summary["methods"]["adaptive_sde"] = metrics
-            print(
-                "METHOD_DONE", "adaptive_sde",
-                "macro_recovery", round(metrics["macro_recovery"], 4),
-                "truncation_rate", round(metrics["truncation_rate"], 4),
-                flush=True,
-            )
 
         summary_path = out / "summary.json"
         summary_path.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")

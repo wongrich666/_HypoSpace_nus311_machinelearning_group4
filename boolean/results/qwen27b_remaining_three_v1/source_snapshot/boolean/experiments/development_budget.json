@@ -1,0 +1,45 @@
+{
+  "purpose": "development_validation",
+  "dataset": "datasets/boolean_extended_d2.json",
+  "n_samples": 5,
+  "n_queries": 16,
+  "seed": 42,
+  "planned_methods": [
+    "memory",
+    "uniform",
+    "round_robin",
+    "adaptive"
+  ],
+  "candidate_slots_total": 320,
+  "max_attempts_per_slot": 3,
+  "failed_candidates_consume_slots": true,
+  "model": "deepseek-v4.1-flash-1017",
+  "temperature": 0.7,
+  "max_tokens": 4096,
+  "reasoning_effort": "low",
+  "request_timeout": 60,
+  "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+  "adaptive_parameters": {
+    "forget_factor": 0.9,
+    "controller_temperature": 1.0,
+    "explore_bonus": 0.15
+  },
+  "note": "Four-method development freeze; stratified is an optional oracle-informed comparison outside the 320 slots. Preserve all old manifests. Use a new output directory.",
+  "question_ids": [
+    "n2_inputs_00_10_outputs_10",
+    "n1_inputs_01_outputs_1",
+    "n3_inputs_00_01_10_outputs_011",
+    "n2_inputs_10_11_outputs_11",
+    "n2_inputs_10_11_outputs_00"
+  ],
+  "dataset_sha256": "1041174fecd914fe822a2d407b9f7c22e0e42d2f8c133775ec1026c17b0660fb",
+  "protocol_id": "boolean-extended-d2-dev-fixed16-low4096-four-methods-v3-public-space",
+  "seed_scope": "question selection and controller only; no provider seed parameter sent",
+  "method_definitions": {
+    "memory": "unconstrained operator count with prior-candidate memory",
+    "uniform": "independent uniform random choice from [0,1,2,3]; no reward learning",
+    "round_robin": "cycle 0,1,2,3 from zero for each question; no reward learning",
+    "adaptive": "B-confirmed feedback strategy"
+  },
+  "validator": "public_enumeration_membership_extended_d2_v1"
+}

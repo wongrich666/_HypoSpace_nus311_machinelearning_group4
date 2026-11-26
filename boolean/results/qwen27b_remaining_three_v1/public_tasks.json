@@ -1,0 +1,138 @@
+{
+  "metadata": {
+    "variables": [
+      "x",
+      "y"
+    ],
+    "operators": [
+      "NOT",
+      "AND",
+      "OR"
+    ],
+    "max_depth": 2,
+    "mechanistic_opts": {
+      "apply_commutativity": true,
+      "apply_idempotence_and_or": true,
+      "flatten_associativity": true
+    }
+  },
+  "datasets_by_n_observations": {
+    "public_only": [
+      {
+        "observation_set_id": "n2_inputs_00_10_outputs_10",
+        "observations": [
+          {
+            "inputs": {
+              "x": 0,
+              "y": 0
+            },
+            "output": 1,
+            "string": "(x=0, y=0) -> 1"
+          },
+          {
+            "inputs": {
+              "x": 1,
+              "y": 0
+            },
+            "output": 0,
+            "string": "(x=1, y=0) -> 0"
+          }
+        ],
+        "n_observations": 2,
+        "ground_truth_expressions": []
+      },
+      {
+        "observation_set_id": "n1_inputs_01_outputs_1",
+        "observations": [
+          {
+            "inputs": {
+              "x": 0,
+              "y": 1
+            },
+            "output": 1,
+            "string": "(x=0, y=1) -> 1"
+          }
+        ],
+        "n_observations": 1,
+        "ground_truth_expressions": []
+      },
+      {
+        "observation_set_id": "n3_inputs_00_01_10_outputs_011",
+        "observations": [
+          {
+            "inputs": {
+              "x": 0,
+              "y": 0
+            },
+            "output": 0,
+            "string": "(x=0, y=0) -> 0"
+          },
+          {
+            "inputs": {
+              "x": 0,
+              "y": 1
+            },
+            "output": 1,
+            "string": "(x=0, y=1) -> 1"
+          },
+          {
+            "inputs": {
+              "x": 1,
+              "y": 0
+            },
+            "output": 1,
+            "string": "(x=1, y=0) -> 1"
+          }
+        ],
+        "n_observations": 3,
+        "ground_truth_expressions": []
+      },
+      {
+        "observation_set_id": "n2_inputs_10_11_outputs_11",
+        "observations": [
+          {
+            "inputs": {
+              "x": 1,
+              "y": 0
+            },
+            "output": 1,
+            "string": "(x=1, y=0) -> 1"
+          },
+          {
+            "inputs": {
+              "x": 1,
+              "y": 1
+            },
+            "output": 1,
+            "string": "(x=1, y=1) -> 1"
+          }
+        ],
+        "n_observations": 2,
+        "ground_truth_expressions": []
+      },
+      {
+        "observation_set_id": "n2_inputs_10_11_outputs_00",
+        "observations": [
+          {
+            "inputs": {
+              "x": 1,
+              "y": 0
+            },
+            "output": 0,
+            "string": "(x=1, y=0) -> 0"
+          },
+          {
+            "inputs": {
+              "x": 1,
+              "y": 1
+            },
+            "output": 0,
+            "string": "(x=1, y=1) -> 0"
+          }
+        ],
+        "n_observations": 2,
+        "ground_truth_expressions": []
+      }
+    ]
+  }
+}
