@@ -33,6 +33,17 @@
 
 ---
 
+## NUS311 Group4
+
+本仓库为课程组 fork。Group4 实验结果导航：
+
+- [`results/deepseek/`](results/deepseek/) — DeepSeek 正式/基线
+- [`results/qwen27b/`](results/qwen27b/) — Qwen 开发探针（与 deepseek 并列）
+- [`archive/interim/`](archive/interim/) — interim 归档
+- [`EXPERIMENTS.md`](EXPERIMENTS.md) — 指标表与断链说明
+
+---
+
 ## 📖 About
 
 > **TL;DR**: HypoSpace evaluates how well LLMs generate *diverse sets* of valid hypotheses in underdetermined scientific problems, not just single correct answers.
