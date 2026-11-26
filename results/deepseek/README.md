@@ -1,15 +1,11 @@
-# DeepSeek Boolean 结果
+# DeepSeek Boolean
 
-## 正式（已入库 main）
+## Formal / 正式
 
-- [`boolean-thinking-off-20261126/`](boolean-thinking-off-20261126/) — 关闭思考、六方法完整 20 题 / 1920 slots。  
-  来源分支：`analysis/boolean-interim-20261126` @ `7e73ca0`（`boolean/experiment_records/main_thinking_off_20261126`）。
+- [`full_20q_six_methods/`](full_20q_six_methods/) — thinking-off，六方法 × 20 held-out 题 × 16 slots（1920）。  
+  Numbers: `metrics_thinking_off.json`. Tables: [`../README.md`](../README.md).
 
-## 基线（仍留在原路径，避免断更多历史链接）
+## Baseline pointers / 基线（未搬迁）
 
-- [`../../boolean/results/memory/`](../../boolean/results/memory/) — DeepSeek-v4 memory  
-- [`../../boolean/results/stratified/`](../../boolean/results/stratified/) — DeepSeek-v4 stratified（`full_d2` 文件仍缺，见 `EXPERIMENTS.md`）
-
-## 权威副本 / 指针
-
-analysis 分支仍保留原始 `boolean/experiment_records/` 布局，便于对照。main 以本目录 + `archive/interim/` 为准做导航。
+- [`../../boolean/results/memory/`](../../boolean/results/memory/)
+- [`../../boolean/results/stratified/`](../../boolean/results/stratified/)（`full_d2` 文件仍缺，见 `EXPERIMENTS.md`）

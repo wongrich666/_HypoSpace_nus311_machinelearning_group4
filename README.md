@@ -35,12 +35,13 @@
 
 ## NUS311 Group4
 
-本仓库为课程组 fork。Group4 实验结果导航：
+本仓库为课程组 fork。**老师请先看正式结果索引：**
 
-- [`results/deepseek/`](results/deepseek/) — DeepSeek 正式/基线
-- [`results/qwen27b/`](results/qwen27b/) — Qwen 开发探针（与 deepseek 并列）
-- [`archive/interim/`](archive/interim/) — interim 归档
-- [`EXPERIMENTS.md`](EXPERIMENTS.md) — 指标表与断链说明
+- [`results/`](results/) — DeepSeek + Qwen 正式 **6 methods × 20q** 表与路径
+- [`results/deepseek/full_20q_six_methods/`](results/deepseek/full_20q_six_methods/)
+- [`results/qwen27b/full_20q_six_methods/`](results/qwen27b/full_20q_six_methods/)
+- [`archive/`](archive/) — interim / 5q probes（非正式）
+- [`EXPERIMENTS.md`](EXPERIMENTS.md) — 更完整指标与断链说明
 
 ---
 
