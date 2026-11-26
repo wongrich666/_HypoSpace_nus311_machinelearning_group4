@@ -1,5 +1,16 @@
 # 实验记录
 
+## Group4 结果目录（2026-11-26 起）
+
+| 路径 | 内容 |
+| --- | --- |
+| [`results/deepseek/`](results/deepseek/) | DeepSeek 正式 thinking-off 六方法 + 基线指针 |
+| [`results/qwen27b/`](results/qwen27b/) | Qwen3.5-27B 开发探针（与 deepseek 并列） |
+| [`archive/interim/`](archive/interim/) | Boolean interim 诊断归档 |
+| [`boolean/results/memory|stratified`](boolean/results/) | 下表 DeepSeek-v4 基线 JSON（未搬迁） |
+
+---
+
 模型 `deepseek-v4.1-flash-1017`，种子 `33550336`，`query_multiplier` 1.0。提问次数等于该题合法假设个数。命令仍是 `--decoding memory` 或 `--decoding stratified`。
 
 - memory：历史提示 baseline。每问一次，把已经生成的假设写回 prompt，不使用真实答案的复杂度分布。
@@ -28,23 +39,23 @@
 | 扩展档，`extended`，深度 2 | memory | 10 | 78 | 0.767 | 0.754 | 0.688 | [boolean/results/memory/boolean_extended_d2_deepseek-v4.json](boolean/results/memory/boolean_extended_d2_deepseek-v4.json) |
 | 扩展档，`extended`，深度 2 | stratified | 10 | 78 | 0.824 | 0.819 | 0.819 | [boolean/results/stratified/boolean_extended_d2_deepseek-v4.json](boolean/results/stratified/boolean_extended_d2_deepseek-v4.json) |
 | 完整档，`full`，深度 2 | memory | 10 | 80 | 0.446 | 0.387 | 0.387 | [boolean/results/memory/boolean_full_d2_deepseek-v4.json](boolean/results/memory/boolean_full_d2_deepseek-v4.json) |
-| 完整档，`full`，深度 2 | stratified | 10 | 80 | 0.456 | 0.470 | 0.436 | [boolean/results/stratified/boolean_full_d2_deepseek-v4.json](boolean/results/stratified/boolean_full_d2_deepseek-v4.json) |
+| 完整档，`full`，深度 2 | stratified | 10 | 80 | 0.456 | 0.470 | 0.436 | `boolean/results/stratified/boolean_full_d2_deepseek-v4.json`（**文件缺失，待补**） |
 
 ### 3D
 
 | 数据 | 解码 | 题数 | 题库 | Validity | Uniqueness | Recovery | 结果 |
 |---|---|---:|---:|---:|---:|---:|---|
-| 3×3，高度 3，恰好 1 块 | memory | 9 | 9 | 1.0 | 1.0 | 1.0 | [3d/results/memory/3d_grid3_h3_deepseek-v4_20261111_183840.json](3d/results/memory/3d_grid3_h3_deepseek-v4_20261111_183840.json) |
-| 3×3，高度 3，恰好 1 块 | stratified | 9 | 9 | 0.963 | 1.0 | 0.963 | [3d/results/stratified/3d_grid3_h3_deepseek-v4_20261111_184139.json](3d/results/stratified/3d_grid3_h3_deepseek-v4_20261111_184139.json) |
+| 3×3，高度 3，恰好 1 块 | memory | 9 | 9 | 1.0 | 1.0 | 1.0 | `3d/results/...`（**目录未入库，待补**） |
+| 3×3，高度 3，恰好 1 块 | stratified | 9 | 9 | 0.963 | 1.0 | 0.963 | `3d/results/...`（**目录未入库，待补**） |
 
 ### 因果图
 
 | 数据 | 解码 | 题数 | 题库 | Validity | Uniqueness | Recovery | 结果 |
 |---|---|---:|---:|---:|---:|---:|---|
-| 3 个节点 | memory | 10 | 61 | 1.0 | 1.0 | 1.0 | [causal/results/memory/n3_all_observations_deepseek-v4.json](causal/results/memory/n3_all_observations_deepseek-v4.json) |
-| 3 个节点 | stratified | 10 | 61 | 1.0 | 1.0 | 1.0 | [causal/results/stratified/n3_all_observations_deepseek-v4.json](causal/results/stratified/n3_all_observations_deepseek-v4.json) |
-| 4 个节点 | memory | 10 | 847 | 0.956 | 0.946 | 0.946 | [causal/results/memory/n4_all_observations_deepseek-v4.json](causal/results/memory/n4_all_observations_deepseek-v4.json) |
-| 4 个节点 | stratified | 10 | 847 | 0.977 | 0.967 | 0.967 | [causal/results/stratified/n4_all_observations_deepseek-v4.json](causal/results/stratified/n4_all_observations_deepseek-v4.json) |
+| 3 个节点 | memory | 10 | 61 | 1.0 | 1.0 | 1.0 | `causal/results/...`（**目录未入库，待补**） |
+| 3 个节点 | stratified | 10 | 61 | 1.0 | 1.0 | 1.0 | `causal/results/...`（**目录未入库，待补**） |
+| 4 个节点 | memory | 10 | 847 | 0.956 | 0.946 | 0.946 | `causal/results/...`（**目录未入库，待补**） |
+| 4 个节点 | stratified | 10 | 847 | 0.977 | 0.967 | 0.967 | `causal/results/...`（**目录未入库，待补**） |
 
 
 ## Token 与费用
