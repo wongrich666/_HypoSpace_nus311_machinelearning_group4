@@ -1,0 +1,36 @@
+{
+  "snapshot_utc": "2026-11-26T09:39:30.372423+00:00",
+  "methods": [
+    "memory",
+    "adaptive",
+    "adaptive_sde",
+    "memory_sde",
+    "uniform",
+    "round_robin"
+  ],
+  "complete_common_question_indices": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19
+  ],
+  "candidate_rows": 1920,
+  "candidate_uncompressed_sha256": "8cef738b5d5b1a67d2f229bc3e47eb6b0cf65d18ce8d07ebf8e2331a62c837ce",
+  "interrupted_unknown": []
+}
