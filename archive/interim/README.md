@@ -13,4 +13,4 @@
 | `main_interim_six_methods_20261126` | 六方法中途（含 uniform / round_robin） |
 
 来源：`analysis/boolean-interim-20261126` @ `7e73ca0`。  
-正式完整轮见 [`../../results/deepseek/boolean-thinking-off-20261126/`](../../results/deepseek/boolean-thinking-off-20261126/)。
+正式完整轮见 [`../../results/deepseek/full_20q_six_methods/`](../../results/deepseek/full_20q_six_methods/)。

@@ -1,13 +1,15 @@
 # 实验记录
 
-## Group4 结果目录（2026-11-26 起）
+## Group4 结果目录（老师入口）
 
 | 路径 | 内容 |
 | --- | --- |
-| [`results/deepseek/`](results/deepseek/) | DeepSeek 正式 thinking-off 六方法 + 基线指针 |
-| [`results/qwen27b/`](results/qwen27b/) | Qwen3.5-27B 正式 20q 六方法 + 5q 开发探针（与 deepseek 并列） |
+| [`results/`](results/) | **正式表**：DeepSeek + Qwen 各 6×20q |
+| [`results/deepseek/full_20q_six_methods/`](results/deepseek/full_20q_six_methods/) | DeepSeek thinking-off 正式轮 |
+| [`results/qwen27b/full_20q_six_methods/`](results/qwen27b/full_20q_six_methods/) | Qwen3.5-27B 正式轮 |
 | [`archive/interim/`](archive/interim/) | Boolean interim 诊断归档 |
-| [`boolean/results/memory|stratified`](boolean/results/) | 下表 DeepSeek-v4 基线 JSON（未搬迁） |
+| [`archive/probes/qwen27b-5q/`](archive/probes/qwen27b-5q/) | Qwen 5q 开发探针（非正式） |
+| [`boolean/results/memory|stratified`](boolean/results/) | DeepSeek-v4 基线 JSON（未搬迁） |
 
 ---
 
@@ -29,6 +31,19 @@
 ```
 
 ## 已完成
+
+### Boolean — DeepSeek thinking-off 正式六方法（2026-11-26）
+
+输出：[`results/deepseek/full_20q_six_methods/`](results/deepseek/full_20q_six_methods/)。Macro Recovery 来自 `metrics_thinking_off.json`。
+
+| 方法 | macro Recovery |
+|---|---:|
+| adaptive_sde | 0.4800 |
+| adaptive | 0.4560 |
+| round_robin | 0.4307 |
+| uniform | 0.3879 |
+| memory_sde | 0.3582 |
+| memory | 0.3293 |
 
 ### Boolean — Qwen3.5-27B 正式六方法（2026-11-26）
 
