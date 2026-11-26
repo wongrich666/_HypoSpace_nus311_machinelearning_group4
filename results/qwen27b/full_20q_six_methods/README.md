@@ -19,7 +19,7 @@
 | budget | 20 × 16 = 320 slots / method |
 | runner | `boolean/run_qwen_27b_full_20q.py` |
 
-Same 20 `question_ids` as [`../deepseek/boolean-thinking-off-20261126/`](../../deepseek/boolean-thinking-off-20261126/).
+Same 20 `question_ids` as [`../../deepseek/full_20q_six_methods/`](../../deepseek/full_20q_six_methods/).
 
 ## Recovery (all six)
 
