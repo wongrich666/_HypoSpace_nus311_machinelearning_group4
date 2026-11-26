@@ -1,6 +1,6 @@
 # Formal results / 正式结果（数字索引）
 
-老师入口说明见仓库根目录 [`../README.md`](../README.md)。本页只放**正式数字与路径**。
+老师入口（组员分工 + headline）见仓库根目录 [`../README.md`](../README.md)。本页只放**正式数字与路径**。
 
 协议：两模型均为 **20 held-out questions × 16 slots × 6 methods**（同一 `question_ids`），thinking **off**。
 
@@ -13,7 +13,7 @@
 
 **读指标：** Recovery = 合法假设集合覆盖率；truncation = 长度截断率（Qwen 正式轮全为 0%）。方法释义见根 [`README.md`](../README.md)。
 
-非正式诊断：[`../archive/interim/`](../archive/interim/)。基线 memory / stratified JSON：[`../boolean/results/`](../boolean/results/)。
+非正式诊断：[`../archive/interim/`](../archive/interim/)（含 DeepSeek thinking-on 中途快照；非正式对照）。基线 memory / stratified JSON：[`../boolean/results/`](../boolean/results/)。
 
 ---
 
