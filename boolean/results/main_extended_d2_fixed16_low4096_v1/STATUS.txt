@@ -1,9 +1,0 @@
-Held-out Boolean extended_d2 main run. Fixed 16 slots, six methods, low reasoning effort, max_tokens 4096.
-Source of the run: D:\MLfinalproject\boolean_main_extended_d2_fixed16_low4096_v1
-Offline fixtures are not included.
-uniform and round_robin finished all 20 questions.
-memory, adaptive, adaptive_sde, and memory_sde finished questions 1-17.
-Question 18 memory has 9 recorded slots and one request that started without a returned response.
-Questions 18-20 are unfinished for adaptive, adaptive_sde, and memory_sde.
-Questions 19-20 are unfinished for memory.
-Do not treat missing groups as zero scores.
