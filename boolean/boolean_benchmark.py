@@ -1228,6 +1228,7 @@ def setup_llm(llm_type: str, **kwargs) -> LLMInterface:
             base_url=kwargs.get('base_url', 'https://dashscope.aliyuncs.com/compatible-mode/v1'),
             request_timeout=kwargs.get('request_timeout', 60.0),
             reasoning_effort=kwargs.get('reasoning_effort'),
+            enable_thinking=kwargs.get('enable_thinking'),
         )
     
     else:
