@@ -8,7 +8,6 @@
 | [`results/deepseek/full_20q_six_methods/`](results/deepseek/full_20q_six_methods/) | DeepSeek thinking-off 正式轮 |
 | [`results/qwen27b/full_20q_six_methods/`](results/qwen27b/full_20q_six_methods/) | Qwen3.5-27B 正式轮 |
 | [`archive/interim/`](archive/interim/) | Boolean interim 诊断归档 |
-| [`archive/probes/qwen27b-5q/`](archive/probes/qwen27b-5q/) | Qwen 5q 开发探针（非正式） |
 | [`boolean/results/memory|stratified`](boolean/results/) | DeepSeek-v4 基线 JSON（未搬迁） |
 
 ---

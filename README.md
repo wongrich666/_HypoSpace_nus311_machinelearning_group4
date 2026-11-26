@@ -40,7 +40,7 @@
 - [`results/`](results/) — DeepSeek + Qwen 正式 **6 methods × 20q** 表与路径
 - [`results/deepseek/full_20q_six_methods/`](results/deepseek/full_20q_six_methods/)
 - [`results/qwen27b/full_20q_six_methods/`](results/qwen27b/full_20q_six_methods/)
-- [`archive/`](archive/) — interim / 5q probes（非正式）
+- [`archive/interim/`](archive/interim/) — interim 诊断归档（非正式）
 - [`EXPERIMENTS.md`](EXPERIMENTS.md) — 更完整指标与断链说明
 
 ---

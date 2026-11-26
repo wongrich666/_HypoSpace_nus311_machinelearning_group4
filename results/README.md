@@ -9,7 +9,7 @@ Teacher entry point. Both models: **20 held-out questions × 16 slots × 6 metho
 | [`deepseek/full_20q_six_methods/`](deepseek/full_20q_six_methods/) | DeepSeek thinking-off | `metrics_thinking_off.json` |
 | [`qwen27b/full_20q_six_methods/`](qwen27b/full_20q_six_methods/) | Qwen3.5-27B | `summary.json` |
 
-非正式内容：[`../archive/interim/`](../archive/interim/)（中途诊断）、[`../archive/probes/`](../archive/probes/)（5q 开发探针）。基线 memory/stratified 仍在 [`../boolean/results/`](../boolean/results/)。
+非正式内容：[`../archive/interim/`](../archive/interim/)（中途诊断）。基线 memory/stratified 仍在 [`../boolean/results/`](../boolean/results/)。
 
 ---
 
