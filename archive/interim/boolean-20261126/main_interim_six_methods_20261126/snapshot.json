@@ -1,0 +1,38 @@
+{
+  "snapshot_utc": "2026-11-26T05:54:03.510637+00:00",
+  "methods": [
+    "memory",
+    "adaptive",
+    "adaptive_sde",
+    "memory_sde",
+    "uniform",
+    "round_robin"
+  ],
+  "complete_common_question_indices": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "candidate_rows": 1056,
+  "candidate_uncompressed_sha256": "c7e855b8a486fd06dd2c3f5ae9e996e261f7cfca6acb40598e980bd7cdbfc4f5",
+  "interrupted_unknown": [
+    {
+      "method": "memory",
+      "question_index": 2,
+      "query_index": 13
+    },
+    {
+      "method": "adaptive",
+      "question_index": 0,
+      "query_index": 8
+    }
+  ]
+}

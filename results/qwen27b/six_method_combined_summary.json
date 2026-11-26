@@ -1403,7 +1403,7 @@
     }
   },
   "sources": {
-    "memory_adaptive_adaptive_sde": "boolean/results/qwen27b_three_method_probe_v1",
-    "uniform_round_robin_memory_sde": "boolean/results/qwen27b_remaining_three_v1"
+    "memory_adaptive_adaptive_sde": "results/qwen27b/three_method_probe_v1",
+    "uniform_round_robin_memory_sde": "results/qwen27b/remaining_three_v1"
   }
 }
