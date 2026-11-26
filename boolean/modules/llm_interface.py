@@ -112,6 +112,7 @@ class OpenRouterLLM(LLMInterface):
         base_url: str = "https://openrouter.ai/api/v1",
         request_timeout: float = 60.0,
         reasoning_effort: Optional[str] = None,
+        enable_thinking: Optional[bool] = None,
     ):
         """
         Initialize OpenRouter LLM interface.
@@ -122,6 +123,7 @@ class OpenRouterLLM(LLMInterface):
             temperature: Sampling temperature
             max_tokens: Maximum tokens in response
             base_url: OpenRouter API base URL
+            enable_thinking: DashScope Qwen thinking switch; omitted when unset
         """
         if not api_key:
             raise ValueError("OpenRouter API key is required")
@@ -135,6 +137,7 @@ class OpenRouterLLM(LLMInterface):
             raise ValueError("request_timeout must be positive")
         self.request_timeout = request_timeout
         self.reasoning_effort = reasoning_effort
+        self.enable_thinking = enable_thinking
         self.session = direct_http_session()
         self.headers = {
             "Authorization": f"Bearer {api_key}",
@@ -149,7 +152,7 @@ class OpenRouterLLM(LLMInterface):
         return result['response']
     
     def request_body(self, prompt: str) -> Dict[str, Any]:
-        """JSON body actually posted. reasoning_effort is omitted only when unset."""
+        """JSON body actually posted. reasoning_effort/enable_thinking omitted when unset."""
         body = {
             "model": self.model,
             "messages": [
@@ -161,6 +164,8 @@ class OpenRouterLLM(LLMInterface):
         }
         if self.reasoning_effort:
             body["reasoning_effort"] = self.reasoning_effort
+        if self.enable_thinking is not None:
+            body["enable_thinking"] = self.enable_thinking
         return body
 
     def query_with_usage(self, prompt: str) -> Dict[str, Any]:
@@ -170,6 +175,7 @@ class OpenRouterLLM(LLMInterface):
             "temperature": self.temperature,
             "max_tokens": self.max_tokens,
             "reasoning_effort": self.reasoning_effort,
+            "enable_thinking": self.enable_thinking,
             "request_timeout": self.request_timeout,
         }
         try:
