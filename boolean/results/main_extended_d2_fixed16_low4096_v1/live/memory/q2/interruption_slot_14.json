@@ -1,0 +1,18 @@
+{
+  "protocol_sha256": "23ee7487da8a123ee79c55e653c33c08c6cb204f57a0c8bd56bff0a3cb16ec2e",
+  "method": "memory",
+  "question": "n1_inputs_00_outputs_1",
+  "slot": 14,
+  "original_start": {
+    "query_index": 13,
+    "attempt": 1,
+    "prompt_sha256": "e597d98c4e0c23a0b89f6d200cbb6fecbea1570d5db4e0047750aaaa157e45fe",
+    "event": "started"
+  },
+  "reason": "Recorded request start without durable response",
+  "status": "interrupted_unknown_response",
+  "candidate": null,
+  "reward": 0,
+  "billed_tokens": null,
+  "billed_cost": null
+}
