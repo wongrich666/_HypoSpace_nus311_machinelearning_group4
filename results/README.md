@@ -1,6 +1,8 @@
-# Formal results / 正式结果
+# Formal results / 正式结果（数字索引）
 
-Teacher entry point. Both models: **20 held-out questions × 16 slots × 6 methods** (same `question_ids`), thinking **off**.
+老师入口说明见仓库根目录 [`../README.md`](../README.md)。本页只放**正式数字与路径**。
+
+协议：两模型均为 **20 held-out questions × 16 slots × 6 methods**（同一 `question_ids`），thinking **off**。
 
 找数字：打开对应目录的 `metrics_thinking_off.json`（DeepSeek）或 `summary.json` / `README.md`（Qwen）。
 
@@ -9,7 +11,9 @@ Teacher entry point. Both models: **20 held-out questions × 16 slots × 6 metho
 | [`deepseek/full_20q_six_methods/`](deepseek/full_20q_six_methods/) | DeepSeek thinking-off | `metrics_thinking_off.json` |
 | [`qwen27b/full_20q_six_methods/`](qwen27b/full_20q_six_methods/) | Qwen3.5-27B | `summary.json` |
 
-非正式内容：[`../archive/interim/`](../archive/interim/)（中途诊断）。基线 memory/stratified 仍在 [`../boolean/results/`](../boolean/results/)。
+**读指标：** Recovery = 合法假设集合覆盖率；truncation = 长度截断率（Qwen 正式轮全为 0%）。方法释义见根 [`README.md`](../README.md)。
+
+非正式诊断：[`../archive/interim/`](../archive/interim/)。基线 memory / stratified JSON：[`../boolean/results/`](../boolean/results/)。
 
 ---
 

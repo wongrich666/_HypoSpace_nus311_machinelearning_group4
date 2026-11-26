@@ -1,341 +1,61 @@
-<div align="center">
+# HypoSpace · EEC 4300 / NUS311 · Group 4
 
-# 🔬 HypoSpace
-[Accepted as an ICML 2026 spotlight paper 🎉]
-### *Evaluating LLM Creativity as Set-Valued Hypothesis Generators under Underdetermination*
+**组员 / Group：** 丛嘉蔓、黄瑞祺、王韫祺、夏思
 
-[![Paper](https://img.shields.io/badge/📄_Paper-arXiv-b31b1b.svg)](https://arxiv.org/abs/2510.15614)
-[![Python](https://img.shields.io/badge/Python-3.8+-3776AB.svg?logo=python&logoColor=white)](https://www.python.org)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+本仓库是课程期末项目：在 HypoSpace 的 **Boolean** 域上做假设空间探索，比较六种解码 / 探索方法对合法假设集合的覆盖能力（**Recovery**）。上游论文：[HypoSpace (arXiv:2510.15614)](https://arxiv.org/abs/2510.15614)。
 
 ---
 
-### 🎯 Three Domains • Three Metrics • Infinite Insights
+## 老师请先打开 / Start here
 
-</div>
+正式证据在 **[`results/`](results/)**（数字索引）。两轮协议相同：**20 held-out 题 × 16 slots × 6 methods**（同一 `question_ids`），thinking **off**。
 
-<p align="center">
-  <img src="figs/overview.png" alt="Overview" height="220">
-  &nbsp;&nbsp;&nbsp;
-  <img src="figs/comp.png" alt="Model Comparison" height="220">
-</p>
+| 模型 | 正式目录 | 看数字 |
+| --- | --- | --- |
+| DeepSeek | [`results/deepseek/full_20q_six_methods/`](results/deepseek/full_20q_six_methods/) | `metrics_thinking_off.json` → `methods.<name>.recovery` |
+| Qwen3.5-27B | [`results/qwen27b/full_20q_six_methods/`](results/qwen27b/full_20q_six_methods/) | `summary.json` 或目录内 `README.md` |
 
-<p align="center">
-  <img src="figs/task.png" alt="Task Illustration" width="60%">
-</p>
-
-<div align="center">
-
-### 🧬 Causal Graphs • 📦 3D Reconstruction • 🔀 Boolean Logic
-
-</div>
+汇总表：[`results/README.md`](results/README.md)。更长实验笔记：[`EXPERIMENTS.md`](EXPERIMENTS.md)。
 
 ---
 
-## NUS311 Group4
+## 六种方法 / Six methods
 
-本仓库为课程组 fork。**老师请先看正式结果索引：**
-
-- [`results/`](results/) — DeepSeek + Qwen 正式 **6 methods × 20q** 表与路径
-- [`results/deepseek/full_20q_six_methods/`](results/deepseek/full_20q_six_methods/)
-- [`results/qwen27b/full_20q_six_methods/`](results/qwen27b/full_20q_six_methods/)
-- [`archive/interim/`](archive/interim/) — interim 诊断归档（非正式）
-- [`EXPERIMENTS.md`](EXPERIMENTS.md) — 更完整指标与断链说明
-
----
-
-## 📖 About
-
-> **TL;DR**: HypoSpace evaluates how well LLMs generate *diverse sets* of valid hypotheses in underdetermined scientific problems, not just single correct answers.
-
-### The Challenge
-
-As language models are increasingly used in scientific workflows, evaluating their ability to propose **sets of explanations**—not just a single correct answer—becomes critical. Many scientific problems are **underdetermined**: multiple, mechanistically distinct hypotheses are consistent with the same observations.
-
-### Our Solution
-
-We introduce **HypoSpace**, a diagnostic suite that treats LLMs as samplers of finite hypothesis sets and measures three complementary indicators:
-
-| Metric | Symbol | What It Measures |
-|--------|--------|------------------|
-| **🎯 Validity** | *V* | Precision of proposals consistent with observations |
-| **✨ Uniqueness** | *U* | Non-redundancy among proposals |
-| **📈 Recovery** | *R* | Coverage of the enumerated admissible set |
-
-### Three Structured Domains
-
-We instantiate HypoSpace in three domains with deterministic validators and exactly enumerated hypothesis spaces:
-
-1. **🧬 Causal Graphs** — from perturbations
-2. **📦 3D Voxel Reconstruction** — gravity-constrained from top-down projections  
-3. **🔀 Boolean Genetic Interactions** — logical function discovery
-
-### Key Findings
-
-Across instruction-tuned and reasoning-focused models, **Validity** often remains high while **Uniqueness** and **Recovery** degrade as the admissible space grows, revealing **mode collapse** that is invisible to correctness-only metrics.
-
-> 💡 HypoSpace offers a controlled probe—rather than a leaderboard—for methods that explicitly explore and cover admissible explanation spaces.
+| method | 一句话 |
+| --- | --- |
+| `memory` | 历史提示 baseline：把已生成假设写回 prompt，不读真实答案分布 |
+| `adaptive` | 仅用已生成假设与验证反馈分配算子个数预算（无 oracle） |
+| `adaptive_sde` | adaptive + structure-directed exploration（结构引导） |
+| `memory_sde` | memory + structure-directed exploration |
+| `uniform` | 在算子个数动作 `[0,1,2,3]` 上独立均匀抽样，不学习 |
+| `round_robin` | 每题从 0 起循环 `0→1→2→3`，不学习 |
 
 ---
 
-## 📁 Repository Structure
+## 如何读指标 / Metrics
 
-```
-📂 HypoSpace/
-│
-├── 📦 3d/                                  ← 3D Voxel Reconstruction Domain
-│   ├── 🔧 generate_3d_dataset_complete.py  • Dataset generator
-│   ├── 🚀 run_3d_benchmark.py              • Benchmark runner
-│   ├── 📚 modules/                         • LLM interface & models
-│   │   ├── llm_interface.py
-│   │   └── models.py
-│   └── ⚙️  config/
-│       ├── config_gpt4o.yaml               • Example OpenRouter configuration
-│       └── config_api.example.yaml         • DashScope configuration; key from DASHSCOPE_API_KEY
-│
-├── 🔀 boolean/                             ← Boolean Genetic Interactions
-│   ├── 🔧 boolean_dataset.py               • Dataset generator
-│   ├── 🚀 boolean_benchmark.py             • Benchmark runner
-│   ├── 📚 modules/
-│   │   ├── llm_interface.py
-│   │   └── models.py
-│   └── ⚙️  config/
-│       ├── config_gpt4o.yaml
-│       └── config_api.example.yaml
-│
-└── 🧬 causal/                              ← Causal Graph Discovery
-    ├── 🔧 generate_causal_dataset.py       • Dataset generator (small)
-    ├── 🔧 generate_causal_dataset_for_large.py  • Dataset generator (large)
-    ├── 🚀 run_causal_benchmark.py          • Benchmark runner
-    ├── 📚 modules/
-    │   ├── llm_interface.py
-    │   └── models.py
-    └── ⚙️  config/
-        ├── config_gpt4o.yaml
-        └── config_api.example.yaml
-```
+- **Recovery**：对可枚举合法假设集合的覆盖率（越高越好）。DeepSeek 表给 macro Recovery；Qwen 另给 micro / Recovery@16。
+- **truncation**：输出被长度截断的比例。正式 Qwen 轮六方法均为 **0%**；详见 [`results/README.md`](results/README.md)。
+- Validity / Uniqueness 等论文三指标说明见上游 HypoSpace；本课程正式对照以 **Recovery**（及 truncation）为主。
 
 ---
 
-## 🚀 Quick Start
+## 代码在哪 / Code (minimal)
 
-### Step 1️⃣: Configure Your LLM
+| 路径 | 内容 |
+| --- | --- |
+| [`boolean/`](boolean/) | Boolean 域主代码 |
+| [`boolean/modules/exploration_controller.py`](boolean/modules/exploration_controller.py) | adaptive / uniform / round_robin 控制器 |
+| [`boolean/boolean_benchmark.py`](boolean/boolean_benchmark.py) | 基线 memory（及 stratified）runner |
+| [`boolean/member_a_*sde*`](boolean/) | `adaptive_sde` / `memory_sde` |
+| [`boolean/run_qwen_27b_full_20q.py`](boolean/run_qwen_27b_full_20q.py) | Qwen 正式 20q × 6 methods runner |
+| [`boolean/experiments/`](boolean/experiments/) | 冻结协议 JSON |
 
-Edit the YAML config files in each domain's `config/` folder:
-
-**What you can customize:**
-- 🤖 LLM provider and model
-- 🌡️ Temperature settings
-- 📂 Output paths
-- 💾 Checkpoint directories
-
-**Example:** `config/config_api.example.yaml`
-
-The API key is read from `DASHSCOPE_API_KEY` and is not stored in the file.
-
-```yaml
-llm:
-  type: dashscope
-  models:
-    dashscope: "deepseek-v4.1-flash-1017"
-  api_keys:
-    dashscope: ""
-  base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
-  temperature: 0.7
-  max_tokens: 2048
-
-benchmark:
-  checkpoint: "checkpoints"
-  verbose: true
-  output_pattern: "results/{decoding}/{dataset_name}_{model}.json"
-```
-
-A verified `pricing` block can be added later. Until then, new results keep `cost` as the default-rate ledger and set `cost_estimate.estimated_cost` to null.
-
-### Step 2️⃣: Generate Datasets
-
-Each domain has its own dataset generator. Here are examples for all three:
-
-<details>
-<summary><b>🧬 Causal Graphs</b> (click to expand)</summary>
-
-```bash
-cd causal
-python generate_causal_dataset.py \
-  --nodes 3 \
-  --seed 33550336 \
-  --output "datasets/node03/n3_all_observations.json"
-```
-
-**Parameters:**
-- `--nodes`: Number of nodes in graphs (3, 4, 5, etc.)
-- `--seed`: Random seed for reproducibility
-- `--output`: Path to save dataset JSON
-
-</details>
-
-<details>
-<summary><b>📦 3D Voxel Reconstruction</b> (click to expand)</summary>
-
-```bash
-cd 3d
-python generate_3d_dataset_complete.py \
-  --grid-size 3 \
-  --max-height 3 \
-  --max-blocks 1 \
-  --fixed \
-  --seed 33550336 \
-  --output "datasets/3d_grid3_h3.json"
-```
-
-**Parameters:**
-- `--grid-size`: Grid dimensions (e.g., 3 for 3×3)
-- `--max-height`: Maximum structure height
-- `--max-blocks`: Maximum number of blocks in top view
-- `--fixed`: If set, generate only structures with exactly max-blocks blocks, else from 1 to max-blocks
-- `--output`: Output file path
-
-</details>
-
-<details>
-<summary><b>🔀 Boolean Logic</b> (click to expand)</summary>
-
-```bash
-cd boolean
-python boolean_dataset.py \
-  --operators basic \
-  --max-depth 2 \
-  --output 'datasets/boolean_2var.json' \
-  --seed 33550336 \
-```
-
-**Parameters:**
-- `--operators`: Allowed Boolean operators: choices=['basic', 'extended', 'full']
-- `--max-depth`: Maximum expression depth
-- `--output`: Output JSON file
-
-</details>
-
-### Step 3️⃣: Run Benchmarks
-
-Run the benchmark for your chosen domain:
-
-<details>
-<summary><b>🧬 Causal Benchmark</b></summary>
-
-```bash
-cd causal
-python run_causal_benchmark.py \
-  --dataset "datasets/node03/n3_all_observations.json" \
-  --config "config/config_api.example.yaml" \
-  --decoding memory \
-  --n-samples 30 \
-  --query-multiplier 1.0 \
-  --seed 33550336
-```
-
-**Run in background with logging:**
-```bash
-nohup python -u run_causal_benchmark.py \
-  --dataset "datasets/node03/n3_all_observations.json" \
-  --config "config/config_api.example.yaml" \
-  --decoding memory \
-  --n-samples 30 \
-  --query-multiplier 1.0 \
-  --seed 33550336 > logs/causal_benchmark.log 2>&1 &
-```
-
-</details>
-
-<details>
-<summary><b>📦 3D Benchmark</b></summary>
-
-```bash
-cd 3d
-python run_3d_benchmark.py \
-  --dataset "datasets/3d_grid3_h3.json" \
-  --config "config/config_api.example.yaml" \
-  --decoding memory \
-  --n-samples 30 \
-  --query-multiplier 1.0 \
-  --seed 33550336
-```
-
-</details>
-
-<details>
-<summary><b>🔀 Boolean Benchmark</b></summary>
-
-```bash
-cd boolean
-python boolean_benchmark.py \
-  --dataset "datasets/boolean_2var.json" \
-  --config "config/config_api.example.yaml" \
-  --decoding memory \
-  --n-samples 30 \
-  --query-multiplier 1.0 \
-  --seed 33550336
-```
-
-</details>
-
-**Common Parameters:**
-- `--dataset`: Path to generated dataset
-- `--config`: Configuration YAML file
-- `--decoding`: `memory` (history-prompt baseline) or `stratified` (oracle-informed complexity stratification; uses the ground-truth complexity histogram). A future `adaptive` method will allocate the budget from generated hypotheses and validation feedback only.
-- `--n-samples`: Number of observation sets to evaluate
-- `--query-multiplier`: Multiplier for queries per task
-- `--seed`: Random seed for reproducibility
-
-### Step 4️⃣: Analyze Results
-
-Results are automatically saved as JSON files under `results/<decoding>/`, for example `results/memory/` and `results/stratified/`.
-
-**What's included:**
-
-```json
-{
-  "metadata": {
-    "model": "openai/gpt-4o",
-    "dataset": "causal_n3",
-    "n_samples": 30,
-    "timestamp": "2025-10-17T12:00:00"
-  },
-  "aggregate_metrics": {
-    "mean_validity": 0.92,      // 🎯 How many proposals are valid
-    "mean_uniqueness": 0.78,    // ✨ How diverse are the proposals
-    "mean_recovery": 0.65,      // 📈 Coverage of solution space
-    "std_validity": 0.08,
-    "std_uniqueness": 0.12,
-    "std_recovery": 0.15
-  },
-  "results": [/* detailed per-sample results */]
-}
-```
-
-**Understanding the Metrics:**
-
-| Metric | Range | Good Score | Interpretation |
-|--------|-------|------------|----------------|
-| 🎯 **Validity** | 0-1 | > 0.90 | Model proposes correct hypotheses |
-| ✨ **Uniqueness** | 0-1 | > 0.80 | Model avoids redundant proposals |
-| 📈 **Recovery** | 0-1 | > 0.80 | Model explores solution space well |
+`3d/`、`causal/` 为上游域代码，本课程正式结果以 Boolean + [`results/`](results/) 为准。
 
 ---
 
-## 📊 Supported Models
-
-| Provider | Example Models | Config Type |
-|----------|----------------|-------------|
-| **OpenAI** | GPT-4o, GPT-4-turbo, GPT-3.5 | `openai` |
-| **OpenRouter** | Any model via OpenRouter | `openrouter` |
-
----
-
-## 📝 Citation
-
-If you use HypoSpace in your research, please cite:
+## Citation
 
 ```bibtex
 @article{chen2025hypospace,
@@ -345,19 +65,3 @@ If you use HypoSpace in your research, please cite:
   year={2025}
 }
 ```
- 
----
-
-## 📄 License
-
-This project is released under the MIT License.
-
----
-
-<div align="center">
-
-**Built with ❤️ for scientific discovery**
-
-⭐ Star us on GitHub • 🐛 Report issues • 💡 Suggest features
-
-</div>
