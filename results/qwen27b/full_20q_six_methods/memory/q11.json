@@ -1,0 +1,1200 @@
+{
+  "run_id": "qwen_full_memory_q11_b98b81ae37e643a5b3d3394ce68de643",
+  "llm_name": "OpenRouter(qwen3.5-27b)",
+  "n_samples": 1,
+  "n_queries_per_sample": 16,
+  "query_multiplier": null,
+  "query_mode": "fixed",
+  "seed": 42,
+  "decoding": "memory",
+  "method_label": "Memory-based decoding",
+  "allocation_source": "none",
+  "uses_ground_truth_distribution": false,
+  "timestamp": "2026-11-26T18:02:54.231049",
+  "statistics": {
+    "valid_rate": {
+      "mean": 0.5625,
+      "std": 0.0,
+      "var": 0.0,
+      "min": 0.5625,
+      "max": 0.5625,
+      "p_value": null
+    },
+    "novelty_rate": {
+      "mean": 0.25,
+      "std": 0.0,
+      "var": 0.0,
+      "min": 0.25,
+      "max": 0.25,
+      "p_value": null
+    },
+    "recovery_rate": {
+      "mean": 0.5,
+      "std": 0.0,
+      "var": 0.0,
+      "min": 0.5,
+      "max": 0.5,
+      "p_value": null
+    }
+  },
+  "token_usage": {
+    "prompt_tokens": 10025,
+    "completion_tokens": 156,
+    "total_tokens": 10181,
+    "avg_tokens_per_sample": 10181.0,
+    "avg_tokens_per_query": 636.3125
+  },
+  "cost": {
+    "total_cost": 0.010181,
+    "avg_cost_per_sample": 0.010181,
+    "avg_cost_per_query": 0.0006363125
+  },
+  "cost_estimate": {
+    "estimated_cost": null,
+    "currency": "CNY",
+    "pricing_source": null,
+    "pricing_verified": false
+  },
+  "error_summary": {
+    "total_errors": 0,
+    "error_types": {},
+    "error_rate": 0.0
+  },
+  "per_sample_results": [
+    {
+      "observation_set_id": "n3_inputs_00_01_11_outputs_111",
+      "n_observations": 3,
+      "n_ground_truths": 6,
+      "n_queries": 16,
+      "n_valid": 9,
+      "n_unique_valid": 3,
+      "n_unique_all": 4,
+      "n_recovered_gts": 3,
+      "request_log": [
+        {
+          "query_index": 0,
+          "observation_set_id": "n3_inputs_00_01_11_outputs_111",
+          "status": "ok",
+          "candidate": "NOT (x AND NOT y)",
+          "prompt": "You are given partial observations of a Boolean function with variables: x, y\n\n            Allowed operators: AND (conjunction), OR (disjunction), NOT (negation)\n\n            Observations (input -> output):\n            (x=0, y=0) -> 1\n(x=0, y=1) -> 1\n(x=1, y=1) -> 1\n\n            Prior expressions generated (avoid repeating any expression \n            that is equivalent under the rules below):\n            None\n\n            Task: Generate a single Boolean expression that is consistent with ALL observations.\n\n            Requirements:\n            1. Use ONLY the variables: x, y\n            2. Use ONLY these operators: AND, OR, NOT\n            3. The expression must match all given observations\n            4. Structural uniqueness is judged by these rules:\n            - Commutativity: reorderings are the SAME (e.g., x AND y = y AND x).\n        - Idempotence: duplicates of the same input under AND/OR collapse (e.g., x AND x = x; x OR x = x).\n        - Associativity flattening: cascades of the SAME operator are the SAME regardless of parentheses (e.g., (x AND y) AND x = x AND (y AND x) = x AND x AND y).\n        - No distributivity, absorption, or De Morgan normalization: mixing operators keeps expressions DIFFERENT (e.g., (x AND y) OR z \u2260 x AND (y OR z)).\n            5. Expression depth should be at most 2 levels of nesting\n            6. Do not use boolean constants True or False anywhere in the expression.\n            \n            Output format: \n            - Return ONLY the Boolean expression on a single line\n            - Use plain text format (no LaTeX, no markdown, no special formatting)\n            - Use uppercase for operators. \n            - Use lowercase for variables: x, y\n            - Use parentheses for grouping when needed\n            - Start your response with \"Expression: \" followed by the expression\n            \n            Examples of correct format:\n            Expression: x AND y\n            Expression: (x OR y) AND NOT x\n            Expression: NOT (x AND y)\n            Expression: NOR(x, y)\n            \n            DO NOT use formats like:\n            - \\(x \\land y\\)  (LaTeX)\n            - `x AND y`  (markdown)\n            - x \u2227 y  (mathematical symbols)\n            ",
+          "response": "Expression: NOT (x AND NOT y)",
+          "reasoning_content": "",
+          "target_operator_count": null,
+          "actual_operator_count": 3,
+          "obeyed_operator_count": null,
+          "usage": {
+            "prompt_tokens": 559,
+            "completion_tokens": 10,
+            "total_tokens": 569
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "duration_seconds": 1.546,
+              "status": "ok",
+              "error": null,
+              "request_id": "ae39d207-8cd9-9103-85a6-4198212196c7",
+              "finish_reason": "stop",
+              "content": "Expression: NOT (x AND NOT y)",
+              "reasoning_content": "",
+              "request_parameters": {
+                "model": "qwen3.5-27b",
+                "temperature": 0.7,
+                "max_tokens": 4096,
+                "reasoning_effort": null,
+                "enable_thinking": false,
+                "request_timeout": 60
+              },
+              "usage": {
+                "prompt_tokens": 559,
+                "completion_tokens": 10,
+                "total_tokens": 569
+              },
+              "cost": 0.000569
+            }
+          ],
+          "feedback": {
+            "status": "ok",
+            "is_valid": false,
+            "failure_reason": "out_of_space",
+            "failure_detail": null,
+            "mechanistic_key": "('NOT', ('AND', (('NOT', ('VAR', 'y')), ('VAR', 'x'))))",
+            "is_new_valid": false,
+            "is_duplicate_valid": false,
+            "reward": 0,
+            "target_operator_count": null,
+            "actual_operator_count": 3,
+            "obeyed_operator_count": null,
+            "usage": {
+              "prompt_tokens": 559,
+              "completion_tokens": 10,
+              "total_tokens": 569
+            },
+            "api_attempt_count": 1
+          },
+          "decision_log": []
+        },
+        {
+          "query_index": 1,
+          "observation_set_id": "n3_inputs_00_01_11_outputs_111",
+          "status": "ok",
+          "candidate": "x OR y",
+          "prompt": "You are given partial observations of a Boolean function with variables: x, y\n\n            Allowed operators: AND (conjunction), OR (disjunction), NOT (negation)\n\n            Observations (input -> output):\n            (x=0, y=0) -> 1\n(x=0, y=1) -> 1\n(x=1, y=1) -> 1\n\n            Prior expressions generated (avoid repeating any expression \n            that is equivalent under the rules below):\n            Expression: NOT (x AND NOT y)\n\n            Task: Generate a single Boolean expression that is consistent with ALL observations.\n\n            Requirements:\n            1. Use ONLY the variables: x, y\n            2. Use ONLY these operators: AND, OR, NOT\n            3. The expression must match all given observations\n            4. Structural uniqueness is judged by these rules:\n            - Commutativity: reorderings are the SAME (e.g., x AND y = y AND x).\n        - Idempotence: duplicates of the same input under AND/OR collapse (e.g., x AND x = x; x OR x = x).\n        - Associativity flattening: cascades of the SAME operator are the SAME regardless of parentheses (e.g., (x AND y) AND x = x AND (y AND x) = x AND x AND y).\n        - No distributivity, absorption, or De Morgan normalization: mixing operators keeps expressions DIFFERENT (e.g., (x AND y) OR z \u2260 x AND (y OR z)).\n            5. Expression depth should be at most 2 levels of nesting\n            6. Do not use boolean constants True or False anywhere in the expression.\n            \n            Output format: \n            - Return ONLY the Boolean expression on a single line\n            - Use plain text format (no LaTeX, no markdown, no special formatting)\n            - Use uppercase for operators. \n            - Use lowercase for variables: x, y\n            - Use parentheses for grouping when needed\n            - Start your response with \"Expression: \" followed by the expression\n            \n            Examples of correct format:\n            Expression: x AND y\n            Expression: (x OR y) AND NOT x\n            Expression: NOT (x AND y)\n            Expression: NOR(x, y)\n            \n            DO NOT use formats like:\n            - \\(x \\land y\\)  (LaTeX)\n            - `x AND y`  (markdown)\n            - x \u2227 y  (mathematical symbols)\n            ",
+          "response": "Expression: x OR y",
+          "reasoning_content": "",
+          "target_operator_count": null,
+          "actual_operator_count": 1,
+          "obeyed_operator_count": null,
+          "usage": {
+            "prompt_tokens": 567,
+            "completion_tokens": 6,
+            "total_tokens": 573
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "duration_seconds": 1.438,
+              "status": "ok",
+              "error": null,
+              "request_id": "3084c5b6-63f7-902f-95d1-af24671c2e20",
+              "finish_reason": "stop",
+              "content": "Expression: x OR y",
+              "reasoning_content": "",
+              "request_parameters": {
+                "model": "qwen3.5-27b",
+                "temperature": 0.7,
+                "max_tokens": 4096,
+                "reasoning_effort": null,
+                "enable_thinking": false,
+                "request_timeout": 60
+              },
+              "usage": {
+                "prompt_tokens": 567,
+                "completion_tokens": 6,
+                "total_tokens": 573
+              },
+              "cost": 0.000573
+            }
+          ],
+          "feedback": {
+            "status": "ok",
+            "is_valid": false,
+            "failure_reason": "observation_mismatch",
+            "failure_detail": null,
+            "mechanistic_key": "('OR', (('VAR', 'x'), ('VAR', 'y')))",
+            "is_new_valid": false,
+            "is_duplicate_valid": false,
+            "reward": 0,
+            "target_operator_count": null,
+            "actual_operator_count": 1,
+            "obeyed_operator_count": null,
+            "usage": {
+              "prompt_tokens": 567,
+              "completion_tokens": 6,
+              "total_tokens": 573
+            },
+            "api_attempt_count": 1
+          },
+          "decision_log": []
+        },
+        {
+          "query_index": 2,
+          "observation_set_id": "n3_inputs_00_01_11_outputs_111",
+          "status": "ok",
+          "candidate": "y OR NOT x",
+          "prompt": "You are given partial observations of a Boolean function with variables: x, y\n\n            Allowed operators: AND (conjunction), OR (disjunction), NOT (negation)\n\n            Observations (input -> output):\n            (x=0, y=0) -> 1\n(x=0, y=1) -> 1\n(x=1, y=1) -> 1\n\n            Prior expressions generated (avoid repeating any expression \n            that is equivalent under the rules below):\n            Expression: NOT (x AND NOT y)\nExpression: x OR y\n\n            Task: Generate a single Boolean expression that is consistent with ALL observations.\n\n            Requirements:\n            1. Use ONLY the variables: x, y\n            2. Use ONLY these operators: AND, OR, NOT\n            3. The expression must match all given observations\n            4. Structural uniqueness is judged by these rules:\n            - Commutativity: reorderings are the SAME (e.g., x AND y = y AND x).\n        - Idempotence: duplicates of the same input under AND/OR collapse (e.g., x AND x = x; x OR x = x).\n        - Associativity flattening: cascades of the SAME operator are the SAME regardless of parentheses (e.g., (x AND y) AND x = x AND (y AND x) = x AND x AND y).\n        - No distributivity, absorption, or De Morgan normalization: mixing operators keeps expressions DIFFERENT (e.g., (x AND y) OR z \u2260 x AND (y OR z)).\n            5. Expression depth should be at most 2 levels of nesting\n            6. Do not use boolean constants True or False anywhere in the expression.\n            \n            Output format: \n            - Return ONLY the Boolean expression on a single line\n            - Use plain text format (no LaTeX, no markdown, no special formatting)\n            - Use uppercase for operators. \n            - Use lowercase for variables: x, y\n            - Use parentheses for grouping when needed\n            - Start your response with \"Expression: \" followed by the expression\n            \n            Examples of correct format:\n            Expression: x AND y\n            Expression: (x OR y) AND NOT x\n            Expression: NOT (x AND y)\n            Expression: NOR(x, y)\n            \n            DO NOT use formats like:\n            - \\(x \\land y\\)  (LaTeX)\n            - `x AND y`  (markdown)\n            - x \u2227 y  (mathematical symbols)\n            ",
+          "response": "Expression: y OR NOT x",
+          "reasoning_content": "",
+          "target_operator_count": null,
+          "actual_operator_count": 2,
+          "obeyed_operator_count": null,
+          "usage": {
+            "prompt_tokens": 573,
+            "completion_tokens": 7,
+            "total_tokens": 580
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "duration_seconds": 1.14,
+              "status": "ok",
+              "error": null,
+              "request_id": "cb5f8871-5f55-9b62-b7b3-306bdb769543",
+              "finish_reason": "stop",
+              "content": "Expression: y OR NOT x",
+              "reasoning_content": "",
+              "request_parameters": {
+                "model": "qwen3.5-27b",
+                "temperature": 0.7,
+                "max_tokens": 4096,
+                "reasoning_effort": null,
+                "enable_thinking": false,
+                "request_timeout": 60
+              },
+              "usage": {
+                "prompt_tokens": 573,
+                "completion_tokens": 7,
+                "total_tokens": 580
+              },
+              "cost": 0.00058
+            }
+          ],
+          "feedback": {
+            "status": "ok",
+            "is_valid": true,
+            "failure_reason": null,
+            "failure_detail": null,
+            "mechanistic_key": "('OR', (('NOT', ('VAR', 'x')), ('VAR', 'y')))",
+            "is_new_valid": true,
+            "is_duplicate_valid": false,
+            "reward": 1,
+            "target_operator_count": null,
+            "actual_operator_count": 2,
+            "obeyed_operator_count": null,
+            "usage": {
+              "prompt_tokens": 573,
+              "completion_tokens": 7,
+              "total_tokens": 580
+            },
+            "api_attempt_count": 1
+          },
+          "decision_log": []
+        },
+        {
+          "query_index": 3,
+          "observation_set_id": "n3_inputs_00_01_11_outputs_111",
+          "status": "ok",
+          "candidate": "NOT x OR y",
+          "prompt": "You are given partial observations of a Boolean function with variables: x, y\n\n            Allowed operators: AND (conjunction), OR (disjunction), NOT (negation)\n\n            Observations (input -> output):\n            (x=0, y=0) -> 1\n(x=0, y=1) -> 1\n(x=1, y=1) -> 1\n\n            Prior expressions generated (avoid repeating any expression \n            that is equivalent under the rules below):\n            Expression: NOT (x AND NOT y)\nExpression: x OR y\nExpression: y OR NOT x\n\n            Task: Generate a single Boolean expression that is consistent with ALL observations.\n\n            Requirements:\n            1. Use ONLY the variables: x, y\n            2. Use ONLY these operators: AND, OR, NOT\n            3. The expression must match all given observations\n            4. Structural uniqueness is judged by these rules:\n            - Commutativity: reorderings are the SAME (e.g., x AND y = y AND x).\n        - Idempotence: duplicates of the same input under AND/OR collapse (e.g., x AND x = x; x OR x = x).\n        - Associativity flattening: cascades of the SAME operator are the SAME regardless of parentheses (e.g., (x AND y) AND x = x AND (y AND x) = x AND x AND y).\n        - No distributivity, absorption, or De Morgan normalization: mixing operators keeps expressions DIFFERENT (e.g., (x AND y) OR z \u2260 x AND (y OR z)).\n            5. Expression depth should be at most 2 levels of nesting\n            6. Do not use boolean constants True or False anywhere in the expression.\n            \n            Output format: \n            - Return ONLY the Boolean expression on a single line\n            - Use plain text format (no LaTeX, no markdown, no special formatting)\n            - Use uppercase for operators. \n            - Use lowercase for variables: x, y\n            - Use parentheses for grouping when needed\n            - Start your response with \"Expression: \" followed by the expression\n            \n            Examples of correct format:\n            Expression: x AND y\n            Expression: (x OR y) AND NOT x\n            Expression: NOT (x AND y)\n            Expression: NOR(x, y)\n            \n            DO NOT use formats like:\n            - \\(x \\land y\\)  (LaTeX)\n            - `x AND y`  (markdown)\n            - x \u2227 y  (mathematical symbols)\n            ",
+          "response": "Expression: NOT x OR y",
+          "reasoning_content": "",
+          "target_operator_count": null,
+          "actual_operator_count": 2,
+          "obeyed_operator_count": null,
+          "usage": {
+            "prompt_tokens": 580,
+            "completion_tokens": 7,
+            "total_tokens": 587
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "duration_seconds": 0.718,
+              "status": "ok",
+              "error": null,
+              "request_id": "a2cb688f-86a4-96fb-a92d-26c05ba06113",
+              "finish_reason": "stop",
+              "content": "Expression: NOT x OR y",
+              "reasoning_content": "",
+              "request_parameters": {
+                "model": "qwen3.5-27b",
+                "temperature": 0.7,
+                "max_tokens": 4096,
+                "reasoning_effort": null,
+                "enable_thinking": false,
+                "request_timeout": 60
+              },
+              "usage": {
+                "prompt_tokens": 580,
+                "completion_tokens": 7,
+                "total_tokens": 587
+              },
+              "cost": 0.000587
+            }
+          ],
+          "feedback": {
+            "status": "ok",
+            "is_valid": true,
+            "failure_reason": null,
+            "failure_detail": null,
+            "mechanistic_key": "('OR', (('NOT', ('VAR', 'x')), ('VAR', 'y')))",
+            "is_new_valid": false,
+            "is_duplicate_valid": true,
+            "reward": 0,
+            "target_operator_count": null,
+            "actual_operator_count": 2,
+            "obeyed_operator_count": null,
+            "usage": {
+              "prompt_tokens": 580,
+              "completion_tokens": 7,
+              "total_tokens": 587
+            },
+            "api_attempt_count": 1
+          },
+          "decision_log": []
+        },
+        {
+          "query_index": 4,
+          "observation_set_id": "n3_inputs_00_01_11_outputs_111",
+          "status": "ok",
+          "candidate": "NOT (NOT x AND NOT y)",
+          "prompt": "You are given partial observations of a Boolean function with variables: x, y\n\n            Allowed operators: AND (conjunction), OR (disjunction), NOT (negation)\n\n            Observations (input -> output):\n            (x=0, y=0) -> 1\n(x=0, y=1) -> 1\n(x=1, y=1) -> 1\n\n            Prior expressions generated (avoid repeating any expression \n            that is equivalent under the rules below):\n            Expression: NOT (x AND NOT y)\nExpression: x OR y\nExpression: y OR NOT x\nExpression: NOT x OR y\n\n            Task: Generate a single Boolean expression that is consistent with ALL observations.\n\n            Requirements:\n            1. Use ONLY the variables: x, y\n            2. Use ONLY these operators: AND, OR, NOT\n            3. The expression must match all given observations\n            4. Structural uniqueness is judged by these rules:\n            - Commutativity: reorderings are the SAME (e.g., x AND y = y AND x).\n        - Idempotence: duplicates of the same input under AND/OR collapse (e.g., x AND x = x; x OR x = x).\n        - Associativity flattening: cascades of the SAME operator are the SAME regardless of parentheses (e.g., (x AND y) AND x = x AND (y AND x) = x AND x AND y).\n        - No distributivity, absorption, or De Morgan normalization: mixing operators keeps expressions DIFFERENT (e.g., (x AND y) OR z \u2260 x AND (y OR z)).\n            5. Expression depth should be at most 2 levels of nesting\n            6. Do not use boolean constants True or False anywhere in the expression.\n            \n            Output format: \n            - Return ONLY the Boolean expression on a single line\n            - Use plain text format (no LaTeX, no markdown, no special formatting)\n            - Use uppercase for operators. \n            - Use lowercase for variables: x, y\n            - Use parentheses for grouping when needed\n            - Start your response with \"Expression: \" followed by the expression\n            \n            Examples of correct format:\n            Expression: x AND y\n            Expression: (x OR y) AND NOT x\n            Expression: NOT (x AND y)\n            Expression: NOR(x, y)\n            \n            DO NOT use formats like:\n            - \\(x \\land y\\)  (LaTeX)\n            - `x AND y`  (markdown)\n            - x \u2227 y  (mathematical symbols)\n            ",
+          "response": "Expression: NOT (NOT x AND NOT y)",
+          "reasoning_content": "",
+          "target_operator_count": null,
+          "actual_operator_count": 4,
+          "obeyed_operator_count": null,
+          "usage": {
+            "prompt_tokens": 587,
+            "completion_tokens": 11,
+            "total_tokens": 598
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "duration_seconds": 0.984,
+              "status": "ok",
+              "error": null,
+              "request_id": "16f2539d-361a-9d79-88f6-2219be3e9bb4",
+              "finish_reason": "stop",
+              "content": "Expression: NOT (NOT x AND NOT y)",
+              "reasoning_content": "",
+              "request_parameters": {
+                "model": "qwen3.5-27b",
+                "temperature": 0.7,
+                "max_tokens": 4096,
+                "reasoning_effort": null,
+                "enable_thinking": false,
+                "request_timeout": 60
+              },
+              "usage": {
+                "prompt_tokens": 587,
+                "completion_tokens": 11,
+                "total_tokens": 598
+              },
+              "cost": 0.000598
+            }
+          ],
+          "feedback": {
+            "status": "ok",
+            "is_valid": false,
+            "failure_reason": "out_of_space",
+            "failure_detail": null,
+            "mechanistic_key": "('NOT', ('AND', (('NOT', ('VAR', 'x')), ('NOT', ('VAR', 'y')))))",
+            "is_new_valid": false,
+            "is_duplicate_valid": false,
+            "reward": 0,
+            "target_operator_count": null,
+            "actual_operator_count": 4,
+            "obeyed_operator_count": null,
+            "usage": {
+              "prompt_tokens": 587,
+              "completion_tokens": 11,
+              "total_tokens": 598
+            },
+            "api_attempt_count": 1
+          },
+          "decision_log": []
+        },
+        {
+          "query_index": 5,
+          "observation_set_id": "n3_inputs_00_01_11_outputs_111",
+          "status": "ok",
+          "candidate": "NOT (x AND x) OR y",
+          "prompt": "You are given partial observations of a Boolean function with variables: x, y\n\n            Allowed operators: AND (conjunction), OR (disjunction), NOT (negation)\n\n            Observations (input -> output):\n            (x=0, y=0) -> 1\n(x=0, y=1) -> 1\n(x=1, y=1) -> 1\n\n            Prior expressions generated (avoid repeating any expression \n            that is equivalent under the rules below):\n            Expression: NOT (x AND NOT y)\nExpression: x OR y\nExpression: y OR NOT x\nExpression: NOT x OR y\nExpression: NOT (NOT x AND NOT y)\n\n            Task: Generate a single Boolean expression that is consistent with ALL observations.\n\n            Requirements:\n            1. Use ONLY the variables: x, y\n            2. Use ONLY these operators: AND, OR, NOT\n            3. The expression must match all given observations\n            4. Structural uniqueness is judged by these rules:\n            - Commutativity: reorderings are the SAME (e.g., x AND y = y AND x).\n        - Idempotence: duplicates of the same input under AND/OR collapse (e.g., x AND x = x; x OR x = x).\n        - Associativity flattening: cascades of the SAME operator are the SAME regardless of parentheses (e.g., (x AND y) AND x = x AND (y AND x) = x AND x AND y).\n        - No distributivity, absorption, or De Morgan normalization: mixing operators keeps expressions DIFFERENT (e.g., (x AND y) OR z \u2260 x AND (y OR z)).\n            5. Expression depth should be at most 2 levels of nesting\n            6. Do not use boolean constants True or False anywhere in the expression.\n            \n            Output format: \n            - Return ONLY the Boolean expression on a single line\n            - Use plain text format (no LaTeX, no markdown, no special formatting)\n            - Use uppercase for operators. \n            - Use lowercase for variables: x, y\n            - Use parentheses for grouping when needed\n            - Start your response with \"Expression: \" followed by the expression\n            \n            Examples of correct format:\n            Expression: x AND y\n            Expression: (x OR y) AND NOT x\n            Expression: NOT (x AND y)\n            Expression: NOR(x, y)\n            \n            DO NOT use formats like:\n            - \\(x \\land y\\)  (LaTeX)\n            - `x AND y`  (markdown)\n            - x \u2227 y  (mathematical symbols)\n            ",
+          "response": "Expression: NOT (x AND x) OR y",
+          "reasoning_content": "",
+          "target_operator_count": null,
+          "actual_operator_count": 3,
+          "obeyed_operator_count": null,
+          "usage": {
+            "prompt_tokens": 598,
+            "completion_tokens": 11,
+            "total_tokens": 609
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "duration_seconds": 0.781,
+              "status": "ok",
+              "error": null,
+              "request_id": "d8ab33bc-3dfd-9a69-b398-c10554087ce6",
+              "finish_reason": "stop",
+              "content": "Expression: NOT (x AND x) OR y",
+              "reasoning_content": "",
+              "request_parameters": {
+                "model": "qwen3.5-27b",
+                "temperature": 0.7,
+                "max_tokens": 4096,
+                "reasoning_effort": null,
+                "enable_thinking": false,
+                "request_timeout": 60
+              },
+              "usage": {
+                "prompt_tokens": 598,
+                "completion_tokens": 11,
+                "total_tokens": 609
+              },
+              "cost": 0.000609
+            }
+          ],
+          "feedback": {
+            "status": "ok",
+            "is_valid": true,
+            "failure_reason": null,
+            "failure_detail": null,
+            "mechanistic_key": "('OR', (('NOT', ('VAR', 'x')), ('VAR', 'y')))",
+            "is_new_valid": false,
+            "is_duplicate_valid": true,
+            "reward": 0,
+            "target_operator_count": null,
+            "actual_operator_count": 3,
+            "obeyed_operator_count": null,
+            "usage": {
+              "prompt_tokens": 598,
+              "completion_tokens": 11,
+              "total_tokens": 609
+            },
+            "api_attempt_count": 1
+          },
+          "decision_log": []
+        },
+        {
+          "query_index": 6,
+          "observation_set_id": "n3_inputs_00_01_11_outputs_111",
+          "status": "ok",
+          "candidate": "NOT x OR y OR x",
+          "prompt": "You are given partial observations of a Boolean function with variables: x, y\n\n            Allowed operators: AND (conjunction), OR (disjunction), NOT (negation)\n\n            Observations (input -> output):\n            (x=0, y=0) -> 1\n(x=0, y=1) -> 1\n(x=1, y=1) -> 1\n\n            Prior expressions generated (avoid repeating any expression \n            that is equivalent under the rules below):\n            Expression: NOT (x AND NOT y)\nExpression: x OR y\nExpression: y OR NOT x\nExpression: NOT x OR y\nExpression: NOT (NOT x AND NOT y)\nExpression: NOT (x AND x) OR y\n\n            Task: Generate a single Boolean expression that is consistent with ALL observations.\n\n            Requirements:\n            1. Use ONLY the variables: x, y\n            2. Use ONLY these operators: AND, OR, NOT\n            3. The expression must match all given observations\n            4. Structural uniqueness is judged by these rules:\n            - Commutativity: reorderings are the SAME (e.g., x AND y = y AND x).\n        - Idempotence: duplicates of the same input under AND/OR collapse (e.g., x AND x = x; x OR x = x).\n        - Associativity flattening: cascades of the SAME operator are the SAME regardless of parentheses (e.g., (x AND y) AND x = x AND (y AND x) = x AND x AND y).\n        - No distributivity, absorption, or De Morgan normalization: mixing operators keeps expressions DIFFERENT (e.g., (x AND y) OR z \u2260 x AND (y OR z)).\n            5. Expression depth should be at most 2 levels of nesting\n            6. Do not use boolean constants True or False anywhere in the expression.\n            \n            Output format: \n            - Return ONLY the Boolean expression on a single line\n            - Use plain text format (no LaTeX, no markdown, no special formatting)\n            - Use uppercase for operators. \n            - Use lowercase for variables: x, y\n            - Use parentheses for grouping when needed\n            - Start your response with \"Expression: \" followed by the expression\n            \n            Examples of correct format:\n            Expression: x AND y\n            Expression: (x OR y) AND NOT x\n            Expression: NOT (x AND y)\n            Expression: NOR(x, y)\n            \n            DO NOT use formats like:\n            - \\(x \\land y\\)  (LaTeX)\n            - `x AND y`  (markdown)\n            - x \u2227 y  (mathematical symbols)\n            ",
+          "response": "Expression: NOT x OR y OR x",
+          "reasoning_content": "",
+          "target_operator_count": null,
+          "actual_operator_count": 3,
+          "obeyed_operator_count": null,
+          "usage": {
+            "prompt_tokens": 609,
+            "completion_tokens": 9,
+            "total_tokens": 618
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "duration_seconds": 1.125,
+              "status": "ok",
+              "error": null,
+              "request_id": "cde773b8-67f2-913d-bc9f-18bd2833ebac",
+              "finish_reason": "stop",
+              "content": "Expression: NOT x OR y OR x",
+              "reasoning_content": "",
+              "request_parameters": {
+                "model": "qwen3.5-27b",
+                "temperature": 0.7,
+                "max_tokens": 4096,
+                "reasoning_effort": null,
+                "enable_thinking": false,
+                "request_timeout": 60
+              },
+              "usage": {
+                "prompt_tokens": 609,
+                "completion_tokens": 9,
+                "total_tokens": 618
+              },
+              "cost": 0.000618
+            }
+          ],
+          "feedback": {
+            "status": "ok",
+            "is_valid": true,
+            "failure_reason": null,
+            "failure_detail": null,
+            "mechanistic_key": "('OR', (('NOT', ('VAR', 'x')), ('VAR', 'x'), ('VAR', 'y')))",
+            "is_new_valid": true,
+            "is_duplicate_valid": false,
+            "reward": 1,
+            "target_operator_count": null,
+            "actual_operator_count": 3,
+            "obeyed_operator_count": null,
+            "usage": {
+              "prompt_tokens": 609,
+              "completion_tokens": 9,
+              "total_tokens": 618
+            },
+            "api_attempt_count": 1
+          },
+          "decision_log": []
+        },
+        {
+          "query_index": 7,
+          "observation_set_id": "n3_inputs_00_01_11_outputs_111",
+          "status": "ok",
+          "candidate": "NOT (x AND NOT y) OR x",
+          "prompt": "You are given partial observations of a Boolean function with variables: x, y\n\n            Allowed operators: AND (conjunction), OR (disjunction), NOT (negation)\n\n            Observations (input -> output):\n            (x=0, y=0) -> 1\n(x=0, y=1) -> 1\n(x=1, y=1) -> 1\n\n            Prior expressions generated (avoid repeating any expression \n            that is equivalent under the rules below):\n            Expression: NOT (x AND NOT y)\nExpression: x OR y\nExpression: y OR NOT x\nExpression: NOT x OR y\nExpression: NOT (NOT x AND NOT y)\nExpression: NOT (x AND x) OR y\nExpression: NOT x OR y OR x\n\n            Task: Generate a single Boolean expression that is consistent with ALL observations.\n\n            Requirements:\n            1. Use ONLY the variables: x, y\n            2. Use ONLY these operators: AND, OR, NOT\n            3. The expression must match all given observations\n            4. Structural uniqueness is judged by these rules:\n            - Commutativity: reorderings are the SAME (e.g., x AND y = y AND x).\n        - Idempotence: duplicates of the same input under AND/OR collapse (e.g., x AND x = x; x OR x = x).\n        - Associativity flattening: cascades of the SAME operator are the SAME regardless of parentheses (e.g., (x AND y) AND x = x AND (y AND x) = x AND x AND y).\n        - No distributivity, absorption, or De Morgan normalization: mixing operators keeps expressions DIFFERENT (e.g., (x AND y) OR z \u2260 x AND (y OR z)).\n            5. Expression depth should be at most 2 levels of nesting\n            6. Do not use boolean constants True or False anywhere in the expression.\n            \n            Output format: \n            - Return ONLY the Boolean expression on a single line\n            - Use plain text format (no LaTeX, no markdown, no special formatting)\n            - Use uppercase for operators. \n            - Use lowercase for variables: x, y\n            - Use parentheses for grouping when needed\n            - Start your response with \"Expression: \" followed by the expression\n            \n            Examples of correct format:\n            Expression: x AND y\n            Expression: (x OR y) AND NOT x\n            Expression: NOT (x AND y)\n            Expression: NOR(x, y)\n            \n            DO NOT use formats like:\n            - \\(x \\land y\\)  (LaTeX)\n            - `x AND y`  (markdown)\n            - x \u2227 y  (mathematical symbols)\n            ",
+          "response": "Expression: NOT (x AND NOT y) OR x",
+          "reasoning_content": "",
+          "target_operator_count": null,
+          "actual_operator_count": 4,
+          "obeyed_operator_count": null,
+          "usage": {
+            "prompt_tokens": 618,
+            "completion_tokens": 12,
+            "total_tokens": 630
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "duration_seconds": 0.829,
+              "status": "ok",
+              "error": null,
+              "request_id": "7bf8cdec-5ee7-9672-a516-8bd8bddc7943",
+              "finish_reason": "stop",
+              "content": "Expression: NOT (x AND NOT y) OR x",
+              "reasoning_content": "",
+              "request_parameters": {
+                "model": "qwen3.5-27b",
+                "temperature": 0.7,
+                "max_tokens": 4096,
+                "reasoning_effort": null,
+                "enable_thinking": false,
+                "request_timeout": 60
+              },
+              "usage": {
+                "prompt_tokens": 618,
+                "completion_tokens": 12,
+                "total_tokens": 630
+              },
+              "cost": 0.00063
+            }
+          ],
+          "feedback": {
+            "status": "ok",
+            "is_valid": false,
+            "failure_reason": "out_of_space",
+            "failure_detail": null,
+            "mechanistic_key": "('OR', (('NOT', ('AND', (('NOT', ('VAR', 'y')), ('VAR', 'x')))), ('VAR', 'x')))",
+            "is_new_valid": false,
+            "is_duplicate_valid": false,
+            "reward": 0,
+            "target_operator_count": null,
+            "actual_operator_count": 4,
+            "obeyed_operator_count": null,
+            "usage": {
+              "prompt_tokens": 618,
+              "completion_tokens": 12,
+              "total_tokens": 630
+            },
+            "api_attempt_count": 1
+          },
+          "decision_log": []
+        },
+        {
+          "query_index": 8,
+          "observation_set_id": "n3_inputs_00_01_11_outputs_111",
+          "status": "ok",
+          "candidate": "NOT (NOT x AND NOT y) OR x",
+          "prompt": "You are given partial observations of a Boolean function with variables: x, y\n\n            Allowed operators: AND (conjunction), OR (disjunction), NOT (negation)\n\n            Observations (input -> output):\n            (x=0, y=0) -> 1\n(x=0, y=1) -> 1\n(x=1, y=1) -> 1\n\n            Prior expressions generated (avoid repeating any expression \n            that is equivalent under the rules below):\n            Expression: NOT (x AND NOT y)\nExpression: x OR y\nExpression: y OR NOT x\nExpression: NOT x OR y\nExpression: NOT (NOT x AND NOT y)\nExpression: NOT (x AND x) OR y\nExpression: NOT x OR y OR x\nExpression: NOT (x AND NOT y) OR x\n\n            Task: Generate a single Boolean expression that is consistent with ALL observations.\n\n            Requirements:\n            1. Use ONLY the variables: x, y\n            2. Use ONLY these operators: AND, OR, NOT\n            3. The expression must match all given observations\n            4. Structural uniqueness is judged by these rules:\n            - Commutativity: reorderings are the SAME (e.g., x AND y = y AND x).\n        - Idempotence: duplicates of the same input under AND/OR collapse (e.g., x AND x = x; x OR x = x).\n        - Associativity flattening: cascades of the SAME operator are the SAME regardless of parentheses (e.g., (x AND y) AND x = x AND (y AND x) = x AND x AND y).\n        - No distributivity, absorption, or De Morgan normalization: mixing operators keeps expressions DIFFERENT (e.g., (x AND y) OR z \u2260 x AND (y OR z)).\n            5. Expression depth should be at most 2 levels of nesting\n            6. Do not use boolean constants True or False anywhere in the expression.\n            \n            Output format: \n            - Return ONLY the Boolean expression on a single line\n            - Use plain text format (no LaTeX, no markdown, no special formatting)\n            - Use uppercase for operators. \n            - Use lowercase for variables: x, y\n            - Use parentheses for grouping when needed\n            - Start your response with \"Expression: \" followed by the expression\n            \n            Examples of correct format:\n            Expression: x AND y\n            Expression: (x OR y) AND NOT x\n            Expression: NOT (x AND y)\n            Expression: NOR(x, y)\n            \n            DO NOT use formats like:\n            - \\(x \\land y\\)  (LaTeX)\n            - `x AND y`  (markdown)\n            - x \u2227 y  (mathematical symbols)\n            ",
+          "response": "Expression: NOT (NOT x AND NOT y) OR x",
+          "reasoning_content": "",
+          "target_operator_count": null,
+          "actual_operator_count": 5,
+          "obeyed_operator_count": null,
+          "usage": {
+            "prompt_tokens": 630,
+            "completion_tokens": 13,
+            "total_tokens": 643
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "duration_seconds": 0.86,
+              "status": "ok",
+              "error": null,
+              "request_id": "9e4d2128-120a-9d05-9c02-d66b1a2f4c4c",
+              "finish_reason": "stop",
+              "content": "Expression: NOT (NOT x AND NOT y) OR x",
+              "reasoning_content": "",
+              "request_parameters": {
+                "model": "qwen3.5-27b",
+                "temperature": 0.7,
+                "max_tokens": 4096,
+                "reasoning_effort": null,
+                "enable_thinking": false,
+                "request_timeout": 60
+              },
+              "usage": {
+                "prompt_tokens": 630,
+                "completion_tokens": 13,
+                "total_tokens": 643
+              },
+              "cost": 0.000643
+            }
+          ],
+          "feedback": {
+            "status": "ok",
+            "is_valid": false,
+            "failure_reason": "out_of_space",
+            "failure_detail": null,
+            "mechanistic_key": "('OR', (('NOT', ('AND', (('NOT', ('VAR', 'x')), ('NOT', ('VAR', 'y'))))), ('VAR', 'x')))",
+            "is_new_valid": false,
+            "is_duplicate_valid": false,
+            "reward": 0,
+            "target_operator_count": null,
+            "actual_operator_count": 5,
+            "obeyed_operator_count": null,
+            "usage": {
+              "prompt_tokens": 630,
+              "completion_tokens": 13,
+              "total_tokens": 643
+            },
+            "api_attempt_count": 1
+          },
+          "decision_log": []
+        },
+        {
+          "query_index": 9,
+          "observation_set_id": "n3_inputs_00_01_11_outputs_111",
+          "status": "ok",
+          "candidate": "NOT (x AND x) OR y",
+          "prompt": "You are given partial observations of a Boolean function with variables: x, y\n\n            Allowed operators: AND (conjunction), OR (disjunction), NOT (negation)\n\n            Observations (input -> output):\n            (x=0, y=0) -> 1\n(x=0, y=1) -> 1\n(x=1, y=1) -> 1\n\n            Prior expressions generated (avoid repeating any expression \n            that is equivalent under the rules below):\n            Expression: NOT (x AND NOT y)\nExpression: x OR y\nExpression: y OR NOT x\nExpression: NOT x OR y\nExpression: NOT (NOT x AND NOT y)\nExpression: NOT (x AND x) OR y\nExpression: NOT x OR y OR x\nExpression: NOT (x AND NOT y) OR x\nExpression: NOT (NOT x AND NOT y) OR x\n\n            Task: Generate a single Boolean expression that is consistent with ALL observations.\n\n            Requirements:\n            1. Use ONLY the variables: x, y\n            2. Use ONLY these operators: AND, OR, NOT\n            3. The expression must match all given observations\n            4. Structural uniqueness is judged by these rules:\n            - Commutativity: reorderings are the SAME (e.g., x AND y = y AND x).\n        - Idempotence: duplicates of the same input under AND/OR collapse (e.g., x AND x = x; x OR x = x).\n        - Associativity flattening: cascades of the SAME operator are the SAME regardless of parentheses (e.g., (x AND y) AND x = x AND (y AND x) = x AND x AND y).\n        - No distributivity, absorption, or De Morgan normalization: mixing operators keeps expressions DIFFERENT (e.g., (x AND y) OR z \u2260 x AND (y OR z)).\n            5. Expression depth should be at most 2 levels of nesting\n            6. Do not use boolean constants True or False anywhere in the expression.\n            \n            Output format: \n            - Return ONLY the Boolean expression on a single line\n            - Use plain text format (no LaTeX, no markdown, no special formatting)\n            - Use uppercase for operators. \n            - Use lowercase for variables: x, y\n            - Use parentheses for grouping when needed\n            - Start your response with \"Expression: \" followed by the expression\n            \n            Examples of correct format:\n            Expression: x AND y\n            Expression: (x OR y) AND NOT x\n            Expression: NOT (x AND y)\n            Expression: NOR(x, y)\n            \n            DO NOT use formats like:\n            - \\(x \\land y\\)  (LaTeX)\n            - `x AND y`  (markdown)\n            - x \u2227 y  (mathematical symbols)\n            ",
+          "response": "Expression: NOT (x AND x) OR y",
+          "reasoning_content": "",
+          "target_operator_count": null,
+          "actual_operator_count": 3,
+          "obeyed_operator_count": null,
+          "usage": {
+            "prompt_tokens": 643,
+            "completion_tokens": 11,
+            "total_tokens": 654
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "duration_seconds": 0.891,
+              "status": "ok",
+              "error": null,
+              "request_id": "4d68893d-2e87-9ac1-978b-14d415f7a4ec",
+              "finish_reason": "stop",
+              "content": "Expression: NOT (x AND x) OR y",
+              "reasoning_content": "",
+              "request_parameters": {
+                "model": "qwen3.5-27b",
+                "temperature": 0.7,
+                "max_tokens": 4096,
+                "reasoning_effort": null,
+                "enable_thinking": false,
+                "request_timeout": 60
+              },
+              "usage": {
+                "prompt_tokens": 643,
+                "completion_tokens": 11,
+                "total_tokens": 654
+              },
+              "cost": 0.000654
+            }
+          ],
+          "feedback": {
+            "status": "ok",
+            "is_valid": true,
+            "failure_reason": null,
+            "failure_detail": null,
+            "mechanistic_key": "('OR', (('NOT', ('VAR', 'x')), ('VAR', 'y')))",
+            "is_new_valid": false,
+            "is_duplicate_valid": true,
+            "reward": 0,
+            "target_operator_count": null,
+            "actual_operator_count": 3,
+            "obeyed_operator_count": null,
+            "usage": {
+              "prompt_tokens": 643,
+              "completion_tokens": 11,
+              "total_tokens": 654
+            },
+            "api_attempt_count": 1
+          },
+          "decision_log": []
+        },
+        {
+          "query_index": 10,
+          "observation_set_id": "n3_inputs_00_01_11_outputs_111",
+          "status": "ok",
+          "candidate": "x OR NOT x",
+          "prompt": "You are given partial observations of a Boolean function with variables: x, y\n\n            Allowed operators: AND (conjunction), OR (disjunction), NOT (negation)\n\n            Observations (input -> output):\n            (x=0, y=0) -> 1\n(x=0, y=1) -> 1\n(x=1, y=1) -> 1\n\n            Prior expressions generated (avoid repeating any expression \n            that is equivalent under the rules below):\n            Expression: NOT (x AND NOT y)\nExpression: x OR y\nExpression: y OR NOT x\nExpression: NOT x OR y\nExpression: NOT (NOT x AND NOT y)\nExpression: NOT (x AND x) OR y\nExpression: NOT x OR y OR x\nExpression: NOT (x AND NOT y) OR x\nExpression: NOT (NOT x AND NOT y) OR x\nExpression: NOT (x AND x) OR y\n\n            Task: Generate a single Boolean expression that is consistent with ALL observations.\n\n            Requirements:\n            1. Use ONLY the variables: x, y\n            2. Use ONLY these operators: AND, OR, NOT\n            3. The expression must match all given observations\n            4. Structural uniqueness is judged by these rules:\n            - Commutativity: reorderings are the SAME (e.g., x AND y = y AND x).\n        - Idempotence: duplicates of the same input under AND/OR collapse (e.g., x AND x = x; x OR x = x).\n        - Associativity flattening: cascades of the SAME operator are the SAME regardless of parentheses (e.g., (x AND y) AND x = x AND (y AND x) = x AND x AND y).\n        - No distributivity, absorption, or De Morgan normalization: mixing operators keeps expressions DIFFERENT (e.g., (x AND y) OR z \u2260 x AND (y OR z)).\n            5. Expression depth should be at most 2 levels of nesting\n            6. Do not use boolean constants True or False anywhere in the expression.\n            \n            Output format: \n            - Return ONLY the Boolean expression on a single line\n            - Use plain text format (no LaTeX, no markdown, no special formatting)\n            - Use uppercase for operators. \n            - Use lowercase for variables: x, y\n            - Use parentheses for grouping when needed\n            - Start your response with \"Expression: \" followed by the expression\n            \n            Examples of correct format:\n            Expression: x AND y\n            Expression: (x OR y) AND NOT x\n            Expression: NOT (x AND y)\n            Expression: NOR(x, y)\n            \n            DO NOT use formats like:\n            - \\(x \\land y\\)  (LaTeX)\n            - `x AND y`  (markdown)\n            - x \u2227 y  (mathematical symbols)\n            ",
+          "response": "Expression: x OR NOT x",
+          "reasoning_content": "",
+          "target_operator_count": null,
+          "actual_operator_count": 2,
+          "obeyed_operator_count": null,
+          "usage": {
+            "prompt_tokens": 654,
+            "completion_tokens": 7,
+            "total_tokens": 661
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "duration_seconds": 0.906,
+              "status": "ok",
+              "error": null,
+              "request_id": "0d3eada3-f28c-99d4-a27f-feaef758375c",
+              "finish_reason": "stop",
+              "content": "Expression: x OR NOT x",
+              "reasoning_content": "",
+              "request_parameters": {
+                "model": "qwen3.5-27b",
+                "temperature": 0.7,
+                "max_tokens": 4096,
+                "reasoning_effort": null,
+                "enable_thinking": false,
+                "request_timeout": 60
+              },
+              "usage": {
+                "prompt_tokens": 654,
+                "completion_tokens": 7,
+                "total_tokens": 661
+              },
+              "cost": 0.000661
+            }
+          ],
+          "feedback": {
+            "status": "ok",
+            "is_valid": true,
+            "failure_reason": null,
+            "failure_detail": null,
+            "mechanistic_key": "('OR', (('NOT', ('VAR', 'x')), ('VAR', 'x')))",
+            "is_new_valid": true,
+            "is_duplicate_valid": false,
+            "reward": 1,
+            "target_operator_count": null,
+            "actual_operator_count": 2,
+            "obeyed_operator_count": null,
+            "usage": {
+              "prompt_tokens": 654,
+              "completion_tokens": 7,
+              "total_tokens": 661
+            },
+            "api_attempt_count": 1
+          },
+          "decision_log": []
+        },
+        {
+          "query_index": 11,
+          "observation_set_id": "n3_inputs_00_01_11_outputs_111",
+          "status": "ok",
+          "candidate": "NOT x OR NOT (x AND NOT y)",
+          "prompt": "You are given partial observations of a Boolean function with variables: x, y\n\n            Allowed operators: AND (conjunction), OR (disjunction), NOT (negation)\n\n            Observations (input -> output):\n            (x=0, y=0) -> 1\n(x=0, y=1) -> 1\n(x=1, y=1) -> 1\n\n            Prior expressions generated (avoid repeating any expression \n            that is equivalent under the rules below):\n            Expression: NOT (x AND NOT y)\nExpression: x OR y\nExpression: y OR NOT x\nExpression: NOT x OR y\nExpression: NOT (NOT x AND NOT y)\nExpression: NOT (x AND x) OR y\nExpression: NOT x OR y OR x\nExpression: NOT (x AND NOT y) OR x\nExpression: NOT (NOT x AND NOT y) OR x\nExpression: NOT (x AND x) OR y\nExpression: x OR NOT x\n\n            Task: Generate a single Boolean expression that is consistent with ALL observations.\n\n            Requirements:\n            1. Use ONLY the variables: x, y\n            2. Use ONLY these operators: AND, OR, NOT\n            3. The expression must match all given observations\n            4. Structural uniqueness is judged by these rules:\n            - Commutativity: reorderings are the SAME (e.g., x AND y = y AND x).\n        - Idempotence: duplicates of the same input under AND/OR collapse (e.g., x AND x = x; x OR x = x).\n        - Associativity flattening: cascades of the SAME operator are the SAME regardless of parentheses (e.g., (x AND y) AND x = x AND (y AND x) = x AND x AND y).\n        - No distributivity, absorption, or De Morgan normalization: mixing operators keeps expressions DIFFERENT (e.g., (x AND y) OR z \u2260 x AND (y OR z)).\n            5. Expression depth should be at most 2 levels of nesting\n            6. Do not use boolean constants True or False anywhere in the expression.\n            \n            Output format: \n            - Return ONLY the Boolean expression on a single line\n            - Use plain text format (no LaTeX, no markdown, no special formatting)\n            - Use uppercase for operators. \n            - Use lowercase for variables: x, y\n            - Use parentheses for grouping when needed\n            - Start your response with \"Expression: \" followed by the expression\n            \n            Examples of correct format:\n            Expression: x AND y\n            Expression: (x OR y) AND NOT x\n            Expression: NOT (x AND y)\n            Expression: NOR(x, y)\n            \n            DO NOT use formats like:\n            - \\(x \\land y\\)  (LaTeX)\n            - `x AND y`  (markdown)\n            - x \u2227 y  (mathematical symbols)\n            ",
+          "response": "Expression: NOT x OR NOT (x AND NOT y)",
+          "reasoning_content": "",
+          "target_operator_count": null,
+          "actual_operator_count": 5,
+          "obeyed_operator_count": null,
+          "usage": {
+            "prompt_tokens": 661,
+            "completion_tokens": 13,
+            "total_tokens": 674
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "duration_seconds": 0.828,
+              "status": "ok",
+              "error": null,
+              "request_id": "b40bcd94-7ca2-913a-b424-be734ce352ea",
+              "finish_reason": "stop",
+              "content": "Expression: NOT x OR NOT (x AND NOT y)",
+              "reasoning_content": "",
+              "request_parameters": {
+                "model": "qwen3.5-27b",
+                "temperature": 0.7,
+                "max_tokens": 4096,
+                "reasoning_effort": null,
+                "enable_thinking": false,
+                "request_timeout": 60
+              },
+              "usage": {
+                "prompt_tokens": 661,
+                "completion_tokens": 13,
+                "total_tokens": 674
+              },
+              "cost": 0.000674
+            }
+          ],
+          "feedback": {
+            "status": "ok",
+            "is_valid": false,
+            "failure_reason": "out_of_space",
+            "failure_detail": null,
+            "mechanistic_key": "('OR', (('NOT', ('AND', (('NOT', ('VAR', 'y')), ('VAR', 'x')))), ('NOT', ('VAR', 'x'))))",
+            "is_new_valid": false,
+            "is_duplicate_valid": false,
+            "reward": 0,
+            "target_operator_count": null,
+            "actual_operator_count": 5,
+            "obeyed_operator_count": null,
+            "usage": {
+              "prompt_tokens": 661,
+              "completion_tokens": 13,
+              "total_tokens": 674
+            },
+            "api_attempt_count": 1
+          },
+          "decision_log": []
+        },
+        {
+          "query_index": 12,
+          "observation_set_id": "n3_inputs_00_01_11_outputs_111",
+          "status": "ok",
+          "candidate": "y OR NOT x",
+          "prompt": "You are given partial observations of a Boolean function with variables: x, y\n\n            Allowed operators: AND (conjunction), OR (disjunction), NOT (negation)\n\n            Observations (input -> output):\n            (x=0, y=0) -> 1\n(x=0, y=1) -> 1\n(x=1, y=1) -> 1\n\n            Prior expressions generated (avoid repeating any expression \n            that is equivalent under the rules below):\n            Expression: NOT (x AND NOT y)\nExpression: x OR y\nExpression: y OR NOT x\nExpression: NOT x OR y\nExpression: NOT (NOT x AND NOT y)\nExpression: NOT (x AND x) OR y\nExpression: NOT x OR y OR x\nExpression: NOT (x AND NOT y) OR x\nExpression: NOT (NOT x AND NOT y) OR x\nExpression: NOT (x AND x) OR y\nExpression: x OR NOT x\nExpression: NOT x OR NOT (x AND NOT y)\n\n            Task: Generate a single Boolean expression that is consistent with ALL observations.\n\n            Requirements:\n            1. Use ONLY the variables: x, y\n            2. Use ONLY these operators: AND, OR, NOT\n            3. The expression must match all given observations\n            4. Structural uniqueness is judged by these rules:\n            - Commutativity: reorderings are the SAME (e.g., x AND y = y AND x).\n        - Idempotence: duplicates of the same input under AND/OR collapse (e.g., x AND x = x; x OR x = x).\n        - Associativity flattening: cascades of the SAME operator are the SAME regardless of parentheses (e.g., (x AND y) AND x = x AND (y AND x) = x AND x AND y).\n        - No distributivity, absorption, or De Morgan normalization: mixing operators keeps expressions DIFFERENT (e.g., (x AND y) OR z \u2260 x AND (y OR z)).\n            5. Expression depth should be at most 2 levels of nesting\n            6. Do not use boolean constants True or False anywhere in the expression.\n            \n            Output format: \n            - Return ONLY the Boolean expression on a single line\n            - Use plain text format (no LaTeX, no markdown, no special formatting)\n            - Use uppercase for operators. \n            - Use lowercase for variables: x, y\n            - Use parentheses for grouping when needed\n            - Start your response with \"Expression: \" followed by the expression\n            \n            Examples of correct format:\n            Expression: x AND y\n            Expression: (x OR y) AND NOT x\n            Expression: NOT (x AND y)\n            Expression: NOR(x, y)\n            \n            DO NOT use formats like:\n            - \\(x \\land y\\)  (LaTeX)\n            - `x AND y`  (markdown)\n            - x \u2227 y  (mathematical symbols)\n            ",
+          "response": "Expression: y OR NOT x",
+          "reasoning_content": "",
+          "target_operator_count": null,
+          "actual_operator_count": 2,
+          "obeyed_operator_count": null,
+          "usage": {
+            "prompt_tokens": 674,
+            "completion_tokens": 7,
+            "total_tokens": 681
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "duration_seconds": 0.797,
+              "status": "ok",
+              "error": null,
+              "request_id": "670e02dc-e8bc-9f44-b729-17d938030a31",
+              "finish_reason": "stop",
+              "content": "Expression: y OR NOT x",
+              "reasoning_content": "",
+              "request_parameters": {
+                "model": "qwen3.5-27b",
+                "temperature": 0.7,
+                "max_tokens": 4096,
+                "reasoning_effort": null,
+                "enable_thinking": false,
+                "request_timeout": 60
+              },
+              "usage": {
+                "prompt_tokens": 674,
+                "completion_tokens": 7,
+                "total_tokens": 681
+              },
+              "cost": 0.000681
+            }
+          ],
+          "feedback": {
+            "status": "ok",
+            "is_valid": true,
+            "failure_reason": null,
+            "failure_detail": null,
+            "mechanistic_key": "('OR', (('NOT', ('VAR', 'x')), ('VAR', 'y')))",
+            "is_new_valid": false,
+            "is_duplicate_valid": true,
+            "reward": 0,
+            "target_operator_count": null,
+            "actual_operator_count": 2,
+            "obeyed_operator_count": null,
+            "usage": {
+              "prompt_tokens": 674,
+              "completion_tokens": 7,
+              "total_tokens": 681
+            },
+            "api_attempt_count": 1
+          },
+          "decision_log": []
+        },
+        {
+          "query_index": 13,
+          "observation_set_id": "n3_inputs_00_01_11_outputs_111",
+          "status": "ok",
+          "candidate": "NOT x OR y OR x",
+          "prompt": "You are given partial observations of a Boolean function with variables: x, y\n\n            Allowed operators: AND (conjunction), OR (disjunction), NOT (negation)\n\n            Observations (input -> output):\n            (x=0, y=0) -> 1\n(x=0, y=1) -> 1\n(x=1, y=1) -> 1\n\n            Prior expressions generated (avoid repeating any expression \n            that is equivalent under the rules below):\n            Expression: NOT (x AND NOT y)\nExpression: x OR y\nExpression: y OR NOT x\nExpression: NOT x OR y\nExpression: NOT (NOT x AND NOT y)\nExpression: NOT (x AND x) OR y\nExpression: NOT x OR y OR x\nExpression: NOT (x AND NOT y) OR x\nExpression: NOT (NOT x AND NOT y) OR x\nExpression: NOT (x AND x) OR y\nExpression: x OR NOT x\nExpression: NOT x OR NOT (x AND NOT y)\nExpression: y OR NOT x\n\n            Task: Generate a single Boolean expression that is consistent with ALL observations.\n\n            Requirements:\n            1. Use ONLY the variables: x, y\n            2. Use ONLY these operators: AND, OR, NOT\n            3. The expression must match all given observations\n            4. Structural uniqueness is judged by these rules:\n            - Commutativity: reorderings are the SAME (e.g., x AND y = y AND x).\n        - Idempotence: duplicates of the same input under AND/OR collapse (e.g., x AND x = x; x OR x = x).\n        - Associativity flattening: cascades of the SAME operator are the SAME regardless of parentheses (e.g., (x AND y) AND x = x AND (y AND x) = x AND x AND y).\n        - No distributivity, absorption, or De Morgan normalization: mixing operators keeps expressions DIFFERENT (e.g., (x AND y) OR z \u2260 x AND (y OR z)).\n            5. Expression depth should be at most 2 levels of nesting\n            6. Do not use boolean constants True or False anywhere in the expression.\n            \n            Output format: \n            - Return ONLY the Boolean expression on a single line\n            - Use plain text format (no LaTeX, no markdown, no special formatting)\n            - Use uppercase for operators. \n            - Use lowercase for variables: x, y\n            - Use parentheses for grouping when needed\n            - Start your response with \"Expression: \" followed by the expression\n            \n            Examples of correct format:\n            Expression: x AND y\n            Expression: (x OR y) AND NOT x\n            Expression: NOT (x AND y)\n            Expression: NOR(x, y)\n            \n            DO NOT use formats like:\n            - \\(x \\land y\\)  (LaTeX)\n            - `x AND y`  (markdown)\n            - x \u2227 y  (mathematical symbols)\n            ",
+          "response": "Expression: NOT x OR y OR x",
+          "reasoning_content": "",
+          "target_operator_count": null,
+          "actual_operator_count": 3,
+          "obeyed_operator_count": null,
+          "usage": {
+            "prompt_tokens": 681,
+            "completion_tokens": 9,
+            "total_tokens": 690
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "duration_seconds": 1.078,
+              "status": "ok",
+              "error": null,
+              "request_id": "143cef7c-84ea-9ecc-b50a-4364787b9328",
+              "finish_reason": "stop",
+              "content": "Expression: NOT x OR y OR x",
+              "reasoning_content": "",
+              "request_parameters": {
+                "model": "qwen3.5-27b",
+                "temperature": 0.7,
+                "max_tokens": 4096,
+                "reasoning_effort": null,
+                "enable_thinking": false,
+                "request_timeout": 60
+              },
+              "usage": {
+                "prompt_tokens": 681,
+                "completion_tokens": 9,
+                "total_tokens": 690
+              },
+              "cost": 0.00069
+            }
+          ],
+          "feedback": {
+            "status": "ok",
+            "is_valid": true,
+            "failure_reason": null,
+            "failure_detail": null,
+            "mechanistic_key": "('OR', (('NOT', ('VAR', 'x')), ('VAR', 'x'), ('VAR', 'y')))",
+            "is_new_valid": false,
+            "is_duplicate_valid": true,
+            "reward": 0,
+            "target_operator_count": null,
+            "actual_operator_count": 3,
+            "obeyed_operator_count": null,
+            "usage": {
+              "prompt_tokens": 681,
+              "completion_tokens": 9,
+              "total_tokens": 690
+            },
+            "api_attempt_count": 1
+          },
+          "decision_log": []
+        },
+        {
+          "query_index": 14,
+          "observation_set_id": "n3_inputs_00_01_11_outputs_111",
+          "status": "ok",
+          "candidate": "NOT (x AND x) OR y",
+          "prompt": "You are given partial observations of a Boolean function with variables: x, y\n\n            Allowed operators: AND (conjunction), OR (disjunction), NOT (negation)\n\n            Observations (input -> output):\n            (x=0, y=0) -> 1\n(x=0, y=1) -> 1\n(x=1, y=1) -> 1\n\n            Prior expressions generated (avoid repeating any expression \n            that is equivalent under the rules below):\n            Expression: NOT (x AND NOT y)\nExpression: x OR y\nExpression: y OR NOT x\nExpression: NOT x OR y\nExpression: NOT (NOT x AND NOT y)\nExpression: NOT (x AND x) OR y\nExpression: NOT x OR y OR x\nExpression: NOT (x AND NOT y) OR x\nExpression: NOT (NOT x AND NOT y) OR x\nExpression: NOT (x AND x) OR y\nExpression: x OR NOT x\nExpression: NOT x OR NOT (x AND NOT y)\nExpression: y OR NOT x\nExpression: NOT x OR y OR x\n\n            Task: Generate a single Boolean expression that is consistent with ALL observations.\n\n            Requirements:\n            1. Use ONLY the variables: x, y\n            2. Use ONLY these operators: AND, OR, NOT\n            3. The expression must match all given observations\n            4. Structural uniqueness is judged by these rules:\n            - Commutativity: reorderings are the SAME (e.g., x AND y = y AND x).\n        - Idempotence: duplicates of the same input under AND/OR collapse (e.g., x AND x = x; x OR x = x).\n        - Associativity flattening: cascades of the SAME operator are the SAME regardless of parentheses (e.g., (x AND y) AND x = x AND (y AND x) = x AND x AND y).\n        - No distributivity, absorption, or De Morgan normalization: mixing operators keeps expressions DIFFERENT (e.g., (x AND y) OR z \u2260 x AND (y OR z)).\n            5. Expression depth should be at most 2 levels of nesting\n            6. Do not use boolean constants True or False anywhere in the expression.\n            \n            Output format: \n            - Return ONLY the Boolean expression on a single line\n            - Use plain text format (no LaTeX, no markdown, no special formatting)\n            - Use uppercase for operators. \n            - Use lowercase for variables: x, y\n            - Use parentheses for grouping when needed\n            - Start your response with \"Expression: \" followed by the expression\n            \n            Examples of correct format:\n            Expression: x AND y\n            Expression: (x OR y) AND NOT x\n            Expression: NOT (x AND y)\n            Expression: NOR(x, y)\n            \n            DO NOT use formats like:\n            - \\(x \\land y\\)  (LaTeX)\n            - `x AND y`  (markdown)\n            - x \u2227 y  (mathematical symbols)\n            ",
+          "response": "Expression: NOT (x AND x) OR y",
+          "reasoning_content": "",
+          "target_operator_count": null,
+          "actual_operator_count": 3,
+          "obeyed_operator_count": null,
+          "usage": {
+            "prompt_tokens": 690,
+            "completion_tokens": 11,
+            "total_tokens": 701
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "duration_seconds": 0.765,
+              "status": "ok",
+              "error": null,
+              "request_id": "2a2f2070-44bf-94d2-9d42-9fdc4fc03991",
+              "finish_reason": "stop",
+              "content": "Expression: NOT (x AND x) OR y",
+              "reasoning_content": "",
+              "request_parameters": {
+                "model": "qwen3.5-27b",
+                "temperature": 0.7,
+                "max_tokens": 4096,
+                "reasoning_effort": null,
+                "enable_thinking": false,
+                "request_timeout": 60
+              },
+              "usage": {
+                "prompt_tokens": 690,
+                "completion_tokens": 11,
+                "total_tokens": 701
+              },
+              "cost": 0.000701
+            }
+          ],
+          "feedback": {
+            "status": "ok",
+            "is_valid": true,
+            "failure_reason": null,
+            "failure_detail": null,
+            "mechanistic_key": "('OR', (('NOT', ('VAR', 'x')), ('VAR', 'y')))",
+            "is_new_valid": false,
+            "is_duplicate_valid": true,
+            "reward": 0,
+            "target_operator_count": null,
+            "actual_operator_count": 3,
+            "obeyed_operator_count": null,
+            "usage": {
+              "prompt_tokens": 690,
+              "completion_tokens": 11,
+              "total_tokens": 701
+            },
+            "api_attempt_count": 1
+          },
+          "decision_log": []
+        },
+        {
+          "query_index": 15,
+          "observation_set_id": "n3_inputs_00_01_11_outputs_111",
+          "status": "ok",
+          "candidate": "NOT (x AND NOT y) OR y",
+          "prompt": "You are given partial observations of a Boolean function with variables: x, y\n\n            Allowed operators: AND (conjunction), OR (disjunction), NOT (negation)\n\n            Observations (input -> output):\n            (x=0, y=0) -> 1\n(x=0, y=1) -> 1\n(x=1, y=1) -> 1\n\n            Prior expressions generated (avoid repeating any expression \n            that is equivalent under the rules below):\n            Expression: NOT (x AND NOT y)\nExpression: x OR y\nExpression: y OR NOT x\nExpression: NOT x OR y\nExpression: NOT (NOT x AND NOT y)\nExpression: NOT (x AND x) OR y\nExpression: NOT x OR y OR x\nExpression: NOT (x AND NOT y) OR x\nExpression: NOT (NOT x AND NOT y) OR x\nExpression: NOT (x AND x) OR y\nExpression: x OR NOT x\nExpression: NOT x OR NOT (x AND NOT y)\nExpression: y OR NOT x\nExpression: NOT x OR y OR x\nExpression: NOT (x AND x) OR y\n\n            Task: Generate a single Boolean expression that is consistent with ALL observations.\n\n            Requirements:\n            1. Use ONLY the variables: x, y\n            2. Use ONLY these operators: AND, OR, NOT\n            3. The expression must match all given observations\n            4. Structural uniqueness is judged by these rules:\n            - Commutativity: reorderings are the SAME (e.g., x AND y = y AND x).\n        - Idempotence: duplicates of the same input under AND/OR collapse (e.g., x AND x = x; x OR x = x).\n        - Associativity flattening: cascades of the SAME operator are the SAME regardless of parentheses (e.g., (x AND y) AND x = x AND (y AND x) = x AND x AND y).\n        - No distributivity, absorption, or De Morgan normalization: mixing operators keeps expressions DIFFERENT (e.g., (x AND y) OR z \u2260 x AND (y OR z)).\n            5. Expression depth should be at most 2 levels of nesting\n            6. Do not use boolean constants True or False anywhere in the expression.\n            \n            Output format: \n            - Return ONLY the Boolean expression on a single line\n            - Use plain text format (no LaTeX, no markdown, no special formatting)\n            - Use uppercase for operators. \n            - Use lowercase for variables: x, y\n            - Use parentheses for grouping when needed\n            - Start your response with \"Expression: \" followed by the expression\n            \n            Examples of correct format:\n            Expression: x AND y\n            Expression: (x OR y) AND NOT x\n            Expression: NOT (x AND y)\n            Expression: NOR(x, y)\n            \n            DO NOT use formats like:\n            - \\(x \\land y\\)  (LaTeX)\n            - `x AND y`  (markdown)\n            - x \u2227 y  (mathematical symbols)\n            ",
+          "response": "Expression: NOT (x AND NOT y) OR y",
+          "reasoning_content": "",
+          "target_operator_count": null,
+          "actual_operator_count": 4,
+          "obeyed_operator_count": null,
+          "usage": {
+            "prompt_tokens": 701,
+            "completion_tokens": 12,
+            "total_tokens": 713
+          },
+          "attempts": [
+            {
+              "attempt": 1,
+              "duration_seconds": 0.844,
+              "status": "ok",
+              "error": null,
+              "request_id": "d231ed11-5421-92fa-8392-ba8c75760a65",
+              "finish_reason": "stop",
+              "content": "Expression: NOT (x AND NOT y) OR y",
+              "reasoning_content": "",
+              "request_parameters": {
+                "model": "qwen3.5-27b",
+                "temperature": 0.7,
+                "max_tokens": 4096,
+                "reasoning_effort": null,
+                "enable_thinking": false,
+                "request_timeout": 60
+              },
+              "usage": {
+                "prompt_tokens": 701,
+                "completion_tokens": 12,
+                "total_tokens": 713
+              },
+              "cost": 0.000713
+            }
+          ],
+          "feedback": {
+            "status": "ok",
+            "is_valid": false,
+            "failure_reason": "out_of_space",
+            "failure_detail": null,
+            "mechanistic_key": "('OR', (('NOT', ('AND', (('NOT', ('VAR', 'y')), ('VAR', 'x')))), ('VAR', 'y')))",
+            "is_new_valid": false,
+            "is_duplicate_valid": false,
+            "reward": 0,
+            "target_operator_count": null,
+            "actual_operator_count": 4,
+            "obeyed_operator_count": null,
+            "usage": {
+              "prompt_tokens": 701,
+              "completion_tokens": 12,
+              "total_tokens": 713
+            },
+            "api_attempt_count": 1
+          },
+          "decision_log": []
+        }
+      ],
+      "api_attempt_count": 16,
+      "parse_success_rate": 1.0,
+      "in_space_rate": 0.625,
+      "valid_rate": 0.5625,
+      "novelty_rate": 0.25,
+      "recovery_rate": 0.5,
+      "decoding": "memory",
+      "complexity_schedule": null,
+      "all_hypotheses": [
+        "NOT (x AND NOT y)",
+        "x OR y",
+        "y OR NOT x",
+        "NOT x OR y",
+        "NOT (NOT x AND NOT y)",
+        "NOT (x AND x) OR y",
+        "NOT x OR y OR x",
+        "NOT (x AND NOT y) OR x",
+        "NOT (NOT x AND NOT y) OR x",
+        "NOT (x AND x) OR y",
+        "x OR NOT x",
+        "NOT x OR NOT (x AND NOT y)",
+        "y OR NOT x",
+        "NOT x OR y OR x",
+        "NOT (x AND x) OR y",
+        "NOT (x AND NOT y) OR y"
+      ],
+      "valid_hypotheses": [
+        "y OR NOT x",
+        "NOT x OR y",
+        "NOT (x AND x) OR y",
+        "NOT x OR y OR x",
+        "NOT (x AND x) OR y",
+        "x OR NOT x",
+        "y OR NOT x",
+        "NOT x OR y OR x",
+        "NOT (x AND x) OR y"
+      ],
+      "unique_valid_expressions": [
+        "y OR NOT x",
+        "NOT x OR y OR x",
+        "x OR NOT x"
+      ],
+      "unique_all_expressions": [
+        "x OR y",
+        "y OR NOT x",
+        "NOT x OR y OR x",
+        "x OR NOT x"
+      ],
+      "token_usage": {
+        "prompt_tokens": 10025,
+        "completion_tokens": 156,
+        "total_tokens": 10181
+      },
+      "cost": 0.010181,
+      "errors": [],
+      "error_summary": {
+        "total_errors": 0,
+        "error_types": {}
+      },
+      "controller_seed": null,
+      "decision_log": [],
+      "max_operator_count": 3
+    }
+  ],
+  "experiment_manifest": {
+    "schema_version": 1,
+    "settings": {
+      "dataset_sha256": "1041174fecd914fe822a2d407b9f7c22e0e42d2f8c133775ec1026c17b0660fb",
+      "dataset": "datasets/boolean_extended_d2.json",
+      "n_samples": 20,
+      "n_queries": 16,
+      "seed": 42,
+      "methods": [
+        "memory",
+        "adaptive",
+        "adaptive_sde",
+        "memory_sde",
+        "uniform",
+        "round_robin"
+      ],
+      "model": "qwen3.5-27b",
+      "temperature": 0.7,
+      "max_tokens": 4096,
+      "enable_thinking": false,
+      "adaptive_parameters": {
+        "forget_factor": 0.9,
+        "controller_temperature": 1.0,
+        "explore_bonus": 0.15
+      }
+    },
+    "question_ids": [
+      "n3_inputs_00_10_11_outputs_110",
+      "n2_inputs_00_01_outputs_11",
+      "n1_inputs_00_outputs_1",
+      "n3_inputs_01_10_11_outputs_111",
+      "n2_inputs_01_11_outputs_01",
+      "n2_inputs_01_10_outputs_10",
+      "n2_inputs_01_10_outputs_00",
+      "n2_inputs_00_10_outputs_00",
+      "n4_inputs_00_01_10_11_outputs_1100",
+      "n2_inputs_00_01_outputs_10",
+      "n3_inputs_01_10_11_outputs_011",
+      "n3_inputs_00_01_11_outputs_111",
+      "n2_inputs_00_01_outputs_00",
+      "n3_inputs_00_10_11_outputs_011",
+      "n3_inputs_00_01_11_outputs_000",
+      "n1_inputs_10_outputs_0",
+      "n4_inputs_00_01_10_11_outputs_1101",
+      "n3_inputs_01_10_11_outputs_101",
+      "n2_inputs_00_11_outputs_11",
+      "n4_inputs_00_01_10_11_outputs_1000"
+    ]
+  },
+  "provider_base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+  "model": "qwen3.5-27b",
+  "enable_thinking": false,
+  "resumed_logged_candidates": 0
+}

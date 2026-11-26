@@ -5,7 +5,7 @@
 | 路径 | 内容 |
 | --- | --- |
 | [`results/deepseek/`](results/deepseek/) | DeepSeek 正式 thinking-off 六方法 + 基线指针 |
-| [`results/qwen27b/`](results/qwen27b/) | Qwen3.5-27B 开发探针（与 deepseek 并列） |
+| [`results/qwen27b/`](results/qwen27b/) | Qwen3.5-27B 正式 20q 六方法 + 5q 开发探针（与 deepseek 并列） |
 | [`archive/interim/`](archive/interim/) | Boolean interim 诊断归档 |
 | [`boolean/results/memory|stratified`](boolean/results/) | 下表 DeepSeek-v4 基线 JSON（未搬迁） |
 
@@ -29,6 +29,19 @@
 ```
 
 ## 已完成
+
+### Boolean — Qwen3.5-27B 正式六方法（2026-11-26）
+
+协议 `qwen27b-boolean-main-six-methods-thinking-off-v1`：与 DeepSeek thinking-off **同一 20 道 held-out 题**，`enable_thinking=false`，temp 0.7，max_tokens 4096，seed 42，16 slots/题。输出：[`results/qwen27b/full_20q_six_methods/`](results/qwen27b/full_20q_six_methods/)。Truncation 全方法为 0。
+
+| 方法 | macro Recovery | micro Recovery | Recovery@16 | truncation |
+|---|---:|---:|---:|---:|
+| round_robin | 0.5254 | 0.4452 | 0.5254 | 0 |
+| memory | 0.4948 | 0.4041 | 0.4948 | 0 |
+| memory_sde | 0.4656 | 0.3630 | 0.4656 | 0 |
+| uniform | 0.4592 | 0.3699 | 0.4592 | 0 |
+| adaptive | 0.4419 | 0.3562 | 0.4419 | 0 |
+| adaptive_sde | 0.4276 | 0.3288 | 0.4276 | 0 |
 
 ### Boolean
 
